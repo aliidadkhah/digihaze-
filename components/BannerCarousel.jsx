@@ -49,12 +49,21 @@ export default function BannerCarousel() {
   const go = (i) => setIdx((i + BANNER_SLIDES.length) % BANNER_SLIDES.length);
 
   return (
-    <section style={{ maxWidth: 1180, margin: "0 auto", padding: "18px 20px 0" }}>
+    // بدون maxWidth/padding کناری، تا بنر از راست‌ترین تا چپ‌ترین لبه‌ی صفحه کشیده بشه
+    <section style={{ width: "100%", padding: "18px 0 0" }}>
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         className="banner-slider"
-        style={{ position: "relative", width: "100%", borderRadius: 18, overflow: "hidden", border: "1px solid var(--surface2)", aspectRatio: "16 / 5", boxSizing: "border-box" }}
+        style={{
+          position: "relative",
+          width: "100%",
+          overflow: "hidden",
+          border: "none",
+          borderRadius: 0,
+          aspectRatio: "21 / 6",
+          boxSizing: "border-box",
+        }}
       >
         <div style={{ display: "flex", width: "100%", height: "100%", direction: "ltr", transform: `translateX(-${idx * 100}%)`, transition: "transform 0.6s cubic-bezier(.65,0,.35,1)" }}>
           {BANNER_SLIDES.map((s) => (
@@ -65,7 +74,7 @@ export default function BannerCarousel() {
             >
               <img src={s.img} alt={s.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, color-mix(in srgb, var(--bg) 80%, transparent) 0%, transparent 35%)" }} />
-              <div dir="rtl" style={{ position: "absolute", bottom: 14, right: 16, left: 16, display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 10, textAlign: "right" }}>
+              <div dir="rtl" style={{ position: "absolute", bottom: 14, right: 20, left: 20, display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 10, textAlign: "right" }}>
                 <div style={{ minWidth: 0, flex: "1 1 auto", overflow: "hidden" }}>
                   <div style={{ marginBottom: 6 }}>
                     <Badge bg={s.color}>{s.eyebrow}</Badge>

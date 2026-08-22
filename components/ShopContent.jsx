@@ -6,27 +6,36 @@ import { Reveal } from "./ui";
 import ProductCard from "./ProductCard";
 import { CATEGORIES, PRODUCTS, discountedPrice } from "@/lib/data";
 
-export default function ShopContent({ initialCategory }) {
+export default function ShopContent({ initialCategory, initialSearch }) {
   const [active, setActive] = useState(initialCategory || "all");
   const [sort, setSort] = useState("default");
+  const [search, setSearch] = useState(initialSearch || "");
 
   useEffect(() => setActive(initialCategory || "all"), [initialCategory]);
+  useEffect(() => setSearch(initialSearch || ""), [initialSearch]);
 
   const chips = [{ id: "all", label: "همه", color: "var(--text-hi)" }, ...CATEGORIES];
 
   const list = useMemo(() => {
     let arr = active === "all" ? PRODUCTS : PRODUCTS.filter((p) => p.category === active);
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      arr = arr.filter((p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+    }
     arr = [...arr];
     if (sort === "price-asc") arr.sort((a, b) => discountedPrice(a) - discountedPrice(b));
     if (sort === "price-desc") arr.sort((a, b) => discountedPrice(b) - discountedPrice(a));
     if (sort === "rating") arr.sort((a, b) => b.rating - a.rating);
     return arr;
-  }, [active, sort]);
+  }, [active, sort, search]);
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "40px 20px 70px" }}>
       <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 28, marginBottom: 6 }}>فروشگاه</h1>
-      <p style={{ color: "var(--text-lo)", fontSize: 14, marginBottom: 26 }}>{list.length} محصول</p>
+      <p style={{ color: "var(--text-lo)", fontSize: 14, marginBottom: 26 }}>
+        {search ? `نتایج جستجو برای «${search}» — ` : ""}
+        {list.length} محصول
+      </p>
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, marginBottom: 26 }}>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -65,13 +74,19 @@ export default function ShopContent({ initialCategory }) {
         </div>
       </div>
 
-      <div className="product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 18 }}>
-        {list.map((p, i) => (
-          <Reveal key={p.id} delay={0.05 * (i % 4)}>
-            <ProductCard product={p} />
-          </Reveal>
-        ))}
-      </div>
+      {list.length === 0 ? (
+        <p style={{ color: "var(--text-mut)", fontSize: 14, textAlign: "center", padding: "40px 0" }}>
+          محصولی با این مشخصات پیدا نشد.
+        </p>
+      ) : (
+        <div className="product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(190px,1fr))", gap: 18 }}>
+          {list.map((p, i) => (
+            <Reveal key={p.id} delay={0.05 * (i % 4)}>
+              <ProductCard product={p} />
+            </Reveal>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

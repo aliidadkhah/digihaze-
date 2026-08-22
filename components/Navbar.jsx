@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingBag, Menu, X, User, Sun, Moon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingBag, Menu, X, User, Sun, Moon, Search } from "lucide-react";
 import { useCart, useUser, useTheme } from "./Providers";
 
 const LINKS = [
@@ -15,12 +15,41 @@ const LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const searchRef = useRef(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { count } = useCart();
   const { user } = useUser();
   const { theme, toggle } = useTheme();
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+
+  useEffect(() => {
+    if (searchOpen && searchRef.current) searchRef.current.focus();
+  }, [searchOpen]);
+
+  const submitSearch = (e) => {
+    e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    router.push(`/shop?search=${encodeURIComponent(q)}`);
+    setSearchOpen(false);
+  };
+
+  const iconBtnStyle = {
+    background: "var(--surface2)",
+    border: "none",
+    borderRadius: 12,
+    width: 42,
+    height: 42,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    flexShrink: 0,
+  };
 
   return (
     <header
@@ -41,6 +70,7 @@ export default function Navbar() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 14,
         }}
       >
         <Link
@@ -52,6 +82,7 @@ export default function Navbar() {
             color: "var(--text-hi)",
             letterSpacing: 0.5,
             textDecoration: "none",
+            flexShrink: 0,
           }}
         >
           ابر<span style={{ color: "#2F86FF" }}>فروش</span>
@@ -70,6 +101,7 @@ export default function Navbar() {
                 textDecoration: "none",
                 position: "relative",
                 paddingBottom: 4,
+                whiteSpace: "nowrap",
               }}
             >
               {l.label}
@@ -80,26 +112,65 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* جستجو */}
+        <form
+          onSubmit={submitSearch}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flex: searchOpen ? "1 1 auto" : "0 0 auto",
+            minWidth: 0,
+            maxWidth: searchOpen ? 320 : 42,
+            transition: "max-width 0.3s ease",
+            background: searchOpen ? "var(--surface2)" : "transparent",
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          {searchOpen && (
+            <input
+              ref={searchRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onBlur={() => !query && setSearchOpen(false)}
+              onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
+              placeholder="جستجوی محصول..."
+              style={{
+                flex: 1,
+                minWidth: 0,
+                background: "transparent",
+                border: "none",
+                outline: "none",
+                color: "var(--text-hi)",
+                fontFamily: "Vazirmatn",
+                fontSize: 13.5,
+                padding: "0 12px",
+                height: 42,
+              }}
+            />
+          )}
           <button
-            onClick={toggle}
-            aria-label="تغییر حالت روشن/تاریک"
-            style={{ background: "var(--surface2)", border: "none", borderRadius: 12, width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            type={searchOpen ? "submit" : "button"}
+            onClick={() => !searchOpen && setSearchOpen(true)}
+            aria-label="جستجو"
+            style={iconBtnStyle}
           >
+            <Search size={19} color="var(--text-hi)" />
+          </button>
+        </form>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+          <button onClick={toggle} aria-label="تغییر حالت روشن/تاریک" style={iconBtnStyle}>
             {theme === "dark" ? <Sun size={19} color="var(--text-hi)" /> : <Moon size={19} color="var(--text-hi)" />}
           </button>
           <Link
             href="/auth"
             aria-label={user ? "حساب کاربری" : "ورود / ثبت‌نام"}
-            style={{ background: "var(--surface2)", border: user ? "1.5px solid #22E5C9" : "none", borderRadius: 12, width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}
+            style={{ ...iconBtnStyle, border: user ? "1.5px solid #22E5C9" : "none", textDecoration: "none" }}
           >
             <User size={19} color={user ? "#22E5C9" : "var(--text-hi)"} />
           </Link>
-          <Link
-            href="/cart"
-            aria-label="سبد خرید"
-            style={{ background: "var(--surface2)", border: "none", borderRadius: 12, width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", textDecoration: "none" }}
-          >
+          <Link href="/cart" aria-label="سبد خرید" style={{ ...iconBtnStyle, position: "relative", textDecoration: "none" }}>
             <ShoppingBag size={19} color="var(--text-hi)" />
             {count > 0 && (
               <span style={{ position: "absolute", top: -4, left: -4, background: "#2F86FF", color: "var(--ink)", fontSize: 10, fontWeight: 800, borderRadius: 999, minWidth: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
@@ -107,11 +178,7 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <button
-            className="nav-burger"
-            onClick={() => setMenuOpen((v) => !v)}
-            style={{ background: "var(--surface2)", border: "none", borderRadius: 12, width: 42, height: 42, alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-          >
+          <button className="nav-burger" onClick={() => setMenuOpen((v) => !v)} style={{ ...iconBtnStyle, display: "none" }}>
             {menuOpen ? <X size={19} color="var(--text-hi)" /> : <Menu size={19} color="var(--text-hi)" />}
           </button>
         </div>

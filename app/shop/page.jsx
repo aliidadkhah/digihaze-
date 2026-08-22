@@ -7,5 +7,6 @@ export const metadata = {
 
 export default function ShopPage({ searchParams }) {
   const category = searchParams?.category || "all";
-  return <ShopContent initialCategory={category} />;
+  const search = searchParams?.search || "";
+  return <ShopContent initialCategory={category} initialSearch={search} />;
 }
