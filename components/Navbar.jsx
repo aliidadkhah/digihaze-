@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingBag, Menu, X, User, Sun, Moon, Search } from "lucide-react";
@@ -15,9 +15,7 @@ const LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const searchRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
   const { count } = useCart();
@@ -26,16 +24,11 @@ export default function Navbar() {
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
-  useEffect(() => {
-    if (searchOpen && searchRef.current) searchRef.current.focus();
-  }, [searchOpen]);
-
   const submitSearch = (e) => {
     e.preventDefault();
     const q = query.trim();
     if (!q) return;
     router.push(`/shop?search=${encodeURIComponent(q)}`);
-    setSearchOpen(false);
   };
 
   const iconBtnStyle = {
@@ -62,6 +55,7 @@ export default function Navbar() {
         borderBottom: "1px solid var(--surface2)",
       }}
     >
+      {/* ردیف اول: لوگو، منو، آیکون‌ها */}
       <div
         style={{
           maxWidth: 1180,
@@ -112,53 +106,6 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* جستجو */}
-        <form
-          onSubmit={submitSearch}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flex: searchOpen ? "1 1 auto" : "0 0 auto",
-            minWidth: 0,
-            maxWidth: searchOpen ? 320 : 42,
-            transition: "max-width 0.3s ease",
-            background: searchOpen ? "var(--surface2)" : "transparent",
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
-        >
-          {searchOpen && (
-            <input
-              ref={searchRef}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onBlur={() => !query && setSearchOpen(false)}
-              onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
-              placeholder="جستجوی محصول..."
-              style={{
-                flex: 1,
-                minWidth: 0,
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "var(--text-hi)",
-                fontFamily: "Vazirmatn",
-                fontSize: 13.5,
-                padding: "0 12px",
-                height: 42,
-              }}
-            />
-          )}
-          <button
-            type={searchOpen ? "submit" : "button"}
-            onClick={() => !searchOpen && setSearchOpen(true)}
-            aria-label="جستجو"
-            style={iconBtnStyle}
-          >
-            <Search size={19} color="var(--text-hi)" />
-          </button>
-        </form>
-
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
           <button onClick={toggle} aria-label="تغییر حالت روشن/تاریک" style={iconBtnStyle}>
             {theme === "dark" ? <Sun size={19} color="var(--text-hi)" /> : <Moon size={19} color="var(--text-hi)" />}
@@ -182,6 +129,43 @@ export default function Navbar() {
             {menuOpen ? <X size={19} color="var(--text-hi)" /> : <Menu size={19} color="var(--text-hi)" />}
           </button>
         </div>
+      </div>
+
+      {/* ردیف دوم: نوار جستجو، همیشه باز، هم دسکتاپ هم موبایل */}
+      <div style={{ borderTop: "1px solid var(--surface2)", padding: "10px 20px" }}>
+        <form
+          onSubmit={submitSearch}
+          style={{
+            maxWidth: 1180,
+            margin: "0 auto",
+            display: "flex",
+            alignItems: "center",
+            background: "var(--surface)",
+            border: "1px solid var(--surface2)",
+            borderRadius: 12,
+            overflow: "hidden",
+          }}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="جستجوی محصول، مثلاً توت‌فرنگی یا Nova..."
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: "var(--text-hi)",
+              fontFamily: "Vazirmatn",
+              fontSize: 13.5,
+              padding: "11px 14px",
+            }}
+          />
+          <button type="submit" aria-label="جستجو" style={{ background: "none", border: "none", padding: "0 14px", height: 40, display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <Search size={18} color="var(--text-mut)" />
+          </button>
+        </form>
       </div>
 
       {menuOpen && (

@@ -20,11 +20,16 @@ function WhatsAppIcon({ size = 16, color = "var(--text-hi)" }) {
   );
 }
 
+// ⚠️ این شماره‌ها رو با شماره‌ها/آیدی واقعی خودت جایگزین کن
+const WHATSAPP_NUMBER = "989120000000"; // بدون + و بدون صفر اول کشور، فرمت: 98 + شماره بدون صفر
+const INSTAGRAM_USERNAME = "your_instagram_id";
+const TELEGRAM_USERNAME = "your_telegram_id";
+
 export default function Footer() {
   const SOCIAL_LINKS = [
-    { icon: Instagram, href: "https://instagram.com", label: "اینستاگرام" },
-    { icon: Send, href: "https://t.me", label: "تلگرام" },
-    { icon: WhatsAppIcon, href: "https://wa.me/", label: "واتساپ" },
+    { icon: Instagram, href: `https://instagram.com/${INSTAGRAM_USERNAME}`, label: "اینستاگرام" },
+    { icon: Send, href: `https://t.me/${TELEGRAM_USERNAME}`, label: "تلگرام" },
+    { icon: WhatsAppIcon, href: `https://wa.me/${WHATSAPP_NUMBER}`, label: "واتساپ" },
   ];
 
   return (

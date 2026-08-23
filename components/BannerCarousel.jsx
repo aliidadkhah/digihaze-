@@ -61,7 +61,7 @@ export default function BannerCarousel() {
           overflow: "hidden",
           border: "none",
           borderRadius: 0,
-          aspectRatio: "21 / 6",
+          aspectRatio: "21 / 3",
           boxSizing: "border-box",
         }}
       >
@@ -74,16 +74,16 @@ export default function BannerCarousel() {
             >
               <img src={s.img} alt={s.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, color-mix(in srgb, var(--bg) 80%, transparent) 0%, transparent 35%)" }} />
-              <div dir="rtl" style={{ position: "absolute", bottom: 14, right: 20, left: 20, display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 10, textAlign: "right" }}>
+              <div dir="rtl" style={{ position: "absolute", bottom: 10, right: 16, left: 16, display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 10, textAlign: "right" }}>
                 <div style={{ minWidth: 0, flex: "1 1 auto", overflow: "hidden" }}>
-                  <div style={{ marginBottom: 6 }}>
+                  <div style={{ marginBottom: 4 }}>
                     <Badge bg={s.color}>{s.eyebrow}</Badge>
                   </div>
-                  <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: "clamp(13px,2.4vw,20px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: "clamp(12px,2vw,17px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {s.title}
                   </div>
                 </div>
-                <span style={{ flexShrink: 0, background: s.color, color: "var(--ink)", borderRadius: 10, padding: "7px 14px", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 12, whiteSpace: "nowrap" }}>
+                <span style={{ flexShrink: 0, background: s.color, color: "var(--ink)", borderRadius: 10, padding: "6px 12px", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 11.5, whiteSpace: "nowrap" }}>
                   {s.cta}
                 </span>
               </div>
@@ -98,7 +98,7 @@ export default function BannerCarousel() {
           <ChevronLeft size={18} color="#120C22" />
         </button>
 
-        <div style={{ position: "absolute", top: 12, right: "50%", transform: "translateX(50%)", display: "flex", gap: 7, zIndex: 2 }}>
+        <div style={{ position: "absolute", top: 8, right: "50%", transform: "translateX(50%)", display: "flex", gap: 7, zIndex: 2 }}>
           {BANNER_SLIDES.map((s, i) => (
             <button key={s.id} onClick={() => go(i)} style={{ width: i === idx ? 22 : 8, height: 8, borderRadius: 999, border: "none", background: i === idx ? s.color : "#ffffff77", cursor: "pointer", transition: "all 0.3s ease" }} />
           ))}

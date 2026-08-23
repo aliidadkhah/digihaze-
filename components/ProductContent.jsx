@@ -2,25 +2,89 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Plus, Minus, ShoppingBag, Check, Percent } from "lucide-react";
-import { Stars, Reveal, navArrowStyle, qtyBtnStyle } from "./ui";
+import { ChevronLeft, ChevronRight, Plus, Minus, ShoppingBag, Check, Percent, Star } from "lucide-react";
+import { Stars, Reveal, navArrowStyle, qtyBtnStyle, inputStyle } from "./ui";
 import { FlavorCloud } from "./visuals";
 import ProductCard from "./ProductCard";
 import { money, discountedPrice } from "@/lib/data";
-import { useCart } from "./Providers";
+import { useCart, useUser } from "./Providers";
+
+function ReviewForm({ onSubmit }) {
+  const { user } = useUser();
+  const [name, setName] = useState(user?.name || "");
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [text, setText] = useState("");
+  const [error, setError] = useState("");
+
+  const submit = (e) => {
+    e.preventDefault();
+    setError("");
+    if (!name.trim()) return setError("لطفاً نامت رو بنویس");
+    if (!text.trim()) return setError("لطفاً متن نظرت رو بنویس");
+    onSubmit({ name: name.trim(), rating, text: text.trim() });
+    setText("");
+  };
+
+  return (
+    <form onSubmit={submit} style={{ background: "var(--surface)", borderRadius: 14, padding: 16, marginBottom: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ fontWeight: 700, fontSize: 13.5 }}>ثبت نظر شما</div>
+
+      <div style={{ display: "flex", gap: 4 }}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setRating(n)}
+            onMouseEnter={() => setHoverRating(n)}
+            onMouseLeave={() => setHoverRating(0)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}
+          >
+            <Star size={20} fill={n <= (hoverRating || rating) ? "#C6FF3D" : "none"} stroke={n <= (hoverRating || rating) ? "#C6FF3D" : "var(--text-lo)"} />
+          </button>
+        ))}
+      </div>
+
+      {!user && <input placeholder="نام شما" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />}
+
+      <textarea
+        placeholder="تجربه‌ات از این محصول رو بنویس..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={3}
+        style={{ ...inputStyle, resize: "vertical" }}
+      />
+
+      {error && <div style={{ color: "#2F86FF", fontSize: 12, background: "#2F86FF22", borderRadius: 8, padding: "6px 10px" }}>{error}</div>}
+
+      <button type="submit" style={{ alignSelf: "flex-start", background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 10, padding: "9px 20px", fontFamily: "Vazirmatn", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+        ثبت نظر
+      </button>
+    </form>
+  );
+}
 
 export default function ProductContent({ product, related }) {
   const [imgIdx, setImgIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState("desc");
   const [added, setAdded] = useState(false);
+  const [reviews, setReviews] = useState(product.reviews || []);
   const { addToCart } = useCart();
 
   useEffect(() => {
     setImgIdx(0);
     setQty(1);
     setTab("desc");
+    setReviews(product.reviews || []);
   }, [product.id]);
+
+  const addReview = (review) => {
+    // ⚠️ فعلاً فقط سمت فرانت‌اند اضافه می‌شه. برای ذخیره‌ی واقعی روی سرور،
+    // اینجا باید به POST /api/products/:id/reviews (توی بک‌اند اکسپرس) فراخوانی بشه.
+    setReviews((prev) => [{ ...review }, ...prev]);
+    setTab("reviews");
+  };
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "30px 20px 70px" }}>
@@ -70,7 +134,7 @@ export default function ProductContent({ product, related }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 18 }}>
             <Stars rating={product.rating} size={16} />
             <span style={{ color: "var(--text-lo)", fontSize: 13 }}>
-              {product.rating} از ۵ ({product.reviewsCount} نظر)
+              {product.rating} از ۵ ({reviews.length} نظر)
             </span>
           </div>
 
@@ -106,7 +170,7 @@ export default function ProductContent({ product, related }) {
             {[
               { id: "desc", label: "توضیحات" },
               { id: "specs", label: "مشخصات" },
-              { id: "reviews", label: `نظرات (${product.reviews.length})` },
+              { id: "reviews", label: `نظرات (${reviews.length})` },
             ].map((t) => (
               <button
                 key={t.id}
@@ -130,17 +194,20 @@ export default function ProductContent({ product, related }) {
             </div>
           )}
           {tab === "reviews" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {product.reviews.length === 0 && <p style={{ color: "var(--text-mut)", fontSize: 13 }}>هنوز نظری ثبت نشده. اولین نفر باش!</p>}
-              {product.reviews.map((r, i) => (
-                <div key={i} style={{ background: "var(--surface)", borderRadius: 12, padding: 14 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>{r.name}</span>
-                    <Stars rating={r.rating} size={12} />
+            <div>
+              <ReviewForm onSubmit={addReview} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {reviews.length === 0 && <p style={{ color: "var(--text-mut)", fontSize: 13 }}>هنوز نظری ثبت نشده. اولین نفر باش!</p>}
+                {reviews.map((r, i) => (
+                  <div key={i} style={{ background: "var(--surface)", borderRadius: 12, padding: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontWeight: 700, fontSize: 13.5 }}>{r.name}</span>
+                      <Stars rating={r.rating} size={12} />
+                    </div>
+                    <p style={{ color: "var(--text-lo)", fontSize: 13 }}>{r.text}</p>
                   </div>
-                  <p style={{ color: "var(--text-lo)", fontSize: 13 }}>{r.text}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Eye, EyeOff, LogOut, ShoppingBag } from "lucide-react";
+import { User, LogOut, ShoppingBag, Phone } from "lucide-react";
 import { Badge, inputStyle } from "./ui";
 import { useUser } from "./Providers";
 
@@ -20,40 +20,60 @@ const accountRowStyle = {
   cursor: "pointer",
 };
 
+// ⚠️ این یک شبیه‌سازی سمت فرانت‌اند هست (بدون پیامک واقعی).
+// برای اتصال واقعی باید دو مسیر از بک‌اند صدا زده بشه:
+//   POST /api/auth/send-otp   { phone }
+//   POST /api/auth/verify-otp { phone, code }
+// که پیامک واقعی رو از طریق سرویس‌هایی مثل کاوه‌نگار یا SMS.ir ارسال می‌کنن.
+function fakeSendOtp(phone) {
+  const code = String(Math.floor(1000 + Math.random() * 9000));
+  return new Promise((resolve) => setTimeout(() => resolve(code), 700));
+}
+
 export default function AuthContent() {
   const { user, login, logout } = useUser();
   const router = useRouter();
-  const [mode, setMode] = useState("login");
-  const [showPw, setShowPw] = useState(false);
-  const [form, setForm] = useState({ name: "", contact: "", password: "", confirm: "" });
+
+  const [step, setStep] = useState("phone"); // phone | code
+  const [phone, setPhone] = useState("");
+  const [code, setCode] = useState("");
+  const [devCode, setDevCode] = useState(""); // فقط برای نمایش دمو، در نسخه‌ی واقعی حذف می‌شه
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
 
-  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  useEffect(() => {
+    if (timer <= 0) return;
+    const t = setInterval(() => setTimer((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [timer]);
 
-  const submit = (e) => {
+  const validPhone = /^09\d{9}$/.test(phone);
+
+  const sendCode = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.contact || !form.password) {
-      setError("لطفاً همه فیلدهای ضروری را پر کن");
+    if (!validPhone) {
+      setError("شماره موبایل رو درست وارد کن (مثلاً 09123456789)");
       return;
     }
-    if (mode === "signup") {
-      if (!form.name) {
-        setError("لطفاً نام خود را وارد کن");
-        return;
-      }
-      if (form.password !== form.confirm) {
-        setError("رمز عبور و تکرار آن یکسان نیستند");
-        return;
-      }
-    }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      login({ name: form.name || form.contact.split("@")[0], contact: form.contact });
-      router.push("/");
-    }, 800);
+    const generated = await fakeSendOtp(phone);
+    setDevCode(generated);
+    setLoading(false);
+    setStep("code");
+    setTimer(60);
+  };
+
+  const verifyCode = (e) => {
+    e.preventDefault();
+    setError("");
+    if (code.trim() !== devCode) {
+      setError("کد وارد شده صحیح نیست");
+      return;
+    }
+    login({ name: `کاربر ${phone.slice(-4)}`, contact: phone });
+    router.push("/");
   };
 
   if (user) {
@@ -82,60 +102,73 @@ export default function AuthContent() {
   return (
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "60px 20px 90px" }}>
       <div style={{ textAlign: "center", marginBottom: 30 }}>
-        <Badge bg="#FF8A3D">{mode === "login" ? "خوش برگشتی" : "عضویت سریع"}</Badge>
+        <Badge bg="#FF8A3D">ورود سریع</Badge>
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 26, margin: "16px 0 6px" }}>
-          {mode === "login" ? "ورود به حساب کاربری" : "ساخت حساب کاربری"}
+          {step === "phone" ? "ورود با شماره موبایل" : "کد تایید رو وارد کن"}
         </h1>
-        <p style={{ color: "var(--text-mut)", fontSize: 13 }}>{mode === "login" ? "برای ادامه خرید وارد شو" : "چند ثانیه‌ای عضو ابرفروش شو"}</p>
+        <p style={{ color: "var(--text-mut)", fontSize: 13 }}>
+          {step === "phone" ? "کد تایید برات پیامک می‌شه" : `کد ۴ رقمی به ${phone} ارسال شد`}
+        </p>
       </div>
 
-      <div style={{ display: "flex", background: "var(--surface)", borderRadius: 14, padding: 4, marginBottom: 24, border: "1px solid var(--surface2)" }}>
-        {["login", "signup"].map((m) => (
-          <button
-            key={m}
-            onClick={() => {
-              setMode(m);
-              setError("");
-            }}
-            style={{ flex: 1, background: mode === m ? "#2F86FF" : "transparent", color: mode === m ? "var(--ink)" : "var(--text-lo)", border: "none", borderRadius: 10, padding: "10px 0", fontFamily: "Vazirmatn", fontWeight: 700, fontSize: 13.5, cursor: "pointer", transition: "all 0.25s ease" }}
-          >
-            {m === "login" ? "ورود" : "ثبت‌نام"}
+      {step === "phone" && (
+        <form onSubmit={sendCode} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ position: "relative" }}>
+            <Phone size={16} color="var(--text-mut)" style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <input
+              type="tel"
+              inputMode="numeric"
+              placeholder="09123456789"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+              style={{ ...inputStyle, width: "100%", paddingRight: 42, direction: "ltr", textAlign: "right" }}
+            />
+          </div>
+          {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
+          <button type="submit" disabled={loading} style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "در حال ارسال..." : "دریافت کد تایید"}
           </button>
-        ))}
-      </div>
+        </form>
+      )}
 
-      <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {mode === "signup" && <input placeholder="نام و نام خانوادگی" value={form.name} onChange={update("name")} style={inputStyle} />}
-        <input placeholder="شماره موبایل یا ایمیل" value={form.contact} onChange={update("contact")} style={inputStyle} />
-        <div style={{ position: "relative" }}>
-          <input type={showPw ? "text" : "password"} placeholder="رمز عبور" value={form.password} onChange={update("password")} style={{ ...inputStyle, width: "100%", paddingLeft: 42 }} />
-          <button type="button" onClick={() => setShowPw((s) => !s)} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", display: "flex" }}>
-            {showPw ? <EyeOff size={16} color="var(--text-mut)" /> : <Eye size={16} color="var(--text-mut)" />}
+      {step === "code" && (
+        <form onSubmit={verifyCode} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input
+            type="tel"
+            inputMode="numeric"
+            placeholder="کد ۴ رقمی"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            style={{ ...inputStyle, textAlign: "center", letterSpacing: 6, fontSize: 20, direction: "ltr" }}
+            autoFocus
+          />
+
+          {/* فقط برای دمو، چون پیامک واقعی وصل نیست — در نسخه‌ی واقعی این باکس حذف می‌شه */}
+          <div style={{ background: "#C6FF3D22", border: "1px solid #C6FF3D55", borderRadius: 10, padding: "8px 12px", fontSize: 12, color: "var(--text-hi)" }}>
+            حالت دمو — کد ارسالی: <b style={{ direction: "ltr", display: "inline-block" }}>{devCode}</b>
+          </div>
+
+          {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
+
+          <button type="submit" style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
+            تایید و ورود
           </button>
-        </div>
-        {mode === "signup" && <input type="password" placeholder="تکرار رمز عبور" value={form.confirm} onChange={update("confirm")} style={inputStyle} />}
 
-        {mode === "login" && (
-          <div style={{ textAlign: "left" }}>
-            <button type="button" style={{ background: "none", border: "none", color: "#22E5C9", fontSize: 12.5, cursor: "pointer", fontFamily: "Vazirmatn" }}>
-              رمز عبور را فراموش کردی؟
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}>
+            <button type="button" onClick={() => setStep("phone")} style={{ background: "none", border: "none", color: "var(--text-mut)", cursor: "pointer", fontFamily: "Vazirmatn" }}>
+              ویرایش شماره
+            </button>
+            <button
+              type="button"
+              disabled={timer > 0}
+              onClick={sendCode}
+              style={{ background: "none", border: "none", color: timer > 0 ? "var(--text-faint)" : "#22E5C9", cursor: timer > 0 ? "default" : "pointer", fontFamily: "Vazirmatn" }}
+            >
+              {timer > 0 ? `ارسال مجدد (${timer})` : "ارسال مجدد کد"}
             </button>
           </div>
-        )}
-
-        {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
-
-        <button type="submit" disabled={loading} style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1, marginTop: 6 }}>
-          {loading ? "لطفاً صبر کن…" : mode === "login" ? "ورود" : "ساخت حساب"}
-        </button>
-      </form>
-
-      <p style={{ textAlign: "center", color: "var(--text-mut)", fontSize: 12.5, marginTop: 20 }}>
-        {mode === "login" ? "هنوز حساب نداری؟" : "قبلاً ثبت‌نام کردی؟"}{" "}
-        <button onClick={() => setMode(mode === "login" ? "signup" : "login")} style={{ background: "none", border: "none", color: "#22E5C9", fontWeight: 700, cursor: "pointer", fontFamily: "Vazirmatn" }}>
-          {mode === "login" ? "ثبت‌نام کن" : "وارد شو"}
-        </button>
-      </p>
+        </form>
+      )}
     </div>
   );
 }
