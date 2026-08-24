@@ -53,7 +53,7 @@ export default function HomeContent() {
           </h1>
           <p className="hero-reveal" style={{ color: "var(--text-lo)", fontSize: 16, lineHeight: 1.9, marginBottom: 30, animationDelay: "0.28s" }}>
             سالت نیکوتین، جویس، پاد، ویپ،کویل و کارتریج با ارسال سریع به سراسر کشور.
-            طعم مورد علاقه‌ت رو پیدا کن، بقیه‌ش با ماست
+            طعم مورد علاقه‌ت رو پیدا کن
           </p>
           <div className="hero-reveal" style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", animationDelay: "0.4s" }}>
             <Link href="/shop" className="pulse-btn" style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 14, padding: "14px 30px", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15, textDecoration: "none" }}>
