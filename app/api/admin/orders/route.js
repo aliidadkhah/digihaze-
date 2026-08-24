@@ -1,61 +1,66 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+export async function POST(request) {
+  try {
+    const { name, phone, message } = await request.json();
 
-function getUserClient(token) {
-  return createClient(process.env.SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-  });
-}
+    if (!message || !message.trim()) {
+      return Response.json(
+        { success: false, error: "پیام خالی است" },
+        { status: 400 }
+      );
+    }
 
-async function requireAdmin(req) {
-  const authHeader = req.headers.get("authorization") || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
-  if (!token) return { error: "وارد نشده‌ای", status: 401 };
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  const userClient = getUserClient(token);
-  const { data: userData, error: userErr } = await userClient.auth.getUser();
-  if (userErr || !userData?.user) return { error: "نشست نامعتبر است", status: 401 };
+    if (!botToken || !chatId) {
+      return Response.json(
+        { success: false, error: "تنظیمات تلگرام انجام نشده است" },
+        { status: 500 }
+      );
+    }
 
-  // با کلاینت ادمین چک می‌کنیم که این کاربر واقعاً is_admin باشه
-  const { data: profile, error: profileErr } = await supabaseAdmin
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", userData.user.id)
-    .single();
+    const text = `
+📩 پیام جدید پشتیبانی سایت
 
-  if (profileErr || !profile?.is_admin) {
-    return { error: "دسترسی مدیریتی نداری", status: 403 };
+👤 نام: ${name || "وارد نشده"}
+📱 شماره تماس: ${phone || "وارد نشده"}
+
+💬 پیام:
+${message.trim()}
+`;
+
+    const telegramResponse = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+        }),
+      }
+    );
+
+    const telegramData = await telegramResponse.json();
+
+    if (!telegramData.ok) {
+      console.error("Telegram error:", telegramData);
+
+      return Response.json(
+        { success: false, error: "ارسال پیام به تلگرام ناموفق بود" },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error("Support API error:", error);
+
+    return Response.json(
+      { success: false, error: "خطای سرور" },
+      { status: 500 }
+    );
   }
-
-  return { user: userData.user };
-}
-
-export async function GET(req) {
-  const check = await requireAdmin(req);
-  if (check.error) return NextResponse.json({ error: check.error }, { status: check.status });
-
-  const { data, error } = await supabaseAdmin
-    .from("orders")
-    .select("*, order_items(*)")
-    .order("created_at", { ascending: false });
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ orders: data });
-}
-
-export async function PATCH(req) {
-  const check = await requireAdmin(req);
-  if (check.error) return NextResponse.json({ error: check.error }, { status: check.status });
-
-  const { orderId, status } = await req.json();
-  const { data, error } = await supabaseAdmin
-    .from("orders")
-    .update({ status })
-    .eq("id", orderId)
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ order: data });
 }
