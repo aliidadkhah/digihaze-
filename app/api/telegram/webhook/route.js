@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-
+export const dynamic = "force-dynamic";
 export async function POST(request) {
   try {
     const update = await request.json();
