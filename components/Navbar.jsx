@@ -67,19 +67,25 @@ export default function Navbar() {
           gap: 14,
         }}
       >
-        <Link
-          href="/"
-          style={{
-            fontFamily: "Vazirmatn, sans-serif",
-            fontWeight: 800,
-            fontSize: 22,
-            color: "var(--text-hi)",
-            letterSpacing: 0.5,
-            textDecoration: "none",
-            flexShrink: 0,
-          }}
-        >
-          ابر<span style={{ color: "#2F86FF" }}>فروش</span>
+       <Link
+  href="/"
+  style={{
+    display: "flex",
+    alignItems: "center",
+    flexShrink: 0,
+    textDecoration: "none",
+  }}
+>
+  <img
+    src="/digihaze.svg"
+    alt="DigiHaze"
+    style={{
+      width: 150,
+      height: "auto",
+      display: "block",
+    }}
+  />
+</Link>
         </Link>
 
         <nav className="nav-desktop" style={{ gap: 28 }}>
