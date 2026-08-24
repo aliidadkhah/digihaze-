@@ -2,6 +2,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SupportWidget from "@/components/SupportWidget";
 import { ScrollMorphBackground } from "@/components/visuals";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 
@@ -29,14 +30,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
-      <body>
-        <Providers>
-          <ScrollMorphBackground />
-          <Navbar />
-          {children}
-          <Footer />
-        </Providers>
-      </body>
+     <body>
+  <Providers>
+    <ScrollMorphBackground />
+    <Navbar />
+    {children}
+    <Footer />
+    <SupportWidget />
+  </Providers>
+</body>
     </html>
   );
 }
