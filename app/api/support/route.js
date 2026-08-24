@@ -1,8 +1,11 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
+export const dynamic = "force-dynamic";
+
+// ارسال پیام مشتری
 export async function POST(request) {
   try {
-    const { name, phone, message } = await request.json();
+    const { conversationId, name, phone, message } = await request.json();
 
     if (!message || !message.trim()) {
       return Response.json(
@@ -21,9 +24,35 @@ export async function POST(request) {
       );
     }
 
-    // ساخت گفتگو در Supabase
-    const { data: conversation, error: conversationError } =
+    let conversation;
+
+    // اگر گفتگو از قبل وجود دارد، همان را استفاده می‌کنیم
+    if (conversationId) {
+      const { data, error } = await supabaseAdmin
+        .from("support_conversations")
+        .select("*")
+        .eq("id", conversationId)
+        .single();
+
+      if (error || !data) {
+        return Response.json(
+          { success: false, error: "گفتگو پیدا نشد" },
+          { status: 404 }
+        );
+      }
+
+      conversation = data;
+
+      // آپدیت زمان آخرین فعالیت
       await supabaseAdmin
+        .from("support_conversations")
+        .update({
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", conversation.id);
+    } else {
+      // اولین پیام مشتری → ساخت گفتگو
+      const { data, error } = await supabaseAdmin
         .from("support_conversations")
         .insert({
           customer_name: name || "وارد نشده",
@@ -32,13 +61,16 @@ export async function POST(request) {
         .select()
         .single();
 
-    if (conversationError) {
-      console.error("Conversation error:", conversationError);
+      if (error) {
+        console.error("Conversation error:", error);
 
-      return Response.json(
-        { success: false, error: "ساخت گفتگو ناموفق بود" },
-        { status: 500 }
-      );
+        return Response.json(
+          { success: false, error: "ساخت گفتگو ناموفق بود" },
+          { status: 500 }
+        );
+      }
+
+      conversation = data;
     }
 
     // ذخیره پیام مشتری
@@ -67,8 +99,8 @@ export async function POST(request) {
 
 🆔 گفتگو: ${conversation.id}
 
-👤 نام: ${name || "وارد نشده"}
-📱 شماره تماس: ${phone || "وارد نشده"}
+👤 نام: ${conversation.customer_name}
+📱 شماره تماس: ${conversation.customer_phone}
 
 💬 پیام:
 ${message.trim()}
@@ -105,7 +137,7 @@ ${message.trim()}
       );
     }
 
-    // ذخیره شناسه پیام تلگرام
+    // ذخیره ID پیام تلگرام
     await supabaseAdmin
       .from("support_messages")
       .update({
@@ -119,6 +151,59 @@ ${message.trim()}
     });
   } catch (error) {
     console.error("Support API error:", error);
+
+    return Response.json(
+      {
+        success: false,
+        error: "خطای سرور",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+
+// دریافت پیام‌های یک گفتگو
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+
+    const conversationId = searchParams.get("conversationId");
+
+    if (!conversationId) {
+      return Response.json(
+        {
+          success: false,
+          error: "شناسه گفتگو ارسال نشده است",
+        },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from("support_messages")
+      .select("*")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Get messages error:", error);
+
+      return Response.json(
+        {
+          success: false,
+          error: "دریافت پیام‌ها ناموفق بود",
+        },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({
+      success: true,
+      messages: data || [],
+    });
+  } catch (error) {
+    console.error("Support GET error:", error);
 
     return Response.json(
       {
