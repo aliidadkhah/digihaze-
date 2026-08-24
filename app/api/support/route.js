@@ -1,5 +1,3 @@
-import { env } from "cloudflare:workers";
-
 export async function POST(request) {
   try {
     const { name, phone, message } = await request.json();
@@ -21,54 +19,14 @@ export async function POST(request) {
       );
     }
 
-    if (!env.DB) {
-      return Response.json(
-        { success: false, error: "اتصال دیتابیس برقرار نیست" },
-        { status: 500 }
-      );
-    }
-
-    // ساخت شناسه اختصاصی برای این گفتگو
-    const conversationId =
-      "DH-" + crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
-
-    const now = Date.now();
-
-    // ثبت گفتگو در D1
-    await env.DB.prepare(
-      `INSERT INTO conversations
-       (id, customer_name, customer_phone, created_at)
-       VALUES (?, ?, ?, ?)`
-    )
-      .bind(
-        conversationId,
-        name || "وارد نشده",
-        phone || "وارد نشده",
-        now
-      )
-      .run();
-
-    // ثبت پیام مشتری
-    const messageResult = await env.DB.prepare(
-      `INSERT INTO messages
-       (conversation_id, sender, text, created_at)
-       VALUES (?, ?, ?, ?)`
-    )
-      .bind(conversationId, "customer", message.trim(), now)
-      .run();
-
     const text = `
 📩 پیام جدید پشتیبانی سایت
-
-🆔 گفتگو: ${conversationId}
 
 👤 نام: ${name || "وارد نشده"}
 📱 شماره تماس: ${phone || "وارد نشده"}
 
 💬 پیام:
 ${message.trim()}
-
-↩️ برای پاسخ، روی همین پیام Reply کنید.
 `;
 
     const telegramResponse = await fetch(
@@ -90,19 +48,6 @@ ${message.trim()}
     if (!telegramData.ok) {
       console.error("Telegram error:", telegramData);
 
-      // اگر ارسال تلگرام شکست خورد، اطلاعات ناقص را پاک می‌کنیم
-      await env.DB.prepare(
-        `DELETE FROM messages WHERE id = ?`
-      )
-        .bind(messageResult.meta.last_row_id)
-        .run();
-
-      await env.DB.prepare(
-        `DELETE FROM conversations WHERE id = ?`
-      )
-        .bind(conversationId)
-        .run();
-
       return Response.json(
         {
           success: false,
@@ -112,22 +57,8 @@ ${message.trim()}
       );
     }
 
-    // ذخیره ID پیام تلگرام
-    await env.DB.prepare(
-      `UPDATE messages
-       SET telegram_message_id = ?
-       WHERE id = ?`
-    )
-      .bind(
-        telegramData.result.message_id,
-        messageResult.meta.last_row_id
-      )
-      .run();
-
     return Response.json({
       success: true,
-      conversationId,
-      messageId: messageResult.meta.last_row_id,
     });
   } catch (error) {
     console.error("Support API error:", error);
