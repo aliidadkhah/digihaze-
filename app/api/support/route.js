@@ -1,3 +1,5 @@
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+
 export async function POST(request) {
   try {
     const { name, phone, message } = await request.json();
@@ -19,16 +21,62 @@ export async function POST(request) {
       );
     }
 
+    // ساخت گفتگو در Supabase
+    const { data: conversation, error: conversationError } =
+      await supabaseAdmin
+        .from("support_conversations")
+        .insert({
+          customer_name: name || "وارد نشده",
+          customer_phone: phone || "وارد نشده",
+        })
+        .select()
+        .single();
+
+    if (conversationError) {
+      console.error("Conversation error:", conversationError);
+
+      return Response.json(
+        { success: false, error: "ساخت گفتگو ناموفق بود" },
+        { status: 500 }
+      );
+    }
+
+    // ذخیره پیام مشتری
+    const { data: customerMessage, error: messageError } =
+      await supabaseAdmin
+        .from("support_messages")
+        .insert({
+          conversation_id: conversation.id,
+          sender: "customer",
+          message: message.trim(),
+        })
+        .select()
+        .single();
+
+    if (messageError) {
+      console.error("Message error:", messageError);
+
+      return Response.json(
+        { success: false, error: "ذخیره پیام ناموفق بود" },
+        { status: 500 }
+      );
+    }
+
     const text = `
 📩 پیام جدید پشتیبانی سایت
+
+🆔 گفتگو: ${conversation.id}
 
 👤 نام: ${name || "وارد نشده"}
 📱 شماره تماس: ${phone || "وارد نشده"}
 
 💬 پیام:
 ${message.trim()}
+
+↩️ برای پاسخ، روی همین پیام Reply کنید.
 `;
 
+    // ارسال پیام به تلگرام
     const telegramResponse = await fetch(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {
@@ -57,8 +105,17 @@ ${message.trim()}
       );
     }
 
+    // ذخیره شناسه پیام تلگرام
+    await supabaseAdmin
+      .from("support_messages")
+      .update({
+        telegram_message_id: telegramData.result.message_id,
+      })
+      .eq("id", customerMessage.id);
+
     return Response.json({
       success: true,
+      conversationId: conversation.id,
     });
   } catch (error) {
     console.error("Support API error:", error);
