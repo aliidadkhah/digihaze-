@@ -80,7 +80,7 @@ export default function HomeContent() {
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: `${c.color}22`, margin: "0 auto 12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Flame size={20} color={c.color} />
                 </div>
-                <div style={{ fontFamily: "Vazirmatn", fontWeight: 700, fontSize: 14 }}>{c.label}</div>
+                <div style={{ fontFamily: "Vazirmatn", fontWeight: 700, fontSize: 14, color: "#FFFFFF" }}>{c.label}</div>
               </button>
             </Reveal>
           ))}
