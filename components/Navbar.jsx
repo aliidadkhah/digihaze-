@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/", label: "خانه" },
   { href: "/shop", label: "فروشگاه" },
   { href: "/about", label: "درباره ما" },
-  { href: "/contact", label: "تماس با ما" },
+  { href: "/contact", label: "تماس با ما" }, 
 ];
 
 export default function Navbar() {
