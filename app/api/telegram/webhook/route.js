@@ -4,7 +4,7 @@ export async function POST(request) {
   try {
     const update = await request.json();
 
-    const message = update?.message;
+    const message = update?.message; 
 
     // فقط پیام‌هایی که Reply هستند
     if (!message?.reply_to_message) {
