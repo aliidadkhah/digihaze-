@@ -44,6 +44,18 @@ export default function Navbar() {
     flexShrink: 0,
   };
 
+  const searchInputStyle = {
+    flex: 1,
+    minWidth: 0,
+    background: "transparent",
+    border: "none",
+    outline: "none",
+    color: "var(--text-hi)",
+    fontFamily: "Vazirmatn",
+    fontSize: 13,
+    padding: "10px 12px",
+  };
+
   return (
     <header
       style={{
@@ -55,6 +67,7 @@ export default function Navbar() {
         borderBottom: "1px solid var(--surface2)",
       }}
     >
+      {/* ردیف اول: لوگو، منو، سرچ دسکتاپ، آیکون‌ها */}
       <div
         style={{
           maxWidth: 1180,
@@ -105,7 +118,7 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* سرچ فقط دسکتاپ، همیشه باز، بدون ردیف اضافه */}
+        {/* سرچ دسکتاپ: داخل همین ردیف، همیشه باز */}
         <form
           onSubmit={submitSearch}
           className="nav-desktop"
@@ -120,22 +133,7 @@ export default function Navbar() {
             overflow: "hidden",
           }}
         >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="جستجوی محصول..."
-            style={{
-              flex: 1,
-              minWidth: 0,
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              color: "var(--text-hi)",
-              fontFamily: "Vazirmatn",
-              fontSize: 13,
-              padding: "10px 12px",
-            }}
-          />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="جستجوی محصول..." style={searchInputStyle} />
           <button type="submit" aria-label="جستجو" style={{ background: "none", border: "none", padding: "0 12px", height: 38, display: "flex", alignItems: "center", cursor: "pointer" }}>
             <Search size={17} color="var(--text-mut)" />
           </button>
@@ -160,10 +158,20 @@ export default function Navbar() {
               </span>
             )}
           </Link>
-          <button className="nav-burger" onClick={() => setMenuOpen((v) => !v)} style={{ ...iconBtnStyle, display: "none" }}>
+          <button className="nav-burger" onClick={() => setMenuOpen((v) => !v)} style={iconBtnStyle}>
             {menuOpen ? <X size={19} color="var(--text-hi)" /> : <Menu size={19} color="var(--text-hi)" />}
           </button>
         </div>
+      </div>
+
+      {/* ردیف دوم: فقط موبایل، سرچ همیشه باز */}
+      <div className="search-mobile-row" style={{ borderTop: "1px solid var(--surface2)", padding: "10px 20px" }}>
+        <form onSubmit={submitSearch} style={{ display: "flex", alignItems: "center", background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, overflow: "hidden" }}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="جستجوی محصول..." style={searchInputStyle} />
+          <button type="submit" aria-label="جستجو" style={{ background: "none", border: "none", padding: "0 12px", height: 38, display: "flex", alignItems: "center", cursor: "pointer" }}>
+            <Search size={17} color="var(--text-mut)" />
+          </button>
+        </form>
       </div>
 
       {menuOpen && (
