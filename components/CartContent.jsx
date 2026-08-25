@@ -1,122 +1,186 @@
-<div
-  style={{
-    display: "flex",
-    flexDirection: "column",
-    gap: 14,
-    marginBottom: 26,
-  }}
->
-  {cart.map((item) => {
-    const product = item.product;
-    const price = discountedPrice(product);
+"use client";
+
+import Link from "next/link";
+import { ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
+import { money, discountedPrice } from "@/lib/data";
+import { useCart } from "./Providers";
+import { qtyBtnStyle } from "./ui";
+
+export default function CartContent() {
+
+  const { cart, updateQty, removeItem } = useCart();
+
+
+  const total = cart.reduce(
+    (sum, item) =>
+      sum + discountedPrice(item.product) * item.qty,
+    0
+  );
+
+
+  if(cart.length === 0){
 
     return (
-      <div
-        key={product.id}
-        style={{
-          display: "flex",
-          gap: 14,
-          background: "var(--surface)",
-          border: "1px solid var(--surface2)",
-          borderRadius: 16,
-          padding: 12,
-          alignItems: "center",
-        }}
-      >
+      <div style={{
+        maxWidth:600,
+        margin:"0 auto",
+        padding:"80px 20px",
+        textAlign:"center"
+      }}>
 
-        <Link
-          href={`/product/${product.id}`}
-          style={{
-            flexShrink: 0,
-            textDecoration: "none",
-          }}
-        >
-          <img
-            src={product.images?.[0]}
-            alt={product.name}
-            style={{
-              width: 76,
-              height: 76,
-              borderRadius: 12,
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
+        <ShoppingBag size={40}/>
+
+        <h2>
+          سبد خرید خالی است
+        </h2>
+
+
+        <Link href="/shop">
+          رفتن به فروشگاه
         </Link>
-
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 14,
-              marginBottom: 6,
-            }}
-          >
-            {product.name}
-          </div>
-
-          <div
-            style={{
-              color: "var(--text-mut)",
-              fontSize: 13,
-            }}
-          >
-            {money(price)}
-          </div>
-        </div>
-
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            border: "1px solid var(--surface2)",
-            borderRadius: 10,
-            overflow: "hidden",
-          }}
-        >
-          <button
-            onClick={() =>
-              updateQty(product.id, item.qty + 1)
-            }
-            style={qtyBtnStyle}
-          >
-            <Plus size={13} />
-          </button>
-
-          <span
-            style={{
-              width: 32,
-              textAlign: "center",
-              fontWeight: 700,
-            }}
-          >
-            {item.qty}
-          </span>
-
-          <button
-            onClick={() =>
-              updateQty(product.id, item.qty - 1)
-            }
-            style={qtyBtnStyle}
-          >
-            <Minus size={13} />
-          </button>
-        </div>
-
-
-        <button
-          onClick={() => removeItem(product.id)}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          <Trash2 size={18} color="#2F86FF" />
-        </button>
 
       </div>
     );
-  })}
-</div>
+  }
+
+
+
+  return (
+
+    <div style={{
+      maxWidth:900,
+      margin:"0 auto",
+      padding:"40px 20px"
+    }}>
+
+
+      <h1>
+        سبد خرید
+      </h1>
+
+
+      {cart.map((item)=>{
+
+        const product=item.product;
+
+
+        return (
+
+          <div
+          key={product.id}
+          style={{
+            display:"flex",
+            gap:15,
+            alignItems:"center",
+            background:"var(--surface)",
+            padding:12,
+            borderRadius:16,
+            marginBottom:14
+          }}>
+
+
+            <img
+            src={product.images[0]}
+            style={{
+              width:70,
+              height:70,
+              objectFit:"cover",
+              borderRadius:10
+            }}
+            />
+
+
+            <div style={{flex:1}}>
+
+              <div>
+                {product.name}
+              </div>
+
+              <small>
+                {money(discountedPrice(product))}
+              </small>
+
+            </div>
+
+
+
+            <button
+            onClick={()=>updateQty(product.id,item.qty+1)}
+            style={qtyBtnStyle}
+            >
+              <Plus size={14}/>
+            </button>
+
+
+            <span>
+              {item.qty}
+            </span>
+
+
+            <button
+            onClick={()=>updateQty(product.id,item.qty-1)}
+            style={qtyBtnStyle}
+            >
+              <Minus size={14}/>
+            </button>
+
+
+
+            <button
+            onClick={()=>removeItem(product.id)}
+            style={{
+              background:"none",
+              border:0,
+              cursor:"pointer"
+            }}
+            >
+              <Trash2 size={18}/>
+            </button>
+
+
+          </div>
+
+        );
+
+      })}
+
+
+
+      <div
+      style={{
+        marginTop:30,
+        padding:20,
+        background:"var(--surface)",
+        borderRadius:16
+      }}
+      >
+
+        <h3>
+          مبلغ نهایی:
+          {" "}
+          {money(total)}
+        </h3>
+
+
+        <button
+        style={{
+          width:"100%",
+          padding:14,
+          border:0,
+          borderRadius:12,
+          background:"#22E5C9",
+          fontWeight:800,
+          cursor:"pointer"
+        }}
+        >
+          ادامه فرآیند خرید
+        </button>
+
+
+      </div>
+
+
+    </div>
+
+  );
+}
