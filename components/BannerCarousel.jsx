@@ -3,33 +3,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Badge, navArrowStyle } from "./ui";
+import { navArrowStyle } from "./ui";
 
 const BANNER_SLIDES = [
   {
     id: "b1",
     color: "#2F86FF",
-    eyebrow: "پیشنهاد لحظه‌ای",
-    title: "تا ۲۵٪ تخفیف روی مایع‌های یخی",
-    cta: "مشاهده تخفیف‌ها",
     href: "/shop?category=eliquid",
     img: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?q=80&w=1200&auto=format&fit=crop",
   },
   {
     id: "b2",
     color: "#FF8A3D",
-    eyebrow: "تازه رسیده",
-    title: "کیت جدید Nova Mesh رسید",
-    cta: "مشاهده محصول",
     href: "/product/p3",
     img: "https://images.unsplash.com/photo-1560807707-8cc77767d783?q=80&w=1200&auto=format&fit=crop",
   },
   {
     id: "b3",
     color: "#22E5C9",
-    eyebrow: "مزیت خرید",
-    title: "ارسال رایگان بالای ۵۰۰ هزار تومان",
-    cta: "شروع خرید",
     href: "/shop",
     img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=1200&auto=format&fit=crop",
   },
@@ -49,7 +40,6 @@ export default function BannerCarousel() {
   const go = (i) => setIdx((i + BANNER_SLIDES.length) % BANNER_SLIDES.length);
 
   return (
-    // بدون maxWidth/padding کناری، تا بنر از راست‌ترین تا چپ‌ترین لبه‌ی صفحه کشیده بشه
     <section style={{ width: "100%", padding: "18px 0 0" }}>
       <div
         onMouseEnter={() => setPaused(true)}
@@ -72,21 +62,7 @@ export default function BannerCarousel() {
               onClick={() => router.push(s.href)}
               style={{ position: "relative", flex: "0 0 100%", width: "100%", maxWidth: "100%", height: "100%", border: "none", padding: 0, margin: 0, cursor: "pointer", display: "block", boxSizing: "border-box" }}
             >
-              <img src={s.img} alt={s.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, color-mix(in srgb, var(--bg) 80%, transparent) 0%, transparent 35%)" }} />
-              <div dir="rtl" style={{ position: "absolute", bottom: 10, right: 16, left: 16, display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 10, textAlign: "right" }}>
-                <div style={{ minWidth: 0, flex: "1 1 auto", overflow: "hidden" }}>
-                  <div style={{ marginBottom: 4 }}>
-                    <Badge bg={s.color}>{s.eyebrow}</Badge>
-                  </div>
-                  <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: "clamp(12px,2vw,17px)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {s.title}
-                  </div>
-                </div>
-                <span style={{ flexShrink: 0, background: s.color, color: "var(--ink)", borderRadius: 10, padding: "6px 12px", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 11.5, whiteSpace: "nowrap" }}>
-                  {s.cta}
-                </span>
-              </div>
+              <img src={s.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </button>
           ))}
         </div>
