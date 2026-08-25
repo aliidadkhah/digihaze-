@@ -33,7 +33,6 @@ marginBottom: 20,
 }}
 />
 
-```
     <h2
       style={{
         fontFamily: "Vazirmatn",
@@ -60,7 +59,6 @@ marginBottom: 20,
     </Link>
   </div>
 );
-```
 
 }
 
@@ -80,9 +78,9 @@ fontSize: 26,
 marginBottom: 25,
 }}
 >
-سبد خرید </h1>
+سبد خرید
+</h1>
 
-```
   <div
     style={{
       display: "flex",
@@ -243,7 +241,6 @@ marginBottom: 25,
     </Link>
   </div>
 </div>
-```
 
 );
 }
