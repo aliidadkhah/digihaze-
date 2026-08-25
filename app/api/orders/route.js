@@ -14,7 +14,6 @@ const {
   items,
 } = body;
 
-// بررسی اطلاعات مشتری
 if (
   !customer?.name ||
   !customer?.phone ||
@@ -30,7 +29,6 @@ if (
   );
 }
 
-// بررسی سبد خرید
 if (!Array.isArray(items) || items.length === 0) {
   return NextResponse.json(
     {
@@ -45,7 +43,6 @@ if (!Array.isArray(items) || items.length === 0) {
 let total = 0;
 const orderItems = [];
 
-// محاسبه مبلغ سفارش
 for (const item of items) {
   const product = PRODUCTS.find(
     (p) => p.id === item.productId
@@ -86,39 +83,48 @@ for (const item of items) {
   });
 }
 
-// ثبت سفارش در Supabase
-const { data: order, error } = await supabaseAdmin
+const orderData = {
+  "customer name": customer.name,
+  "customer phone": customer.phone,
+  "customer address": customer.address,
+  address: customer.address,
+
+  total,
+
+  status: "pending",
+
+  "payment tracking code":
+    payment?.trackingCode || "",
+
+  "payment transaction time":
+    payment?.transactionTime || "",
+
+  "payment method":
+    "card_to_card",
+};
+
+console.log("ORDER DATA:", orderData);
+
+const {
+  data: order,
+  error: orderError,
+} = await supabaseAdmin
   .from("orders")
-  .insert({
-    "customer name": customer.name,
-    "customer phone": customer.phone,
-    "customer address": customer.address,
-
-    // ستون address جداگانه موجود است
-    address: customer.address,
-
-    total,
-
-    "payment tracking code":
-      payment?.trackingCode || "",
-
-    "payment transaction time":
-      payment?.transactionTime || "",
-
-    "payment method":
-      "card_to_card",
-
-    status: "pending",
-  })
+  .insert(orderData)
   .select()
   .single();
 
-if (error) {
-  console.error("SUPABASE ORDER ERROR:", error);
+if (orderError) {
+  console.error(
+    "SUPABASE ORDER ERROR:",
+    orderError
+  );
 
   return NextResponse.json(
     {
-      error: error.message,
+      error:
+        orderError.message ||
+        "خطا در ثبت سفارش در Supabase",
     },
     {
       status: 500,
@@ -126,13 +132,14 @@ if (error) {
   );
 }
 
-// ثبت محصولات سفارش
 const rows = orderItems.map((item) => ({
   ...item,
   order_id: order.id,
 }));
 
-const { error: itemsError } = await supabaseAdmin
+const {
+  error: itemsError,
+} = await supabaseAdmin
   .from("order_items")
   .insert(rows);
 
@@ -144,7 +151,9 @@ if (itemsError) {
 
   return NextResponse.json(
     {
-      error: itemsError.message,
+      error:
+        itemsError.message ||
+        "خطا در ثبت محصولات سفارش",
     },
     {
       status: 500,
@@ -152,7 +161,6 @@ if (itemsError) {
   );
 }
 
-// ارسال اطلاعیه تلگرام
 try {
   await notifyNewOrder({
     ...order,
@@ -165,13 +173,22 @@ try {
   );
 }
 
-return NextResponse.json({
-  order,
-});
+return NextResponse.json(
+  {
+    success: true,
+    order,
+  },
+  {
+    status: 200,
+  }
+);
 ```
 
 } catch (error) {
-console.error("ORDER API ERROR:", error);
+console.error(
+"ORDER API ERROR:",
+error
+);
 
 ```
 return NextResponse.json(
@@ -188,3 +205,4 @@ return NextResponse.json(
 
 }
 }
+v
