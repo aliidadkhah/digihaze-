@@ -1,338 +1,296 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
-import { PRODUCTS, discountedPrice } from "@/lib/data";
-
+import {
+  PRODUCTS,
+  discountedPrice,
+} from "@/lib/data";
 
 export async function POST(req) {
-
   try {
-
     const body = await req.json();
 
     const {
       customer,
       payment,
-      items
+      items,
     } = body;
 
-
+    // =========================
+    // بررسی مشتری
+    // =========================
 
     if (
       !customer?.name ||
       !customer?.phone ||
       !customer?.address
     ) {
-
       return NextResponse.json(
         {
-          error: "اطلاعات مشتری کامل نیست"
+          error:
+            "اطلاعات مشتری کامل نیست",
         },
         {
-          status: 400
+          status: 400,
         }
       );
-
     }
 
-
-
-    if (
-      !payment?.trackingCode ||
-      !payment?.transactionTime
-    ) {
-
-      return NextResponse.json(
-        {
-          error: "اطلاعات پرداخت کامل نیست"
-        },
-        {
-          status:400
-        }
-      );
-
-    }
-
-
+    // =========================
+    // بررسی سبد
+    // =========================
 
     if (
       !Array.isArray(items) ||
       items.length === 0
     ) {
-
       return NextResponse.json(
         {
-          error:"سبد خرید خالی است"
+          error:
+            "سبد خرید خالی است",
         },
         {
-          status:400
+          status: 400,
         }
       );
-
     }
 
+    // =========================
+    // بررسی کد پیگیری
+    // =========================
 
+    if (
+      !payment?.trackingCode?.trim()
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "کد پیگیری تراکنش وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // =========================
+    // محاسبه مبلغ
+    // =========================
 
     let total = 0;
 
     const orderItems = [];
 
-
-
     for (const item of items) {
-
-
-      const product = PRODUCTS.find(
-        p => p.id === item.productId
-      );
-
+      const product =
+        PRODUCTS.find(
+          (p) =>
+            p.id === item.productId
+        );
 
       if (!product) {
-
         return NextResponse.json(
           {
-            error:"محصول پیدا نشد"
+            error:
+              "محصول پیدا نشد",
           },
           {
-            status:400
+            status: 400,
           }
         );
-
       }
 
+      const qty = Number(
+        item.qty
+      );
 
-
-      const qty = Number(item.qty);
-
-
-
-      if (!qty || qty <= 0) {
-
+      if (
+        !Number.isInteger(qty) ||
+        qty <= 0
+      ) {
         return NextResponse.json(
           {
-            error:"تعداد محصول نامعتبر است"
+            error:
+              "تعداد محصول نامعتبر است",
           },
           {
-            status:400
+            status: 400,
           }
         );
-
       }
 
+      const price =
+        discountedPrice(product);
 
-
-      const price = discountedPrice(product);
-
-
-      total += price * qty;
-
-
+      total +=
+        price * qty;
 
       orderItems.push({
+        product_id:
+          product.id,
 
-        product_id: product.id,
+        product_name:
+          product.name,
 
         qty,
 
-        price
-
+        price,
       });
-
-
     }
 
-
-
-
+    // =========================
+    // ثبت سفارش
+    // =========================
 
     const {
       data: order,
-      error: orderError
-
+      error: orderError,
     } = await supabaseAdmin
-
       .from("orders")
-
       .insert({
-
         customer_name:
-          customer.name,
-
+          customer.name.trim(),
 
         customer_phone:
-          customer.phone,
-
+          customer.phone.trim(),
 
         customer_address:
-          customer.address,
-
+          customer.address.trim(),
 
         address:
-          customer.address,
-
+          customer.address.trim(),
 
         total,
-
 
         status:
           "pending",
 
-
         payment_tracking_code:
-          payment.trackingCode,
-
+          payment.trackingCode.trim(),
 
         payment_transaction_time:
-          payment.transactionTime,
-
+          payment?.transactionTime?.trim() ||
+          "",
 
         payment_method:
-          "card_to_card"
-
-
+          "card_to_card",
       })
-
       .select()
-
       .single();
 
-
-
-
-
-    if(orderError){
-
+    if (orderError) {
       console.error(
         "ORDER ERROR:",
         orderError
       );
 
-
       return NextResponse.json(
         {
-          error:orderError.message
+          error:
+            orderError.message,
         },
         {
-          status:500
+          status: 500,
         }
       );
-
     }
 
-
-
-
-
+    // =========================
+    // ثبت محصولات سفارش
+    // =========================
 
     const rows =
-      orderItems.map(item => ({
+      orderItems.map(
+        (item) => ({
+          order_id:
+            order.id,
 
-        ...item,
+          product_id:
+            item.product_id,
 
-        order_id:order.id
+          qty: item.qty,
 
-      }));
-
-
-
-
+          price: item.price,
+        })
+      );
 
     const {
-      error:itemsError
-
+      error: itemsError,
     } = await supabaseAdmin
-
       .from("order_items")
-
       .insert(rows);
 
-
-
-
-
-    if(itemsError){
-
+    if (itemsError) {
       console.error(
         "ITEM ERROR:",
         itemsError
       );
 
-
       return NextResponse.json(
         {
-          error:itemsError.message
+          error:
+            itemsError.message,
         },
         {
-          status:500
+          status: 500,
         }
       );
-
     }
 
-
-
-
-
+    // =========================
+    // ارسال تلگرام
+    // =========================
 
     try {
-
       await notifyNewOrder({
-
         ...order,
 
-        items:orderItems
+        // برای تلگرام
+        phone:
+          order.customer_phone,
 
+        address:
+          order.customer_address,
+
+        tracking_code:
+          order.payment_tracking_code,
+
+        transaction_time:
+          order.payment_transaction_time,
+
+        items: orderItems,
       });
-
-
-    } catch(error){
-
+    } catch (telegramError) {
       console.error(
-        "TELEGRAM ERROR:",
-        error
+        "Telegram error:",
+        telegramError
       );
-
     }
 
+    // =========================
+    // پاسخ
+    // =========================
 
+    return NextResponse.json({
+      success: true,
 
-
-
-
-    return NextResponse.json(
-      {
-        success:true,
-
-        order
-
-      },
-      {
-        status:200
-      }
-    );
-
-
-
-  } catch(error){
-
-
+      order,
+    });
+  } catch (error) {
     console.error(
       "API ERROR:",
       error
     );
 
-
     return NextResponse.json(
       {
         error:
-          error.message ||
-          "خطای سرور"
+          error?.message ||
+          "خطای سرور",
       },
       {
-        status:500
+        status: 500,
       }
     );
-
   }
-
 }
