@@ -188,6 +188,17 @@ export default function Navbar() {
           ))}
         </div>
       )}
+
+      <style jsx>{`
+        .search-mobile-row {
+          display: block;
+        }
+        @media (min-width: 761px) {
+          .search-mobile-row {
+            display: none;
+          }
+        }
+      `}</style>
     </header>
   );
 }
