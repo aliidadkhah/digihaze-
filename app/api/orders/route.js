@@ -1,4 +1,3 @@
-```jsx
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
@@ -245,4 +244,3 @@ export async function POST(req) {
     );
   }
 }
-```
