@@ -1,17 +1,30 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
-import { Percent } from "lucide-react";
+import { Percent, ShoppingCart, Plus, Minus, Trash2 } from "lucide-react";
 import { Badge, Stars } from "./ui";
 import { money, discountedPrice } from "@/lib/data";
 import { useCart } from "./Providers";
 
 export default function ProductCard({ product }) {
   const [hover, setHover] = useState(false);
-  const { addToCart } = useCart();
+
+  const {
+    cart,
+    addToCart,
+    updateQty,
+    removeItem,
+  } = useCart();
+
+  // پیدا کردن محصول در سبد خرید
+  const cartItem = cart.find(
+    (item) => item.product.id === product.id
+  );
+
+  const qty = cartItem ? cartItem.qty : 0;
 
   return (
-    // لایه‌ی بیرونی: فقط مسئول transform و box-shadow است (بدون overflow/radius روی همین لایه)
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -22,11 +35,12 @@ export default function ProductCard({ product }) {
         borderRadius: 18,
         transition: "transform 0.25s ease, box-shadow 0.25s ease",
         transform: hover ? "translateY(-6px)" : "translateY(0)",
-        boxShadow: hover ? `0 16px 32px -12px ${product.color}55` : "none",
+        boxShadow: hover
+          ? `0 16px 32px -12px ${product.color}55`
+          : "none",
         willChange: "transform",
       }}
     >
-      {/* لایه‌ی داخلی: مسئول overflow:hidden و border-radius (کلیپ محتوا) */}
       <div
         style={{
           height: "100%",
@@ -38,11 +52,25 @@ export default function ProductCard({ product }) {
           border: "1px solid var(--surface2)",
         }}
       >
+        {/* PRODUCT LINK */}
         <Link
           href={`/product/${product.id}`}
-          style={{ display: "flex", flexDirection: "column", flex: 1, textDecoration: "none", color: "inherit" }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            textDecoration: "none",
+            color: "inherit",
+          }}
         >
-          <div style={{ position: "relative", aspectRatio: "4/5", overflow: "hidden" }}>
+          {/* IMAGE */}
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "4/5",
+              overflow: "hidden",
+            }}
+          >
             <img
               src={product.images[0]}
               alt={product.name}
@@ -54,13 +82,31 @@ export default function ProductCard({ product }) {
                 transition: "transform 0.5s ease",
               }}
             />
+
+            {/* BADGE */}
             {product.badge && (
-              <div style={{ position: "absolute", top: 10, right: 10 }}>
-                <Badge bg={product.color}>{product.badge}</Badge>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                }}
+              >
+                <Badge bg={product.color}>
+                  {product.badge}
+                </Badge>
               </div>
             )}
+
+            {/* DISCOUNT */}
             {product.discount > 0 && (
-              <div style={{ position: "absolute", top: 10, left: 10 }}>
+              <div
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                }}
+              >
                 <span
                   style={{
                     background: "var(--ink)",
@@ -74,15 +120,32 @@ export default function ProductCard({ product }) {
                     gap: 4,
                   }}
                 >
-                  <Percent size={11} /> {product.discount}٪
+                  <Percent size={11} />
+                  {product.discount}٪
                 </span>
               </div>
             )}
           </div>
 
-          {/* بخش متنی: flex:1 تا فضای باقی‌مانده رو پر کنه و همه کارت‌ها هم‌ارتفاع بشن */}
-          <div style={{ padding: "14px 14px 4px", display: "flex", flexDirection: "column", flex: 1 }}>
-            <div style={{ color: "var(--text-mut)", fontSize: 11, marginBottom: 4 }}>{product.brand}</div>
+          {/* PRODUCT INFO */}
+          <div
+            style={{
+              padding: "14px 14px 4px",
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+            }}
+          >
+            <div
+              style={{
+                color: "var(--text-mut)",
+                fontSize: 11,
+                marginBottom: 4,
+              }}
+            >
+              {product.brand}
+            </div>
+
             <div
               style={{
                 fontWeight: 700,
@@ -95,17 +158,55 @@ export default function ProductCard({ product }) {
             >
               {product.name}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+
+            {/* STARS */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
               <Stars rating={product.rating} />
-              <span style={{ color: "var(--text-mut)", fontSize: 11 }}>({product.reviewsCount})</span>
+
+              <span
+                style={{
+                  color: "var(--text-mut)",
+                  fontSize: 11,
+                }}
+              >
+                ({product.reviewsCount})
+              </span>
             </div>
-            {/* mt:auto این ردیف رو همیشه ته بخش متنی نگه می‌داره، حتی اگه اسم محصول یک یا دوخطی باشه */}
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: "auto" }}>
-              <span style={{ fontWeight: 800, fontSize: 15, color: "var(--text-hi)" }}>
+
+            {/* PRICE */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 8,
+                marginTop: "auto",
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: 800,
+                  fontSize: 15,
+                  color: "var(--text-hi)",
+                }}
+              >
                 {money(discountedPrice(product))}
               </span>
+
               {product.discount > 0 && (
-                <span style={{ fontSize: 12, color: "var(--text-faint)", textDecoration: "line-through" }}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-faint)",
+                    textDecoration: "line-through",
+                  }}
+                >
                   {money(product.price)}
                 </span>
               )}
@@ -113,24 +214,124 @@ export default function ProductCard({ product }) {
           </div>
         </Link>
 
-        <div style={{ padding: "10px 14px 16px" }}>
-          <button
-            onClick={() => addToCart(product, 1)}
-            style={{
-              width: "100%",
-              background: "var(--text-hi)",
-              color: "var(--bg)",
-              border: "none",
-              borderRadius: 12,
-              padding: "9px 0",
-              fontFamily: "Vazirmatn",
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            افزودن به سبد خرید
-          </button>
+        {/* CART CONTROLS */}
+        <div
+          style={{
+            padding: "10px 14px 16px",
+          }}
+        >
+          {qty === 0 ? (
+            /* ADD TO CART */
+            <button
+              onClick={() => addToCart(product, 1)}
+              style={{
+                width: "100%",
+                background: "var(--text-hi)",
+                color: "var(--bg)",
+                border: "none",
+                borderRadius: 12,
+                padding: "10px 0",
+                fontFamily: "Vazirmatn",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              <ShoppingCart size={17} />
+              افزودن به سبد خرید
+            </button>
+          ) : (
+            /* QUANTITY CONTROLS */
+            <div
+              style={{
+                width: "100%",
+                height: 42,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                background: "var(--surface2)",
+                borderRadius: 12,
+                overflow: "hidden",
+              }}
+            >
+              {/* DELETE */}
+              <button
+                onClick={() => removeItem(product.id)}
+                aria-label="حذف از سبد خرید"
+                style={{
+                  width: 42,
+                  height: 42,
+                  border: "none",
+                  background: "transparent",
+                  color: "#ff5c5c",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Trash2 size={17} />
+              </button>
+
+              {/* MINUS */}
+              <button
+                onClick={() => updateQty(product.id, qty - 1)}
+                aria-label="کاهش تعداد"
+                style={{
+                  width: 38,
+                  height: 38,
+                  border: "none",
+                  background: "transparent",
+                  color: "var(--text-hi)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Minus size={17} />
+              </button>
+
+              {/* QUANTITY */}
+              <div
+                style={{
+                  minWidth: 30,
+                  textAlign: "center",
+                  color: "var(--text-hi)",
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  userSelect: "none",
+                }}
+              >
+                {qty}
+              </div>
+
+              {/* PLUS */}
+              <button
+                onClick={() => addToCart(product, 1)}
+                aria-label="افزایش تعداد"
+                style={{
+                  width: 38,
+                  height: 38,
+                  border: "none",
+                  background: "transparent",
+                  color: "var(--text-hi)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Plus size={17} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
