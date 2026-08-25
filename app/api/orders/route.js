@@ -10,16 +10,14 @@ export async function POST(req) {
 
     const body = await req.json();
 
-
     const {
       customer,
       payment,
-      items,
+      items
     } = body;
 
 
 
-    // بررسی اطلاعات مشتری
     if (
       !customer?.name ||
       !customer?.phone ||
@@ -31,6 +29,24 @@ export async function POST(req) {
           error: "اطلاعات مشتری کامل نیست"
         },
         {
+          status: 400
+        }
+      );
+
+    }
+
+
+
+    if (
+      !payment?.trackingCode ||
+      !payment?.transactionTime
+    ) {
+
+      return NextResponse.json(
+        {
+          error: "اطلاعات پرداخت کامل نیست"
+        },
+        {
           status:400
         }
       );
@@ -39,7 +55,6 @@ export async function POST(req) {
 
 
 
-    // بررسی سبد خرید
     if (
       !Array.isArray(items) ||
       items.length === 0
@@ -58,7 +73,6 @@ export async function POST(req) {
 
 
 
-
     let total = 0;
 
     const orderItems = [];
@@ -73,7 +87,7 @@ export async function POST(req) {
       );
 
 
-      if(!product){
+      if (!product) {
 
         return NextResponse.json(
           {
@@ -92,7 +106,7 @@ export async function POST(req) {
 
 
 
-      if(!qty || qty <= 0){
+      if (!qty || qty <= 0) {
 
         return NextResponse.json(
           {
@@ -108,7 +122,6 @@ export async function POST(req) {
 
 
       const price = discountedPrice(product);
-
 
 
       total += price * qty;
@@ -132,10 +145,9 @@ export async function POST(req) {
 
 
 
-    // ثبت سفارش
     const {
-      data:order,
-      error:orderError
+      data: order,
+      error: orderError
 
     } = await supabaseAdmin
 
@@ -143,26 +155,40 @@ export async function POST(req) {
 
       .insert({
 
-        customer_name: customer.name,
+        customer_name:
+          customer.name,
 
-        customer_phone: customer.phone,
 
-        customer_address: customer.address,
+        customer_phone:
+          customer.phone,
 
-        address: customer.address,
+
+        customer_address:
+          customer.address,
+
+
+        address:
+          customer.address,
+
 
         total,
 
-        status:"pending",
+
+        status:
+          "pending",
+
 
         payment_tracking_code:
-          payment?.trackingCode || "",
+          payment.trackingCode,
+
 
         payment_transaction_time:
-          payment?.transactionTime || "",
+          payment.transactionTime,
+
 
         payment_method:
           "card_to_card"
+
 
       })
 
@@ -175,7 +201,6 @@ export async function POST(req) {
 
 
     if(orderError){
-
 
       console.error(
         "ORDER ERROR:",
@@ -192,22 +217,23 @@ export async function POST(req) {
         }
       );
 
-
     }
 
 
 
 
 
-    // ذخیره محصولات سفارش
 
-    const rows = orderItems.map(item => ({
+    const rows =
+      orderItems.map(item => ({
 
-      ...item,
+        ...item,
 
-      order_id: order.id
+        order_id:order.id
 
-    }));
+      }));
+
+
 
 
 
@@ -226,7 +252,6 @@ export async function POST(req) {
 
     if(itemsError){
 
-
       console.error(
         "ITEM ERROR:",
         itemsError
@@ -242,16 +267,14 @@ export async function POST(req) {
         }
       );
 
-
     }
 
 
 
 
 
-    // ارسال تلگرام
 
-    try{
+    try {
 
       await notifyNewOrder({
 
@@ -262,13 +285,11 @@ export async function POST(req) {
       });
 
 
-    }
+    } catch(error){
 
-    catch(err){
-
-      console.log(
-        "Telegram error:",
-        err
+      console.error(
+        "TELEGRAM ERROR:",
+        error
       );
 
     }
@@ -277,20 +298,22 @@ export async function POST(req) {
 
 
 
-    return NextResponse.json({
 
-      success:true,
+    return NextResponse.json(
+      {
+        success:true,
 
-      order
+        order
 
-    });
+      },
+      {
+        status:200
+      }
+    );
 
 
 
-  }
-
-
-  catch(error){
+  } catch(error){
 
 
     console.error(
@@ -309,7 +332,6 @@ export async function POST(req) {
         status:500
       }
     );
-
 
   }
 
