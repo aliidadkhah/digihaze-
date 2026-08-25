@@ -10,11 +10,9 @@ import { qtyBtnStyle } from "./ui";
 export default function CartContent() {
   const { cart, updateQty, removeItem } = useCart();
 
-  const total = cart.reduce(
-    (sum, item) =>
-      sum + discountedPrice(item.product) * item.qty,
-    0
-  );
+  const total = cart.reduce((sum, item) => {
+    return sum + discountedPrice(item.product) * item.qty;
+  }, 0);
 
   if (cart.length === 0) {
     return (
@@ -29,9 +27,7 @@ export default function CartContent() {
         <ShoppingBag
           size={40}
           color="var(--border-soft)"
-          style={{
-            marginBottom: 20,
-          }}
+          style={{ marginBottom: 20 }}
         />
 
         <h2
@@ -48,7 +44,6 @@ export default function CartContent() {
           href="/shop"
           style={{
             display: "inline-block",
-            marginTop: 20,
             background: "#22E5C9",
             color: "#000",
             padding: "12px 30px",
@@ -114,7 +109,7 @@ export default function CartContent() {
                 }}
               >
                 <img
-                  src={product.images && product.images[0]}
+                  src={product.images[0]}
                   alt={product.name}
                   style={{
                     width: 75,
@@ -136,7 +131,6 @@ export default function CartContent() {
                   style={{
                     fontWeight: 700,
                     fontSize: 14,
-                    lineHeight: 1.5,
                   }}
                 >
                   {product.name}
@@ -160,7 +154,6 @@ export default function CartContent() {
                   border: "1px solid var(--surface2)",
                   borderRadius: 10,
                   overflow: "hidden",
-                  flexShrink: 0,
                 }}
               >
                 <button
@@ -169,14 +162,13 @@ export default function CartContent() {
                     updateQty(product.id, item.qty + 1)
                   }
                   style={qtyBtnStyle}
-                  aria-label="افزایش تعداد"
                 >
                   <Plus size={14} />
                 </button>
 
                 <span
                   style={{
-                    minWidth: 30,
+                    width: 30,
                     textAlign: "center",
                     fontWeight: 800,
                     fontSize: 13,
@@ -191,7 +183,6 @@ export default function CartContent() {
                     updateQty(product.id, item.qty - 1)
                   }
                   style={qtyBtnStyle}
-                  aria-label="کاهش تعداد"
                 >
                   <Minus size={14} />
                 </button>
@@ -199,17 +190,13 @@ export default function CartContent() {
 
               <button
                 type="button"
-                onClick={() =>
-                  removeItem(product.id)
-                }
+                onClick={() => removeItem(product.id)}
                 style={{
                   background: "none",
                   border: "none",
                   cursor: "pointer",
                   padding: 6,
-                  flexShrink: 0,
                 }}
-                aria-label="حذف محصول"
               >
                 <Trash2
                   size={18}
@@ -236,7 +223,6 @@ export default function CartContent() {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 15,
-            fontFamily: "Vazirmatn",
           }}
         >
           <span
