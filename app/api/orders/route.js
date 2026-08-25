@@ -1,66 +1,167 @@
+```javascript
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
 import { PRODUCTS, discountedPrice } from "@/lib/data";
 
+function getUserClient(token) {
+  return createClient(
+    process.env.SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
+}
+
 export async function POST(req) {
   try {
+    /*
+     * ============================
+     * 1. دریافت اطلاعات درخواست
+     * ============================
+     */
+
     const body = await req.json();
 
-    const { customer, items } = body;
+    const {
+      items,
+      customer,
+      payment,
+    } = body;
 
-    // -----------------------------
-    // بررسی اطلاعات مشتری
-    // -----------------------------
-
-    if (!customer) {
-      return NextResponse.json(
-        { error: "اطلاعات مشتری ارسال نشده است." },
-        { status: 400 }
-      );
-    }
-
-    const name = String(customer.name || "").trim();
-    const phone = String(customer.phone || "").trim();
-    const address = String(customer.address || "").trim();
-
-    if (!name) {
-      return NextResponse.json(
-        { error: "نام و نام خانوادگی الزامی است." },
-        { status: 400 }
-      );
-    }
-
-    if (!phone) {
-      return NextResponse.json(
-        { error: "شماره موبایل الزامی است." },
-        { status: 400 }
-      );
-    }
-
-    if (!address) {
-      return NextResponse.json(
-        { error: "آدرس الزامی است." },
-        { status: 400 }
-      );
-    }
-
-    // -----------------------------
-    // بررسی سبد خرید
-    // -----------------------------
+    /*
+     * ============================
+     * 2. بررسی سبد خرید
+     * ============================
+     */
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: "سبد خرید خالی است." },
-        { status: 400 }
+        {
+          error: "سبد خرید خالی است",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    // -----------------------------
-    // محاسبه قیمت سمت سرور
-    // -----------------------------
+    /*
+     * ============================
+     * 3. بررسی اطلاعات مشتری
+     * ============================
+     */
+
+    if (!customer?.name?.trim()) {
+      return NextResponse.json(
+        {
+          error: "نام مشتری وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (!customer?.phone?.trim()) {
+      return NextResponse.json(
+        {
+          error: "شماره موبایل وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (!customer?.address?.trim()) {
+      return NextResponse.json(
+        {
+          error: "آدرس وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * ============================
+     * 4. بررسی اطلاعات پرداخت
+     * ============================
+     */
+
+    if (!payment?.trackingCode?.trim()) {
+      return NextResponse.json(
+        {
+          error: "کد پیگیری تراکنش وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (!payment?.transactionTime?.trim()) {
+      return NextResponse.json(
+        {
+          error: "ساعت تراکنش وارد نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    /*
+     * ============================
+     * 5. دریافت کاربر در صورت ورود
+     * ============================
+     *
+     * این قسمت اختیاری است.
+     * مشتری برای ثبت سفارش مجبور نیست
+     * حتماً وارد حساب کاربری شده باشد.
+     */
+
+    const authHeader = req.headers.get("authorization") || "";
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.slice(7)
+      : null;
+
+    let userId = null;
+
+    if (token) {
+      try {
+        const userClient = getUserClient(token);
+
+        const {
+          data: userData,
+          error: userErr,
+        } = await userClient.auth.getUser();
+
+        if (!userErr && userData?.user) {
+          userId = userData.user.id;
+        }
+      } catch (error) {
+        console.error("خطا در بررسی کاربر:", error);
+      }
+    }
+
+    /*
+     * ============================
+     * 6. محاسبه قیمت سمت سرور
+     * ============================
+     */
 
     let total = 0;
+
     const orderItems = [];
 
     for (const item of items) {
@@ -70,8 +171,12 @@ export async function POST(req) {
 
       if (!product) {
         return NextResponse.json(
-          { error: "محصول نامعتبر در سبد خرید." },
-          { status: 400 }
+          {
+            error: "محصول نامعتبر در سبد خرید",
+          },
+          {
+            status: 400,
+          }
         );
       }
 
@@ -79,8 +184,12 @@ export async function POST(req) {
 
       if (!Number.isInteger(qty) || qty <= 0) {
         return NextResponse.json(
-          { error: "تعداد محصول نامعتبر است." },
-          { status: 400 }
+          {
+            error: "تعداد محصول نامعتبر است",
+          },
+          {
+            status: 400,
+          }
         );
       }
 
@@ -95,99 +204,152 @@ export async function POST(req) {
       });
     }
 
-    // -----------------------------
-    // ایجاد سفارش
-    // -----------------------------
+    /*
+     * ============================
+     * 7. ساخت سفارش
+     * ============================
+     */
 
-    const { data: order, error: orderErr } =
-      await supabaseAdmin
-        .from("orders")
-        .insert({
-          total,
-          status: "pending",
+    const orderData = {
+      user_id: userId,
+      total,
+      status: "pending",
 
-          // اطلاعات مشتری
-          customer_name: name,
-          customer_phone: phone,
-          customer_address: address,
-        })
-        .select()
-        .single();
+      customer_name: customer.name.trim(),
+      customer_phone: customer.phone.trim(),
+      customer_address: customer.address.trim(),
+
+      payment_tracking_code:
+        payment.trackingCode.trim(),
+
+      payment_transaction_time:
+        payment.transactionTime.trim(),
+
+      payment_method: "card_to_card",
+    };
+
+    const {
+      data: order,
+      error: orderErr,
+    } = await supabaseAdmin
+      .from("orders")
+      .insert(orderData)
+      .select()
+      .single();
 
     if (orderErr) {
-      console.error("Supabase order error:", orderErr);
+      console.error(
+        "خطای ایجاد سفارش:",
+        orderErr
+      );
 
       return NextResponse.json(
         {
           error:
-            "خطا در ثبت سفارش در پایگاه داده.",
-          details: orderErr.message,
+            "ثبت سفارش در پایگاه داده انجام نشد: " +
+            orderErr.message,
         },
-        { status: 500 }
+        {
+          status: 500,
+        }
       );
     }
 
-    // -----------------------------
-    // ثبت محصولات سفارش
-    // -----------------------------
+    /*
+     * ============================
+     * 8. ذخیره محصولات سفارش
+     * ============================
+     */
 
     const rows = orderItems.map((item) => ({
       ...item,
       order_id: order.id,
     }));
 
-    const { error: itemsErr } =
-      await supabaseAdmin
-        .from("order_items")
-        .insert(rows);
+    const {
+      error: itemsErr,
+    } = await supabaseAdmin
+      .from("order_items")
+      .insert(rows);
 
     if (itemsErr) {
       console.error(
-        "Supabase order items error:",
+        "خطای ثبت اقلام سفارش:",
         itemsErr
       );
 
       return NextResponse.json(
         {
           error:
-            "سفارش ثبت شد اما ثبت محصولات سفارش با خطا مواجه شد.",
-          details: itemsErr.message,
+            "ثبت محصولات سفارش انجام نشد: " +
+            itemsErr.message,
         },
-        { status: 500 }
+        {
+          status: 500,
+        }
       );
     }
 
-    // -----------------------------
-    // ارسال اطلاعیه به تلگرام
-    // -----------------------------
+    /*
+     * ============================
+     * 9. ارسال سفارش به تلگرام
+     * ============================
+     */
 
     await notifyNewOrder({
       ...order,
       items: orderItems,
+      customer: {
+        name: customer.name.trim(),
+        phone: customer.phone.trim(),
+        address: customer.address.trim(),
+      },
+      payment: {
+        trackingCode:
+          payment.trackingCode.trim(),
+
+        transactionTime:
+          payment.transactionTime.trim(),
+
+        method: "کارت به کارت",
+      },
     });
 
-    // -----------------------------
-    // پاسخ نهایی
-    // -----------------------------
+    /*
+     * ============================
+     * 10. پاسخ موفق
+     * ============================
+     */
 
     return NextResponse.json(
       {
         success: true,
+
         order: {
           ...order,
           items: orderItems,
         },
       },
-      { status: 201 }
+      {
+        status: 201,
+      }
     );
   } catch (error) {
-    console.error("Order API error:", error);
+    console.error(
+      "خطای کلی API سفارش:",
+      error
+    );
 
     return NextResponse.json(
       {
-        error: "خطای غیرمنتظره در ثبت سفارش.",
+        error:
+          error?.message ||
+          "خطایی هنگام ثبت سفارش رخ داد",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
+```
