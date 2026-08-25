@@ -9,9 +9,11 @@ import { qtyBtnStyle } from "./ui";
 export default function CartContent() {
 const { cart, updateQty, removeItem } = useCart();
 
-const total = cart.reduce((sum, item) => {
-return sum + discountedPrice(item.product) * item.qty;
-}, 0);
+const total = cart.reduce(
+(sum, item) =>
+sum + discountedPrice(item.product) * item.qty,
+0
+);
 
 if (cart.length === 0) {
 return (
@@ -36,7 +38,6 @@ marginBottom: 20,
       style={{
         fontFamily: "Vazirmatn",
         fontWeight: 800,
-        marginBottom: 20,
       }}
     >
       سبد خرید خالی است
@@ -46,13 +47,13 @@ marginBottom: 20,
       href="/shop"
       style={{
         display: "inline-block",
+        marginTop: 20,
         background: "#22E5C9",
         color: "#000",
         padding: "12px 30px",
         borderRadius: 12,
         textDecoration: "none",
         fontWeight: 800,
-        fontFamily: "Vazirmatn",
       }}
     >
       رفتن به فروشگاه
@@ -106,14 +107,14 @@ marginBottom: 25,
           }}
         >
           <Link
-            href={"/product/" + product.id}
+            href={`/product/${product.id}`}
             style={{
               flexShrink: 0,
               textDecoration: "none",
             }}
           >
             <img
-              src={product.images[0]}
+              src={product.images?.[0]}
               alt={product.name}
               style={{
                 width: 75,
@@ -144,62 +145,51 @@ marginBottom: 25,
               style={{
                 color: "var(--text-mut)",
                 marginTop: 5,
-                fontSize: 13,
               }}
             >
               {money(discountedPrice(product))}
             </div>
           </div>
 
-          <div
+          <button
+            type="button"
+            onClick={() =>
+              updateQty(product.id, item.qty + 1)
+            }
+            style={qtyBtnStyle}
+          >
+            <Plus size={14} />
+          </button>
+
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
-              border: "1px solid var(--surface2)",
-              borderRadius: 10,
-              overflow: "hidden",
+              minWidth: 25,
+              textAlign: "center",
+              fontWeight: 800,
             }}
           >
-            <button
-              type="button"
-              onClick={() =>
-                updateQty(product.id, item.qty + 1)
-              }
-              style={qtyBtnStyle}
-            >
-              <Plus size={14} />
-            </button>
-
-            <span
-              style={{
-                width: 30,
-                textAlign: "center",
-                fontWeight: 800,
-                fontSize: 13,
-              }}
-            >
-              {item.qty}
-            </span>
-
-            <button
-              type="button"
-              onClick={() =>
-                updateQty(product.id, item.qty - 1)
-              }
-              style={qtyBtnStyle}
-            >
-              <Minus size={14} />
-            </button>
-          </div>
+            {item.qty}
+          </span>
 
           <button
             type="button"
-            onClick={() => removeItem(product.id)}
+            onClick={() =>
+              updateQty(product.id, item.qty - 1)
+            }
+            style={qtyBtnStyle}
+          >
+            <Minus size={14} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              removeItem(product.id)
+            }
             style={{
               background: "none",
               border: "none",
               cursor: "pointer",
-              padding: 6,
             }}
           >
             <Trash2
@@ -225,26 +215,12 @@ marginBottom: 25,
       style={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "center",
         marginBottom: 15,
       }}
     >
-      <span
-        style={{
-          color: "var(--text-mut)",
-          fontSize: 14,
-        }}
-      >
-        مبلغ نهایی
-      </span>
+      <span>مبلغ نهایی</span>
 
-      <strong
-        style={{
-          fontSize: 17,
-        }}
-      >
-        {money(total)}
-      </strong>
+      <strong>{money(total)}</strong>
     </div>
 
     <Link
@@ -261,7 +237,6 @@ marginBottom: 25,
         fontWeight: 800,
         textDecoration: "none",
         fontFamily: "Vazirmatn",
-        fontSize: 14,
       }}
     >
       ادامه فرآیند خرید
