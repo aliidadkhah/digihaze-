@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Instagram, Send } from "lucide-react";
 import { CATEGORIES } from "@/lib/data";
 
-// لوسید آیکون رسمی واتساپ نداره، برای همین خودمون به‌صورت SVG می‌سازیمش
 function WhatsAppIcon({ size = 16, color = "var(--text-hi)" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
@@ -20,10 +19,9 @@ function WhatsAppIcon({ size = 16, color = "var(--text-hi)" }) {
   );
 }
 
-// ⚠️ این شماره‌ها رو با شماره‌ها/آیدی واقعی خودت جایگزین کن
-const WHATSAPP_NUMBER = "989020951384"; // بدون + و بدون صفر اول کشور، فرمت: 98 + شماره بدون صفر
-const INSTAGRAM_USERNAME = "digihaze";
-const TELEGRAM_USERNAME = "digihaze";
+const WHATSAPP_NUMBER = "989120000000";
+const INSTAGRAM_USERNAME = "your_instagram_id";
+const TELEGRAM_USERNAME = "your_telegram_id";
 
 export default function Footer() {
   const SOCIAL_LINKS = [
@@ -37,10 +35,10 @@ export default function Footer() {
       <div style={{ maxWidth: 1180, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 28 }}>
         <div>
           <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20, marginBottom: 10 }}>
-            دیجی‌<span style={{ color: "#2F86FF" }}>هیز</span>
+            دیجی<span style={{ color: "#2F86FF" }}>هیز</span>
           </div>
           <p style={{ color: "var(--text-lo)", fontSize: 13, lineHeight: 2 }}>
-            فروشگاه تخصصی سالت نیکوتین، پاد و کارتریج با ارسال رایگان و ضمانت اصالت کالا.
+            فروشگاه تخصصی مایع ویپ، دستگاه و لوازم جانبی با ارسال سریع و ضمانت اصالت کالا.
           </p>
           <p style={{ color: "var(--text-mut)", fontSize: 11, marginTop: 10 }}>
             فروش این محصولات صرفاً به افراد بالای ۱۸ سال مجاز است.
