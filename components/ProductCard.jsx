@@ -54,13 +54,6 @@ export default function ProductCard({ product }) {
                 transition: "transform 0.5s ease",
               }}
             />
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: `linear-gradient(180deg, transparent 50%, color-mix(in srgb, var(--bg) 85%, transparent) 100%)`,
-              }}
-            />
             {product.badge && (
               <div style={{ position: "absolute", top: 10, right: 10 }}>
                 <Badge bg={product.color}>{product.badge}</Badge>
