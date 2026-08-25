@@ -1,126 +1,100 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
-import { CheckCircle, Copy, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { money } from "@/lib/data";
 
-const CARD_NUMBER = "603799XXXXXXXXXX";
-
-function OrderSuccessContent() {
-  const searchParams = useSearchParams();
+export default function OrderSuccessPage() {
   const router = useRouter();
-
-  const orderId = searchParams.get("id");
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!orderId) {
-      setLoading(false);
-      setError("شماره سفارش پیدا نشد.");
-      return;
-    }
-
-    const loadOrder = async () => {
-      try {
-        const response = await fetch(
-          `/api/orders/${orderId}`
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "اطلاعات سفارش پیدا نشد."
-          );
-        }
-
-        setOrder(data.order);
-      } catch (err) {
-        setError(
-          err.message || "خطا در دریافت اطلاعات سفارش."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadOrder();
-  }, [orderId]);
-
-  const copyCardNumber = async () => {
     try {
-      await navigator.clipboard.writeText(CARD_NUMBER);
+      const savedOrder = sessionStorage.getItem("completedOrder");
 
-      setCopied(true);
+      if (savedOrder) {
+        setOrder(JSON.parse(savedOrder));
 
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (err) {
-      console.error("Copy error:", err);
+        // بعد از خواندن اطلاعات، پاکش می‌کنیم
+        sessionStorage.removeItem("completedOrder");
+      }
+    } catch (error) {
+      console.error("Order success error:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   if (loading) {
     return (
-      <main style={pageStyle}>
-        <div style={cardStyle}>
-          <div
-            style={{
-              textAlign: "center",
-              padding: 40,
-              fontFamily: "Vazirmatn",
-            }}
-          >
-            در حال دریافت اطلاعات سفارش...
-          </div>
-        </div>
-      </main>
+      <div
+        style={{
+          padding: "80px 20px",
+          textAlign: "center",
+          fontFamily: "Vazirmatn",
+        }}
+      >
+        در حال بارگذاری...
+      </div>
     );
   }
 
-  if (error) {
+  if (!order) {
     return (
-      <main style={pageStyle}>
-        <div style={cardStyle}>
-          <div
-            style={{
-              textAlign: "center",
-              padding: 40,
-              fontFamily: "Vazirmatn",
-            }}
-          >
-            <div
-              style={{
-                color: "#ff6b6b",
-                marginBottom: 20,
-              }}
-            >
-              {error}
-            </div>
+      <div
+        style={{
+          maxWidth: 650,
+          margin: "0 auto",
+          padding: "80px 20px",
+          textAlign: "center",
+          fontFamily: "Vazirmatn",
+        }}
+      >
+        <h1
+          style={{
+            fontWeight: 900,
+            marginBottom: 15,
+          }}
+        >
+          اطلاعات سفارش پیدا نشد
+        </h1>
 
-            <button
-              onClick={() => router.push("/shop")}
-              style={buttonStyle}
-            >
-              بازگشت به فروشگاه
-            </button>
-          </div>
-        </div>
-      </main>
+        <button
+          onClick={() => router.push("/shop")}
+          style={{
+            background: "#22E5C9",
+            border: "none",
+            borderRadius: 12,
+            padding: "12px 28px",
+            fontFamily: "Vazirmatn",
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
+        >
+          بازگشت به فروشگاه
+        </button>
+      </div>
     );
   }
 
   return (
-    <main style={pageStyle}>
-      <div style={cardStyle}>
-
+    <div
+      style={{
+        maxWidth: 700,
+        margin: "0 auto",
+        padding: "50px 20px 100px",
+        fontFamily: "Vazirmatn",
+      }}
+    >
+      <div
+        style={{
+          background: "var(--surface)",
+          borderRadius: 22,
+          padding: 30,
+        }}
+      >
         {/* SUCCESS */}
         <div
           style={{
@@ -132,24 +106,26 @@ function OrderSuccessContent() {
             style={{
               width: 72,
               height: 72,
+              margin: "0 auto 18px",
               borderRadius: "50%",
               background: "#22E5C920",
               color: "#22E5C9",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              margin: "0 auto 18px",
+              fontSize: 38,
+              fontWeight: 900,
             }}
           >
-            <CheckCircle size={42} />
+            ✓
           </div>
 
           <h1
             style={{
-              fontFamily: "Vazirmatn",
-              fontSize: 26,
+              fontSize: 25,
               fontWeight: 900,
-              margin: 0,
+              color: "var(--text-hi)",
+              marginBottom: 10,
             }}
           >
             سفارش شما با موفقیت ثبت شد
@@ -158,284 +134,172 @@ function OrderSuccessContent() {
           <p
             style={{
               color: "var(--text-mut)",
-              fontFamily: "Vazirmatn",
               fontSize: 14,
-              marginTop: 10,
+              margin: 0,
             }}
           >
-            سفارش شما دریافت شد و پس از بررسی پرداخت،
-            پردازش خواهد شد.
+            اطلاعات سفارش شما با موفقیت دریافت شد.
           </p>
         </div>
 
-        {/* CARD NUMBER */}
-        <div
-          style={{
-            background: "var(--surface2)",
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 20,
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "Vazirmatn",
-              fontSize: 13,
-              color: "var(--text-mut)",
-              marginBottom: 10,
-            }}
-          >
-            شماره کارت جهت واریز
+        {/* ORDER NUMBER */}
+        <div style={boxStyle}>
+          <div style={rowStyle}>
+            <span>شماره سفارش</span>
+
+            <strong>
+              #{order.id}
+            </strong>
+          </div>
+        </div>
+
+        {/* CUSTOMER INFO */}
+        <div style={boxStyle}>
+          <h2 style={titleStyle}>
+            اطلاعات گیرنده
+          </h2>
+
+          <div style={rowStyle}>
+            <span>نام و نام خانوادگی</span>
+
+            <strong>
+              {order.customer_name}
+            </strong>
           </div>
 
-          <button
-            type="button"
-            onClick={copyCardNumber}
+          <div style={rowStyle}>
+            <span>شماره موبایل</span>
+
+            <strong dir="ltr">
+              {order.customer_phone}
+            </strong>
+          </div>
+
+          <div
             style={{
-              width: "100%",
-              border: "1px solid var(--surface2)",
-              background: "var(--surface)",
-              color: "var(--text-hi)",
-              borderRadius: 12,
-              padding: "14px 12px",
-              cursor: "pointer",
-              fontFamily: "Vazirmatn",
-              fontSize: 17,
-              fontWeight: 900,
-              direction: "ltr",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
+              paddingTop: 12,
+              fontSize: 13,
             }}
           >
-            <span>{CARD_NUMBER}</span>
-
-            {copied ? (
-              <Check
-                size={18}
-                color="#22E5C9"
-              />
-            ) : (
-              <Copy size={18} />
-            )}
-          </button>
-
-          {copied && (
             <div
               style={{
-                textAlign: "center",
-                marginTop: 10,
-                color: "#22E5C9",
-                fontFamily: "Vazirmatn",
-                fontSize: 13,
-                fontWeight: 700,
+                color: "var(--text-mut)",
+                marginBottom: 6,
               }}
             >
-              Copied ✓
+              آدرس
+            </div>
+
+            <strong
+              style={{
+                lineHeight: 1.8,
+              }}
+            >
+              {order.customer_address}
+            </strong>
+          </div>
+        </div>
+
+        {/* PAYMENT INFO */}
+        <div style={boxStyle}>
+          <h2 style={titleStyle}>
+            اطلاعات پرداخت
+          </h2>
+
+          <div style={rowStyle}>
+            <span>مبلغ سفارش</span>
+
+            <strong>
+              {money(Number(order.total))}
+            </strong>
+          </div>
+
+          <div style={rowStyle}>
+            <span>روش پرداخت</span>
+
+            <strong>
+              کارت به کارت
+            </strong>
+          </div>
+
+          <div style={rowStyle}>
+            <span>کد پیگیری</span>
+
+            <strong>
+              {order.payment_tracking_code || "ثبت نشده"}
+            </strong>
+          </div>
+
+          {order.payment_transaction_time && (
+            <div style={rowStyle}>
+              <span>زمان تراکنش</span>
+
+              <strong>
+                {order.payment_transaction_time}
+              </strong>
             </div>
           )}
         </div>
 
-        {/* ORDER INFO */}
+        {/* STATUS */}
         <div
           style={{
-            background: "var(--surface2)",
-            borderRadius: 16,
-            padding: 20,
+            background: "#22E5C915",
+            border: "1px solid #22E5C940",
+            borderRadius: 14,
+            padding: 15,
+            textAlign: "center",
+            color: "#22E5C9",
+            fontSize: 13,
+            fontWeight: 700,
             marginBottom: 20,
           }}
         >
-          <h2
-            style={{
-              fontFamily: "Vazirmatn",
-              fontSize: 17,
-              marginTop: 0,
-              marginBottom: 18,
-            }}
-          >
-            اطلاعات سفارش
-          </h2>
-
-          <InfoRow
-            title="شماره سفارش"
-            value={`#${order.id}`}
-          />
-
-          <InfoRow
-            title="نام مشتری"
-            value={order.customer_name}
-          />
-
-          <InfoRow
-            title="شماره موبایل"
-            value={order.customer_phone}
-          />
-
-          <InfoRow
-            title="مبلغ سفارش"
-            value={money(Number(order.total))}
-          />
+          سفارش شما در انتظار بررسی و تأیید پرداخت است.
         </div>
 
-        {/* ITEMS */}
-        {order.items && order.items.length > 0 && (
-          <div
-            style={{
-              background: "var(--surface2)",
-              borderRadius: 16,
-              padding: 20,
-              marginBottom: 25,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "Vazirmatn",
-                fontSize: 17,
-                marginTop: 0,
-                marginBottom: 15,
-              }}
-            >
-              محصولات سفارش
-            </h2>
-
-            {order.items.map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 15,
-                  padding: "10px 0",
-                  borderBottom:
-                    index !== order.items.length - 1
-                      ? "1px solid var(--surface)"
-                      : "none",
-                  fontFamily: "Vazirmatn",
-                  fontSize: 13,
-                }}
-              >
-                <span>
-                  {item.product_id}
-                  {" × "}
-                  {item.qty}
-                </span>
-
-                <span>
-                  {money(
-                    Number(item.price) *
-                      Number(item.qty)
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* BACK */}
-        <Link
-          href="/shop"
+        <button
+          onClick={() => router.push("/shop")}
           style={{
-            display: "block",
             width: "100%",
-            boxSizing: "border-box",
             background: "#22E5C9",
             color: "#061014",
-            textAlign: "center",
-            textDecoration: "none",
+            border: "none",
             borderRadius: 12,
-            padding: "13px 0",
+            padding: "14px",
             fontFamily: "Vazirmatn",
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: 14,
+            cursor: "pointer",
           }}
         >
           بازگشت به فروشگاه
-        </Link>
+        </button>
       </div>
-    </main>
-  );
-}
-
-function InfoRow({ title, value }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        gap: 15,
-        padding: "9px 0",
-        fontFamily: "Vazirmatn",
-        fontSize: 13,
-      }}
-    >
-      <span
-        style={{
-          color: "var(--text-mut)",
-        }}
-      >
-        {title}
-      </span>
-
-      <span
-        style={{
-          fontWeight: 700,
-          textAlign: "left",
-        }}
-      >
-        {value || "-"}
-      </span>
     </div>
   );
 }
 
-export default function OrderSuccessPage() {
-  return (
-    <Suspense
-      fallback={
-        <main style={pageStyle}>
-          <div style={cardStyle}>
-            <div
-              style={{
-                textAlign: "center",
-                padding: 40,
-                fontFamily: "Vazirmatn",
-              }}
-            >
-              در حال بارگذاری...
-            </div>
-          </div>
-        </main>
-      }
-    >
-      <OrderSuccessContent />
-    </Suspense>
-  );
-}
-
-const pageStyle = {
-  minHeight: "100vh",
-  padding: "50px 20px 80px",
-  boxSizing: "border-box",
+const boxStyle = {
+  background: "var(--bg)",
+  borderRadius: 14,
+  padding: 18,
+  marginBottom: 15,
 };
 
-const cardStyle = {
-  width: "100%",
-  maxWidth: 650,
-  margin: "0 auto",
-  background: "var(--surface)",
-  borderRadius: 20,
-  padding: 25,
-  boxSizing: "border-box",
-};
-
-const buttonStyle = {
-  background: "#22E5C9",
-  color: "#061014",
-  border: "none",
-  borderRadius: 12,
-  padding: "12px 25px",
-  fontFamily: "Vazirmatn",
+const titleStyle = {
+  marginTop: 0,
+  marginBottom: 15,
+  fontSize: 16,
   fontWeight: 800,
-  cursor: "pointer",
+};
+
+const rowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 15,
+  padding: "10px 0",
+  fontSize: 13,
+  borderBottom: "1px solid var(--surface2)",
 };
