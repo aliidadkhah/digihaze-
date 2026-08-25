@@ -2,21 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, CreditCard, Copy } from "lucide-react";
-import { money, discountedPrice } from "@/lib/data";
 import { useCart } from "@/components/Providers";
+import { money, discountedPrice } from "@/lib/data";
 
 const CARD_NUMBER = "5022291316719168";
-const CARD_HOLDER = "علی دادخواه";
+const CARD_DISPLAY = "5022 2913 1671 9168";
+const CARD_OWNER = "علی دادخواه";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cart } = useCart();
 
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -29,27 +26,39 @@ export default function CheckoutPage() {
     transactionTime: "",
   });
 
+  const [order, setOrder] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const total = cart.reduce(
     (sum, item) =>
       sum + discountedPrice(item.product) * item.qty,
     0
   );
 
-  const updateForm = (field, value) => {
+  function updateForm(name, value) {
     setForm((prev) => ({
       ...prev,
-      [field]: value,
+      [name]: value,
     }));
-  };
+  }
 
-  const updatePayment = (field, value) => {
-    setPayment((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  async function copyCard() {
+    try {
+      await navigator.clipboard.writeText(CARD_NUMBER);
 
-  const continueToPayment = () => {
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Copy failed:", error);
+    }
+  }
+
+  function continueToPayment() {
     setError("");
 
     if (!form.name.trim()) {
@@ -67,24 +76,15 @@ export default function CheckoutPage() {
       return;
     }
 
-    setStep(2);
-  };
-
-  const copyCard = async () => {
-    try {
-      await navigator.clipboard.writeText(CARD_NUMBER);
-
-      setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch {
-      setError("کپی شماره کارت انجام نشد.");
+    if (cart.length === 0) {
+      setError("سبد خرید شما خالی است.");
+      return;
     }
-  };
 
-  const submitOrder = async () => {
+    setStep(2);
+  }
+
+  async function submitOrder() {
     setError("");
 
     if (!payment.trackingCode.trim()) {
@@ -132,9 +132,11 @@ export default function CheckoutPage() {
       });
 
       /*
-       * به جای response.json() مستقیم،
-       * اول متن پاسخ را می‌گیریم تا اگر Cloudflare
-       * یا سرور HTML برگرداند، برنامه کرش نکند.
+       * مهم:
+       * اول متن پاسخ را می‌خوانیم.
+       * این کار باعث می‌شود اگر سرور به جای JSON
+       * صفحه HTML یا خطای دیگری برگرداند،
+       * خطای "Unexpected token <" نگیریم.
        */
       const responseText = await response.text();
 
@@ -155,693 +157,794 @@ export default function CheckoutPage() {
       }
 
       /*
-       * مهم:
-       * دیگر router.push به /order-success نداریم.
-       * مستقیماً مرحله سوم را نمایش می‌دهیم.
+       * سفارش ثبت شده را نگه می‌داریم
+       * تا مرحله موفقیت بتواند اطلاعات واقعی سفارش
+       * را نمایش دهد.
+       */
+      if (data?.order) {
+        setOrder(data.order);
+      } else {
+        /*
+         * اگر API فقط success برگرداند،
+         * اطلاعات موجود فرم را نگه می‌داریم.
+         */
+        setOrder({
+          id: data?.order?.id || data?.id || "—",
+
+          customer_name: form.name.trim(),
+          customer_phone: form.phone.trim(),
+          customer_address: form.address.trim(),
+
+          total: total,
+
+          payment_tracking_code:
+            payment.trackingCode.trim(),
+
+          payment_transaction_time:
+            payment.transactionTime.trim(),
+        });
+      }
+
+      /*
+       * خیلی مهم:
+       * دیگر router.push به order-success نداریم.
+       * مستقیماً مرحله موفقیت را نمایش می‌دهیم.
        */
       setStep(3);
-
     } catch (err) {
+      console.error("Submit order error:", err);
+
       setError(
         err?.message ||
-          "خطایی هنگام ثبت سفارش رخ داد. لطفاً دوباره تلاش کنید."
+          "خطایی در ثبت سفارش رخ داد. دوباره تلاش کنید."
       );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   /*
-   * اگر سبد خالی است
+   * اگر سبد خالی باشد و هنوز به مرحله موفقیت نرسیده باشیم
    */
   if (cart.length === 0 && step !== 3) {
     return (
       <main
-        dir="rtl"
         style={{
           maxWidth: 600,
           margin: "0 auto",
           padding: "80px 20px",
           textAlign: "center",
+          fontFamily: "Vazirmatn, sans-serif",
         }}
       >
         <h1
           style={{
-            fontFamily: "Vazirmatn",
             fontSize: 24,
             fontWeight: 800,
-            marginBottom: 12,
+            marginBottom: 20,
           }}
         >
           سبد خرید خالی است
         </h1>
 
-        <p
-          style={{
-            color: "var(--text-mut)",
-            marginBottom: 24,
-          }}
-        >
-          ابتدا محصولی به سبد خرید اضافه کنید.
-        </p>
-
         <button
           onClick={() => router.push("/shop")}
-          style={primaryButton}
+          style={{
+            background: "#22E5C9",
+            color: "#061014",
+            border: "none",
+            borderRadius: 12,
+            padding: "13px 28px",
+            fontFamily: "Vazirmatn, sans-serif",
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
         >
-          رفتن به فروشگاه
+          بازگشت به فروشگاه
         </button>
       </main>
     );
   }
 
   return (
-    <main
-      dir="rtl"
-      style={{
-        width: "100%",
-        maxWidth: 720,
-        margin: "0 auto",
-        padding: "40px 20px 80px",
-      }}
-    >
-
-      {/* عنوان */}
-      <div style={{ marginBottom: 30 }}>
-        <h1
-          style={{
-            fontFamily: "Vazirmatn",
-            fontWeight: 800,
-            fontSize: 28,
-            marginBottom: 10,
-          }}
-        >
-          تکمیل سفارش
-        </h1>
-
-        {step !== 3 && (
-          <p
-            style={{
-              color: "var(--text-mut)",
-              fontSize: 14,
-            }}
-          >
-            سفارش خود را در چند مرحله تکمیل کنید.
-          </p>
-        )}
-      </div>
-
-      {/* مراحل */}
-      {step !== 3 && (
+    <>
+      <main
+        dir="rtl"
+        style={{
+          width: "100%",
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "40px 20px 100px",
+          boxSizing: "border-box",
+          fontFamily: "Vazirmatn, sans-serif",
+        }}
+      >
+        {/* عنوان */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 10,
-            marginBottom: 30,
+            marginBottom: 28,
+            textAlign: "right",
           }}
         >
-          <Step
-            number="1"
-            active={step >= 1}
-            title="مشخصات"
-          />
-
-          <div
+          <h1
             style={{
-              width: 50,
-              height: 1,
-              background: "var(--surface2)",
-            }}
-          />
-
-          <Step
-            number="2"
-            active={step >= 2}
-            title="پرداخت"
-          />
-        </div>
-      )}
-
-      {/* =========================
-          STEP 1
-      ========================= */}
-
-      {step === 1 && (
-        <section
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--surface2)",
-            borderRadius: 20,
-            padding: 22,
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: "Vazirmatn",
-              fontSize: 19,
-              fontWeight: 800,
-              marginBottom: 20,
+              margin: 0,
+              fontSize: 28,
+              fontWeight: 900,
             }}
           >
-            اطلاعات گیرنده
-          </h2>
+            تکمیل سفارش
+          </h1>
 
-          <Field
-            label="نام و نام خانوادگی"
-            value={form.name}
-            onChange={(value) =>
-              updateForm("name", value)
-            }
-            placeholder="مثلاً علی احمدی"
-          />
-
-          <Field
-            label="شماره موبایل"
-            value={form.phone}
-            onChange={(value) =>
-              updateForm("phone", value)
-            }
-            placeholder="09xxxxxxxxx"
-            type="tel"
-          />
-
-          <div style={{ marginBottom: 18 }}>
-            <label
+          {step !== 3 && (
+            <p
               style={{
-                display: "block",
-                fontSize: 13,
-                fontWeight: 700,
-                marginBottom: 8,
+                marginTop: 8,
+                color: "var(--text-mut)",
+                fontSize: 14,
               }}
             >
-              آدرس کامل
-            </label>
+              سفارش خود را در چند مرحله تکمیل کنید.
+            </p>
+          )}
+        </div>
 
-            <textarea
-              value={form.address}
-              onChange={(e) =>
-                updateForm("address", e.target.value)
-              }
-              placeholder="استان، شهر، خیابان، کوچه، پلاک و واحد"
-              rows={4}
-              style={{
-                ...inputStyle,
-                resize: "vertical",
-              }}
-            />
-          </div>
+        {/* ========================= */}
+        {/* STEP 1 */}
+        {/* ========================= */}
 
-          {error && <ErrorBox>{error}</ErrorBox>}
-
-          <Summary total={total} />
-
-          <button
-            onClick={continueToPayment}
-            style={primaryButton}
-          >
-            ادامه و مشاهده اطلاعات پرداخت
-          </button>
-        </section>
-      )}
-
-      {/* =========================
-          STEP 2
-      ========================= */}
-
-      {step === 2 && (
-        <section>
-
-          {/* اطلاعات کارت */}
-          <div
+        {step === 1 && (
+          <section
             style={{
               background: "var(--surface)",
               border: "1px solid var(--surface2)",
               borderRadius: 20,
-              padding: 24,
-              marginBottom: 16,
+              padding: 22,
+              boxSizing: "border-box",
             }}
           >
-            <div
+            <h2
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                marginBottom: 18,
+                margin: "0 0 22px",
+                fontSize: 19,
+                fontWeight: 800,
               }}
             >
-              <CreditCard
-                size={24}
-                color="#22E5C9"
-              />
+              اطلاعات گیرنده
+            </h2>
 
-              <h2
-                style={{
-                  fontFamily: "Vazirmatn",
-                  fontSize: 19,
-                  fontWeight: 800,
-                  margin: 0,
-                }}
-              >
-                پرداخت کارت‌به‌کارت
-              </h2>
+            {/* نام */}
+            <div style={fieldWrapper}>
+              <label style={labelStyle}>
+                نام و نام خانوادگی
+              </label>
+
+              <input
+                className="checkout-input"
+                type="text"
+                value={form.name}
+                onChange={(e) =>
+                  updateForm("name", e.target.value)
+                }
+                placeholder="مثلاً علی رضایی"
+                autoComplete="name"
+              />
             </div>
 
-            <div
+            {/* موبایل */}
+            <div style={fieldWrapper}>
+              <label style={labelStyle}>
+                شماره موبایل
+              </label>
+
+              <input
+                className="checkout-input"
+                type="tel"
+                inputMode="tel"
+                value={form.phone}
+                onChange={(e) =>
+                  updateForm("phone", e.target.value)
+                }
+                placeholder="09123456789"
+                autoComplete="tel"
+                dir="ltr"
+              />
+            </div>
+
+            {/* آدرس */}
+            <div style={fieldWrapper}>
+              <label style={labelStyle}>
+                آدرس کامل
+              </label>
+
+              <textarea
+                className="checkout-input"
+                value={form.address}
+                onChange={(e) =>
+                  updateForm("address", e.target.value)
+                }
+                placeholder="استان، شهر، خیابان، کوچه، پلاک..."
+                rows={5}
+              />
+            </div>
+
+            {/* مبلغ */}
+            <div style={totalBoxStyle}>
+              <span>مبلغ سفارش</span>
+
+              <strong>
+                {money(total)}
+              </strong>
+            </div>
+
+            {error && (
+              <div style={errorStyle}>
+                {error}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={continueToPayment}
+              style={mainButtonStyle}
+            >
+              ادامه فرآیند پرداخت
+            </button>
+          </section>
+        )}
+
+        {/* ========================= */}
+        {/* STEP 2 */}
+        {/* ========================= */}
+
+        {step === 2 && (
+          <section
+            style={{
+              background: "var(--surface)",
+              border: "1px solid var(--surface2)",
+              borderRadius: 20,
+              padding: 22,
+              boxSizing: "border-box",
+            }}
+          >
+            <h2
               style={{
-                background: "var(--bg)",
-                borderRadius: 16,
-                padding: 20,
-                textAlign: "center",
-                marginBottom: 20,
+                margin: "0 0 10px",
+                fontSize: 20,
+                fontWeight: 800,
               }}
             >
+              پرداخت کارت به کارت
+            </h2>
 
+            <p
+              style={{
+                margin: "0 0 22px",
+                color: "var(--text-mut)",
+                fontSize: 13,
+                lineHeight: 2,
+              }}
+            >
+              ابتدا مبلغ سفارش را به شماره کارت زیر
+              واریز کنید، سپس کد پیگیری و ساعت تراکنش
+              را وارد کنید.
+            </p>
+
+            {/* کارت بانکی */}
+            <button
+              type="button"
+              onClick={copyCard}
+              aria-label="کپی شماره کارت"
+              style={{
+                width: "100%",
+                border: "none",
+                borderRadius: 18,
+                padding: "24px 15px",
+                background:
+                  "linear-gradient(135deg, #171717, #090909)",
+                color: "#fff",
+                cursor: "pointer",
+                fontFamily: "Vazirmatn, sans-serif",
+                boxSizing: "border-box",
+              }}
+            >
               <div
                 style={{
-                  color: "var(--text-mut)",
                   fontSize: 12,
-                  marginBottom: 8,
-                }}
-              >
-                مبلغ قابل پرداخت
-              </div>
-
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: 900,
-                  marginBottom: 20,
-                }}
-              >
-                {money(total)}
-              </div>
-
-              <div
-                style={{
-                  color: "var(--text-mut)",
-                  fontSize: 12,
+                  opacity: 0.65,
                   marginBottom: 8,
                 }}
               >
                 شماره کارت
               </div>
 
-              {/* شماره کارت قابل کلیک */}
-              <button
-                type="button"
-                onClick={copyCard}
+              <div
                 style={{
-                  display: "block",
-                  width: "100%",
-                  border: "none",
-                  background: "transparent",
-                  color: "var(--text-hi)",
-                  cursor: "pointer",
-                  padding: 5,
-                  margin: "0 auto 8px",
+                  direction: "ltr",
+                  fontFamily: "Arial, sans-serif",
+                  fontSize:
+                    "clamp(18px, 5vw, 28px)",
+                  fontWeight: 800,
+                  letterSpacing: 1,
+                  whiteSpace: "nowrap",
+                  marginBottom: 15,
                 }}
-                title="برای کپی کلیک کنید"
               >
-                <div
-                  style={{
-                    direction: "ltr",
-                    fontSize: "clamp(18px, 5vw, 24px)",
-                    fontWeight: 900,
-                    letterSpacing: 2,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  5022 2913 1671 9168
-                </div>
-              </button>
+                {CARD_DISPLAY}
+              </div>
 
               <div
                 style={{
-                  color: "var(--text-hi)",
-                  fontWeight: 700,
                   fontSize: 14,
+                  fontWeight: 700,
                 }}
               >
-                به نام {CARD_HOLDER}
+                {CARD_OWNER}
               </div>
 
-              {/* دکمه کپی */}
-              <button
-                type="button"
-                onClick={copyCard}
+              <div
                 style={{
-                  marginTop: 16,
-                  background: "var(--surface2)",
-                  color: "var(--text-hi)",
-                  border: "none",
-                  borderRadius: 10,
-                  padding: "9px 15px",
-                  cursor: "pointer",
-                  fontFamily: "Vazirmatn",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 7,
+                  marginTop: 15,
+                  fontSize: 12,
+                  color: copied
+                    ? "#22E5C9"
+                    : "rgba(255,255,255,.6)",
+                  fontWeight: 700,
                 }}
               >
-                <Copy size={15} />
-
                 {copied
                   ? "Copied ✓"
-                  : "کپی شماره کارت"}
-              </button>
+                  : "برای کپی شماره کارت ضربه بزنید"}
+              </div>
+            </button>
 
-            </div>
-
-            <div
-              style={{
-                background: "#22E5C912",
-                border: "1px solid #22E5C933",
-                borderRadius: 12,
-                padding: 14,
-                lineHeight: 1.9,
-                fontSize: 13,
-              }}
-            >
-              ابتدا مبلغ دقیق سفارش را به شماره کارت بالا
-              واریز کنید. سپس کد پیگیری و ساعت تراکنش را
-              در قسمت پایین وارد کنید.
-            </div>
-          </div>
-
-          {/* اطلاعات تراکنش */}
-          <div
-            style={{
-              background: "var(--surface)",
-              border: "1px solid var(--surface2)",
-              borderRadius: 20,
-              padding: 22,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily: "Vazirmatn",
-                fontSize: 18,
-                fontWeight: 800,
-                marginBottom: 20,
-              }}
-            >
-              اطلاعات تراکنش
-            </h2>
-
-            <Field
-              label="کد پیگیری تراکنش"
-              value={payment.trackingCode}
-              onChange={(value) =>
-                updatePayment(
-                  "trackingCode",
-                  value
-                )
-              }
-              placeholder="کد پیگیری واریز را وارد کنید"
-            />
-
-            <Field
-              label="ساعت تراکنش"
-              value={payment.transactionTime}
-              onChange={(value) =>
-                updatePayment(
-                  "transactionTime",
-                  value
-                )
-              }
-              placeholder="مثلاً 14:35"
-              type="time"
-            />
-
-            {error && <ErrorBox>{error}</ErrorBox>}
-
+            {/* مبلغ */}
             <div
               style={{
                 display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
                 gap: 10,
-                marginTop: 20,
+                margin: "20px 0",
+                padding: 16,
+                borderRadius: 13,
+                background: "var(--bg)",
               }}
             >
-              <button
-                type="button"
-                onClick={() => {
-                  setError("");
-                  setStep(1);
-                }}
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  background: "var(--surface2)",
-                  color: "var(--text-hi)",
-                  border: "none",
-                  borderRadius: 12,
-                  padding: 14,
-                  fontFamily: "Vazirmatn",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                بازگشت
-              </button>
+              <span>مبلغ قابل پرداخت</span>
 
-              <button
-                type="button"
-                onClick={submitOrder}
-                disabled={loading}
+              <strong
                 style={{
-                  ...primaryButton,
-                  flex: 2,
-                  opacity: loading ? 0.6 : 1,
+                  fontSize: 17,
+                  whiteSpace: "nowrap",
                 }}
               >
-                {loading
-                  ? "در حال ثبت سفارش..."
-                  : "ثبت نهایی سفارش"}
-              </button>
+                {money(total)}
+              </strong>
             </div>
-          </div>
-        </section>
-      )}
 
-      {/* =========================
-          STEP 3
-      ========================= */}
+            {/* کد پیگیری */}
+            <div style={fieldWrapper}>
+              <label style={labelStyle}>
+                کد پیگیری تراکنش
+              </label>
 
-      {step === 3 && (
-        <section
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--surface2)",
-            borderRadius: 22,
-            padding: 35,
-            textAlign: "center",
-          }}
-        >
-          <CheckCircle2
-            size={64}
-            color="#22E5C9"
+              <input
+                className="checkout-input"
+                type="text"
+                inputMode="numeric"
+                value={payment.trackingCode}
+                onChange={(e) =>
+                  setPayment((prev) => ({
+                    ...prev,
+                    trackingCode: e.target.value,
+                  }))
+                }
+                placeholder="کد پیگیری را وارد کنید"
+                dir="ltr"
+              />
+            </div>
+
+            {/* ساعت */}
+            <div style={fieldWrapper}>
+              <label style={labelStyle}>
+                ساعت تراکنش
+              </label>
+
+              <input
+                className="checkout-input"
+                type="text"
+                inputMode="numeric"
+                value={payment.transactionTime}
+                onChange={(e) =>
+                  setPayment((prev) => ({
+                    ...prev,
+                    transactionTime: e.target.value,
+                  }))
+                }
+                placeholder="مثلاً 14:35"
+                dir="ltr"
+              />
+            </div>
+
+            {error && (
+              <div style={errorStyle}>
+                {error}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={submitOrder}
+              disabled={loading}
+              style={{
+                ...mainButtonStyle,
+                opacity: loading ? 0.55 : 1,
+                cursor: loading
+                  ? "not-allowed"
+                  : "pointer",
+              }}
+            >
+              {loading
+                ? "در حال ثبت سفارش..."
+                : "ثبت نهایی سفارش"}
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => {
+                setError("");
+                setStep(1);
+              }}
+              style={{
+                width: "100%",
+                marginTop: 10,
+                padding: 14,
+                border: "1px solid var(--surface2)",
+                borderRadius: 14,
+                background: "transparent",
+                color: "var(--text-hi)",
+                fontFamily: "Vazirmatn, sans-serif",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: loading
+                  ? "not-allowed"
+                  : "pointer",
+                opacity: loading ? 0.5 : 1,
+              }}
+            >
+              بازگشت
+            </button>
+          </section>
+        )}
+
+        {/* ========================= */}
+        {/* STEP 3 - SUCCESS */}
+        {/* ========================= */}
+
+        {step === 3 && (
+          <section
             style={{
-              marginBottom: 18,
-            }}
-          />
-
-          <h2
-            style={{
-              fontFamily: "Vazirmatn",
-              fontWeight: 900,
-              fontSize: 24,
-              marginBottom: 12,
+              background: "var(--surface)",
+              border: "1px solid var(--surface2)",
+              borderRadius: 22,
+              padding: 25,
+              boxSizing: "border-box",
             }}
           >
-            سفارش شما ثبت شد 🎉
-          </h2>
+            {/* موفقیت */}
+            <div
+              style={{
+                textAlign: "center",
+                marginBottom: 28,
+              }}
+            >
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  margin: "0 auto 18px",
+                  borderRadius: "50%",
+                  background: "#22E5C920",
+                  color: "#22E5C9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 38,
+                  fontWeight: 900,
+                }}
+              >
+                ✓
+              </div>
 
-          <p
-            style={{
-              color: "var(--text-mut)",
-              lineHeight: 2,
-              fontSize: 14,
-              marginBottom: 25,
-            }}
-          >
-            اطلاعات سفارش شما با موفقیت دریافت شد و
-            برای بررسی ارسال می‌شود.
-            <br />
-            پس از بررسی تراکنش، سفارش شما پردازش خواهد شد.
-          </p>
+              <h1
+                style={{
+                  margin: "0 0 10px",
+                  fontSize: 25,
+                  fontWeight: 900,
+                }}
+              >
+                سفارش شما با موفقیت ثبت شد
+              </h1>
 
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            style={primaryButton}
-          >
-            بازگشت به فروشگاه
-          </button>
-        </section>
-      )}
+              <p
+                style={{
+                  margin: 0,
+                  color: "var(--text-mut)",
+                  fontSize: 14,
+                  lineHeight: 2,
+                }}
+              >
+                اطلاعات سفارش شما با موفقیت دریافت شد.
+              </p>
+            </div>
 
-    </main>
-  );
-}
+            {/* شماره سفارش */}
+            <div style={successBoxStyle}>
+              <div style={rowStyle}>
+                <span>شماره سفارش</span>
 
+                <strong>
+                  #{order?.id || "—"}
+                </strong>
+              </div>
+            </div>
 
-/* =========================
-   Components
-========================= */
+            {/* اطلاعات گیرنده */}
+            <div style={successBoxStyle}>
+              <h2 style={successTitleStyle}>
+                اطلاعات گیرنده
+              </h2>
 
-function Step({ number, active, title }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 7,
-        color: active
-          ? "#22E5C9"
-          : "var(--text-mut)",
-        fontSize: 12,
-        fontWeight: 700,
-      }}
-    >
-      <span
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: "50%",
-          background: active
-            ? "#22E5C9"
-            : "var(--surface2)",
-          color: active
-            ? "#000"
-            : "var(--text-mut)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 900,
-        }}
-      >
-        {number}
-      </span>
+              <div style={rowStyle}>
+                <span>نام و نام خانوادگی</span>
 
-      {title}
-    </div>
-  );
-}
+                <strong>
+                  {order?.customer_name ||
+                    form.name}
+                </strong>
+              </div>
 
+              <div style={rowStyle}>
+                <span>شماره موبایل</span>
 
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-}) {
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <label
-        style={{
-          display: "block",
-          fontSize: 13,
-          fontWeight: 700,
-          marginBottom: 8,
-        }}
-      >
-        {label}
-      </label>
+                <strong dir="ltr">
+                  {order?.customer_phone ||
+                    form.phone}
+                </strong>
+              </div>
 
-      <input
-        type={type}
-        value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
+              <div
+                style={{
+                  paddingTop: 12,
+                  fontSize: 13,
+                }}
+              >
+                <div
+                  style={{
+                    color: "var(--text-mut)",
+                    marginBottom: 6,
+                  }}
+                >
+                  آدرس
+                </div>
+
+                <strong
+                  style={{
+                    lineHeight: 1.9,
+                  }}
+                >
+                  {order?.customer_address ||
+                    form.address}
+                </strong>
+              </div>
+            </div>
+
+            {/* اطلاعات پرداخت */}
+            <div style={successBoxStyle}>
+              <h2 style={successTitleStyle}>
+                اطلاعات پرداخت
+              </h2>
+
+              <div style={rowStyle}>
+                <span>مبلغ سفارش</span>
+
+                <strong>
+                  {money(
+                    Number(
+                      order?.total ?? total
+                    )
+                  )}
+                </strong>
+              </div>
+
+              <div style={rowStyle}>
+                <span>روش پرداخت</span>
+
+                <strong>
+                  کارت به کارت
+                </strong>
+              </div>
+
+              <div style={rowStyle}>
+                <span>کد پیگیری</span>
+
+                <strong dir="ltr">
+                  {order?.payment_tracking_code ||
+                    payment.trackingCode}
+                </strong>
+              </div>
+
+              <div style={rowStyle}>
+                <span>زمان تراکنش</span>
+
+                <strong dir="ltr">
+                  {order?.payment_transaction_time ||
+                    payment.transactionTime}
+                </strong>
+              </div>
+            </div>
+
+            {/* وضعیت */}
+            <div
+              style={{
+                background: "#22E5C915",
+                border: "1px solid #22E5C940",
+                borderRadius: 14,
+                padding: 15,
+                textAlign: "center",
+                color: "#22E5C9",
+                fontSize: 13,
+                fontWeight: 700,
+                lineHeight: 2,
+                marginBottom: 20,
+              }}
+            >
+              سفارش شما در انتظار بررسی و تأیید پرداخت
+              است.
+            </div>
+
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              style={{
+                width: "100%",
+                background: "#22E5C9",
+                color: "#061014",
+                border: "none",
+                borderRadius: 12,
+                padding: "14px",
+                fontFamily:
+                  "Vazirmatn, sans-serif",
+                fontWeight: 800,
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              بازگشت به فروشگاه
+            </button>
+          </section>
+        )}
+      </main>
+
+      <style jsx>{`
+        .checkout-input {
+          display: block;
+          width: 100%;
+          min-width: 0;
+          max-width: 100%;
+          padding: 14px;
+          box-sizing: border-box;
+          border: 1px solid var(--surface2);
+          border-radius: 12px;
+          outline: none;
+          background: var(--bg);
+          color: var(--text-hi);
+          font-family: Vazirmatn, sans-serif;
+          font-size: 14px;
+          line-height: 1.6;
         }
-        placeholder={placeholder}
-        style={inputStyle}
-      />
-    </div>
+
+        .checkout-input:focus {
+          border-color: #22e5c9;
+        }
+
+        textarea.checkout-input {
+          min-height: 130px;
+          resize: vertical;
+        }
+
+        @media (max-width: 600px) {
+          .checkout-input {
+            font-size: 14px;
+            padding: 13px 12px;
+          }
+        }
+      `}</style>
+    </>
   );
 }
 
+/* ========================= */
+/* STYLES */
+/* ========================= */
 
-function ErrorBox({ children }) {
-  return (
-    <div
-      style={{
-        background: "#ff4d4d12",
-        border: "1px solid #ff4d4d44",
-        color: "#ff7777",
-        borderRadius: 10,
-        padding: 12,
-        fontSize: 13,
-        marginBottom: 16,
-        lineHeight: 1.8,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-
-function Summary({ total }) {
-  return (
-    <div
-      style={{
-        borderTop: "1px solid var(--surface2)",
-        paddingTop: 16,
-        marginTop: 20,
-        marginBottom: 20,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          fontSize: 14,
-        }}
-      >
-        <span
-          style={{
-            color: "var(--text-mut)",
-          }}
-        >
-          مبلغ سفارش
-        </span>
-
-        <strong>
-          {money(total)}
-        </strong>
-      </div>
-    </div>
-  );
-}
-
-
-const inputStyle = {
+const fieldWrapper = {
   width: "100%",
-  boxSizing: "border-box",
-  background: "var(--bg)",
-  color: "var(--text-hi)",
-  border: "1px solid var(--surface2)",
-  borderRadius: 11,
-  padding: "12px 13px",
-  outline: "none",
-  fontFamily: "Vazirmatn",
-  fontSize: 13,
+  marginBottom: 17,
 };
 
+const labelStyle = {
+  display: "block",
+  marginBottom: 7,
+  fontSize: 13,
+  fontWeight: 700,
+  color: "var(--text-hi)",
+};
 
-const primaryButton = {
+const totalBoxStyle = {
   width: "100%",
-  background: "#22E5C9",
-  color: "#000",
-  border: "none",
-  borderRadius: 12,
-  padding: "14px 18px",
-  fontFamily: "Vazirmatn",
-  fontWeight: 800,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 15,
+  marginTop: 25,
+  padding: 17,
+  boxSizing: "border-box",
+  borderRadius: 13,
+  background: "var(--bg)",
   fontSize: 14,
+};
+
+const mainButtonStyle = {
+  display: "block",
+  width: "100%",
+  marginTop: 20,
+  padding: 15,
+  boxSizing: "border-box",
+  border: 0,
+  borderRadius: 14,
+  background: "#22E5C9",
+  color: "#061014",
+  fontFamily: "Vazirmatn, sans-serif",
+  fontSize: 15,
+  fontWeight: 800,
   cursor: "pointer",
+};
+
+const errorStyle = {
+  width: "100%",
+  marginTop: 15,
+  padding: 12,
+  boxSizing: "border-box",
+  borderRadius: 10,
+  background: "#ff3b3b18",
+  color: "#ff5f5f",
+  fontSize: 13,
+  lineHeight: 1.8,
+};
+
+const successBoxStyle = {
+  background: "var(--bg)",
+  borderRadius: 14,
+  padding: 18,
+  marginBottom: 15,
+};
+
+const successTitleStyle = {
+  marginTop: 0,
+  marginBottom: 15,
+  fontSize: 16,
+  fontWeight: 800,
+};
+
+const rowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 15,
+  padding: "10px 0",
+  fontSize: 13,
+  borderBottom: "1px solid var(--surface2)",
 };
