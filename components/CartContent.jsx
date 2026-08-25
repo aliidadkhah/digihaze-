@@ -10,7 +10,6 @@ export default function CartContent() {
 
   const { cart, updateQty, removeItem } = useCart();
 
-
   const total = cart.reduce(
     (sum, item) =>
       sum + discountedPrice(item.product) * item.qty,
@@ -18,24 +17,49 @@ export default function CartContent() {
   );
 
 
-  if(cart.length === 0){
+  if (cart.length === 0) {
 
     return (
-      <div style={{
-        maxWidth:600,
-        margin:"0 auto",
-        padding:"80px 20px",
-        textAlign:"center"
-      }}>
+      <div
+        style={{
+          maxWidth: 600,
+          margin: "0 auto",
+          padding: "80px 20px",
+          textAlign: "center",
+        }}
+      >
 
-        <ShoppingBag size={40}/>
+        <ShoppingBag
+          size={40}
+          color="var(--border-soft)"
+          style={{
+            marginBottom: 20
+          }}
+        />
 
-        <h2>
+        <h2
+          style={{
+            fontFamily:"Vazirmatn",
+            fontWeight:800
+          }}
+        >
           سبد خرید خالی است
         </h2>
 
 
-        <Link href="/shop">
+        <Link
+          href="/shop"
+          style={{
+            display:"inline-block",
+            marginTop:20,
+            background:"#22E5C9",
+            color:"#000",
+            padding:"12px 30px",
+            borderRadius:12,
+            textDecoration:"none",
+            fontWeight:800
+          }}
+        >
           رفتن به فروشگاه
         </Link>
 
@@ -47,134 +71,215 @@ export default function CartContent() {
 
   return (
 
-    <div style={{
-      maxWidth:900,
-      margin:"0 auto",
-      padding:"40px 20px"
-    }}>
+    <div
+      style={{
+        maxWidth:900,
+        margin:"0 auto",
+        padding:"40px 20px 80px"
+      }}
+    >
 
 
-      <h1>
+      <h1
+        style={{
+          fontFamily:"Vazirmatn",
+          fontWeight:800,
+          fontSize:26,
+          marginBottom:25
+        }}
+      >
         سبد خرید
       </h1>
 
 
-      {cart.map((item)=>{
 
-        const product=item.product;
-
-
-        return (
-
-          <div
-          key={product.id}
-          style={{
-            display:"flex",
-            gap:15,
-            alignItems:"center",
-            background:"var(--surface)",
-            padding:12,
-            borderRadius:16,
-            marginBottom:14
-          }}>
+      <div
+        style={{
+          display:"flex",
+          flexDirection:"column",
+          gap:14
+        }}
+      >
 
 
-            <img
-            src={product.images[0]}
-            style={{
-              width:70,
-              height:70,
-              objectFit:"cover",
-              borderRadius:10
-            }}
-            />
+        {cart.map((item)=>{
+
+          const product=item.product;
 
 
-            <div style={{flex:1}}>
+          return (
 
-              <div>
-                {product.name}
+            <div
+              key={product.id}
+              style={{
+                display:"flex",
+                alignItems:"center",
+                gap:14,
+                background:"var(--surface)",
+                border:"1px solid var(--surface2)",
+                padding:12,
+                borderRadius:16
+              }}
+            >
+
+
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                style={{
+                  width:75,
+                  height:75,
+                  borderRadius:12,
+                  objectFit:"cover"
+                }}
+              />
+
+
+
+              <div
+                style={{
+                  flex:1
+                }}
+              >
+
+                <div
+                  style={{
+                    fontWeight:700,
+                    fontSize:14
+                  }}
+                >
+                  {product.name}
+                </div>
+
+
+                <div
+                  style={{
+                    color:"var(--text-mut)",
+                    marginTop:5
+                  }}
+                >
+                  {money(discountedPrice(product))}
+                </div>
+
               </div>
 
-              <small>
-                {money(discountedPrice(product))}
-              </small>
+
+
+
+              <button
+                onClick={() =>
+                  updateQty(product.id,item.qty + 1)
+                }
+                style={qtyBtnStyle}
+              >
+                <Plus size={14}/>
+              </button>
+
+
+
+              <span
+                style={{
+                  minWidth:25,
+                  textAlign:"center",
+                  fontWeight:800
+                }}
+              >
+                {item.qty}
+              </span>
+
+
+
+              <button
+                onClick={() =>
+                  updateQty(product.id,item.qty - 1)
+                }
+                style={qtyBtnStyle}
+              >
+                <Minus size={14}/>
+              </button>
+
+
+
+              <button
+                onClick={() =>
+                  removeItem(product.id)
+                }
+                style={{
+                  background:"none",
+                  border:"none",
+                  cursor:"pointer"
+                }}
+              >
+
+                <Trash2
+                  size={18}
+                  color="#2F86FF"
+                />
+
+              </button>
+
 
             </div>
 
+          );
 
+        })}
 
-            <button
-            onClick={()=>updateQty(product.id,item.qty+1)}
-            style={qtyBtnStyle}
-            >
-              <Plus size={14}/>
-            </button>
+      </div>
 
-
-            <span>
-              {item.qty}
-            </span>
-
-
-            <button
-            onClick={()=>updateQty(product.id,item.qty-1)}
-            style={qtyBtnStyle}
-            >
-              <Minus size={14}/>
-            </button>
-
-
-
-            <button
-            onClick={()=>removeItem(product.id)}
-            style={{
-              background:"none",
-              border:0,
-              cursor:"pointer"
-            }}
-            >
-              <Trash2 size={18}/>
-            </button>
-
-
-          </div>
-
-        );
-
-      })}
 
 
 
       <div
-      style={{
-        marginTop:30,
-        padding:20,
-        background:"var(--surface)",
-        borderRadius:16
-      }}
+        style={{
+          marginTop:30,
+          background:"var(--surface)",
+          border:"1px solid var(--surface2)",
+          borderRadius:16,
+          padding:20
+        }}
       >
 
-        <h3>
-          مبلغ نهایی:
-          {" "}
-          {money(total)}
-        </h3>
+
+        <div
+          style={{
+            display:"flex",
+            justifyContent:"space-between",
+            marginBottom:15
+          }}
+        >
+
+          <span>
+            مبلغ نهایی
+          </span>
 
 
-        <button
-        style={{
-          width:"100%",
-          padding:14,
-          border:0,
-          borderRadius:12,
-          background:"#22E5C9",
-          fontWeight:800,
-          cursor:"pointer"
-        }}
+          <strong>
+            {money(total)}
+          </strong>
+
+
+        </div>
+
+
+
+        <Link
+          href="/checkout"
+          style={{
+            display:"block",
+            width:"100%",
+            textAlign:"center",
+            padding:14,
+            borderRadius:12,
+            background:"#22E5C9",
+            color:"#000",
+            fontWeight:800,
+            textDecoration:"none",
+            fontFamily:"Vazirmatn"
+          }}
         >
           ادامه فرآیند خرید
-        </button>
+        </Link>
 
 
       </div>
@@ -183,4 +288,5 @@ export default function CartContent() {
     </div>
 
   );
+
 }
