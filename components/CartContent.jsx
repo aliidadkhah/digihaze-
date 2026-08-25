@@ -16,7 +16,6 @@ export default function CartContent() {
     0
   );
 
-  // اگر سبد خرید خالی باشد
   if (cart.length === 0) {
     return (
       <div
@@ -49,6 +48,7 @@ export default function CartContent() {
           href="/shop"
           style={{
             display: "inline-block",
+            marginTop: 20,
             background: "#22E5C9",
             color: "#000",
             padding: "12px 30px",
@@ -83,7 +83,6 @@ export default function CartContent() {
         سبد خرید
       </h1>
 
-      {/* محصولات سبد خرید */}
       <div
         style={{
           display: "flex",
@@ -107,16 +106,15 @@ export default function CartContent() {
                 borderRadius: 16,
               }}
             >
-              {/* تصویر محصول */}
               <Link
-                href={`/product/${product.id}`}
+                href={"/product/" + product.id}
                 style={{
                   flexShrink: 0,
                   textDecoration: "none",
                 }}
               >
                 <img
-                  src={product.images?.[0]}
+                  src={product.images && product.images[0]}
                   alt={product.name}
                   style={{
                     width: 75,
@@ -128,7 +126,6 @@ export default function CartContent() {
                 />
               </Link>
 
-              {/* اطلاعات محصول */}
               <div
                 style={{
                   flex: 1,
@@ -156,7 +153,6 @@ export default function CartContent() {
                 </div>
               </div>
 
-              {/* کنترل تعداد */}
               <div
                 style={{
                   display: "flex",
@@ -201,7 +197,6 @@ export default function CartContent() {
                 </button>
               </div>
 
-              {/* حذف محصول */}
               <button
                 type="button"
                 onClick={() =>
@@ -226,7 +221,6 @@ export default function CartContent() {
         })}
       </div>
 
-      {/* خلاصه سفارش */}
       <div
         style={{
           marginTop: 30,
@@ -263,7 +257,6 @@ export default function CartContent() {
           </strong>
         </div>
 
-        {/* رفتن به صفحه Checkout */}
         <Link
           href="/checkout"
           style={{
