@@ -1,196 +1,173 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
 import { PRODUCTS, discountedPrice } from "@/lib/data";
-
-
-function getUserClient(token) {
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    }
-  );
-}
-
 
 export async function POST(req) {
 
   try {
 
-    const authHeader = req.headers.get("authorization") || "";
-
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : null;
-
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "برای ثبت سفارش باید وارد حساب کاربری شوی" },
-        { status: 401 }
-      );
-    }
-
-
-    const userClient = getUserClient(token);
-
-
-    const { data: userData, error: userErr } =
-      await userClient.auth.getUser();
-
-
-    if (userErr || !userData?.user) {
-      return NextResponse.json(
-        { error: "نشست شما نامعتبر است" },
-        { status: 401 }
-      );
-    }
-
-
-
     const body = await req.json();
 
-    const { items, customer } = body;
+    const {
+      customer,
+      items,
+      trackingCode
+    } = body;
 
+
+    if (!customer?.name || !customer?.phone || !customer?.address) {
+
+      return NextResponse.json(
+        {
+          error:"اطلاعات مشتری کامل نیست"
+        },
+        {
+          status:400
+        }
+      );
+
+    }
 
 
     if (!Array.isArray(items) || items.length === 0) {
+
       return NextResponse.json(
-        { error: "سبد خرید خالی است" },
-        { status: 400 }
+        {
+          error:"سبد خرید خالی است"
+        },
+        {
+          status:400
+        }
       );
+
     }
 
 
 
     let total = 0;
 
-    const orderItems = [];
+    const orderItems=[];
 
 
 
-    for (const i of items) {
+    for(const item of items){
 
       const product = PRODUCTS.find(
-        (p) => p.id === i.productId
+        p=>p.id === item.productId
       );
 
 
-      if (!product) {
+      if(!product){
+
         return NextResponse.json(
-          { error: "محصول نامعتبر است" },
-          { status: 400 }
+          {
+            error:"محصول پیدا نشد"
+          },
+          {
+            status:400
+          }
         );
+
       }
+
 
 
       const price = discountedPrice(product);
 
 
-      total += price * i.qty;
+      total += price * item.qty;
 
 
       orderItems.push({
-        product_id: product.id,
-        qty: i.qty,
-        price,
+
+        product_id:product.id,
+
+        qty:item.qty,
+
+        price
+
       });
 
     }
 
 
 
-    const { data: order, error: orderErr } =
-      await supabaseAdmin
-        .from("orders")
-        .insert({
 
-          user_id: userData.user.id,
+    const {data:order,error} =
+    await supabaseAdmin
+    .from("orders")
+    .insert({
 
-          total,
+      customer_name:customer.name,
 
-          status: "waiting_payment",
+      phone:customer.phone,
 
-          customer_name: customer?.name || "",
+      address:customer.address,
 
-          phone: customer?.phone || "",
+      total,
 
-          address: customer?.address || "",
+      tracking_code:trackingCode || "",
 
-        })
-        .select()
-        .single();
+      status:"pending"
+
+    })
+    .select()
+    .single();
 
 
 
-    if (orderErr) {
+    if(error){
 
       return NextResponse.json(
-        { error: orderErr.message },
-        { status: 500 }
+        {
+          error:error.message
+        },
+        {
+          status:500
+        }
       );
 
     }
 
 
 
-    const rows = orderItems.map((item)=>({
+
+    const rows =
+    orderItems.map(item=>({
 
       ...item,
 
-      order_id: order.id,
+      order_id:order.id
 
     }));
 
 
-    const { error:itemErr } =
-      await supabaseAdmin
-      .from("order_items")
-      .insert(rows);
-
-
-
-    if(itemErr){
-
-      return NextResponse.json(
-        {error:itemErr.message},
-        {status:500}
-      );
-
-    }
+    await supabaseAdmin
+    .from("order_items")
+    .insert(rows);
 
 
 
     await notifyNewOrder({
+
       ...order,
-      items: orderItems,
-      customer,
+
+      items:orderItems
+
     });
 
 
 
     return NextResponse.json({
 
-      success:true,
-
-      order:{
-        ...order,
-        items:orderItems,
-      },
+      order
 
     });
 
 
 
   } catch(error){
-
 
     return NextResponse.json(
       {
@@ -200,7 +177,6 @@ export async function POST(req) {
         status:500
       }
     );
-
 
   }
 
