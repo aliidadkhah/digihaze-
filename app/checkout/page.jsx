@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/components/Providers";
 import { money, discountedPrice } from "@/lib/data";
-import { Copy, CheckCircle } from "lucide-react";
+import { Copy } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -19,37 +19,19 @@ export default function CheckoutPage() {
   });
 
   const [trackingCode, setTrackingCode] = useState("");
-
-  const [transactionTime, setTransactionTime] =
-    useState("");
+  const [transactionTime, setTransactionTime] = useState("");
 
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
-
   const [copied, setCopied] = useState(false);
-
-  // =========================
-  // شماره کارت
-  // =========================
 
   const cardNumber = "6037991234567890";
 
-  // =========================
-  // مبلغ کل
-  // =========================
-
   const total = cart.reduce(
     (sum, item) =>
-      sum +
-      discountedPrice(item.product) *
-        item.qty,
+      sum + discountedPrice(item.product) * item.qty,
     0
   );
-
-  // =========================
-  // تغییر فرم
-  // =========================
 
   const handleChange = (e) => {
     setForm({
@@ -58,15 +40,9 @@ export default function CheckoutPage() {
     });
   };
 
-  // =========================
-  // کپی شماره کارت
-  // =========================
-
   const copyCardNumber = async () => {
     try {
-      await navigator.clipboard.writeText(
-        cardNumber
-      );
+      await navigator.clipboard.writeText(cardNumber);
 
       setCopied(true);
 
@@ -75,42 +51,8 @@ export default function CheckoutPage() {
       }, 2000);
     } catch (error) {
       console.error("COPY ERROR:", error);
-
-      try {
-        const textarea =
-          document.createElement("textarea");
-
-        textarea.value = cardNumber;
-
-        textarea.style.position = "fixed";
-        textarea.style.opacity = "0";
-
-        document.body.appendChild(textarea);
-
-        textarea.select();
-
-        document.execCommand("copy");
-
-        document.body.removeChild(textarea);
-
-        setCopied(true);
-
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-      } catch (fallbackError) {
-        console.error(
-          "FALLBACK COPY ERROR:",
-          fallbackError
-        );
-      }
     }
   };
-
-  // =========================
-  // مرحله اول
-  // اطلاعات مشتری
-  // =========================
 
   const goToPayment = (e) => {
     e.preventDefault();
@@ -118,23 +60,17 @@ export default function CheckoutPage() {
     setError("");
 
     if (!form.name.trim()) {
-      setError(
-        "لطفاً نام و نام خانوادگی را وارد کنید."
-      );
+      setError("لطفاً نام و نام خانوادگی را وارد کنید.");
       return;
     }
 
     if (!form.phone.trim()) {
-      setError(
-        "لطفاً شماره موبایل را وارد کنید."
-      );
+      setError("لطفاً شماره موبایل را وارد کنید.");
       return;
     }
 
     if (!form.address.trim()) {
-      setError(
-        "لطفاً آدرس کامل را وارد کنید."
-      );
+      setError("لطفاً آدرس کامل را وارد کنید.");
       return;
     }
 
@@ -146,131 +82,158 @@ export default function CheckoutPage() {
     setStep(2);
   };
 
-  // =========================
-  // مرحله دوم
-  // ثبت پرداخت
-  // =========================
-
   const submitPayment = async (e) => {
     e.preventDefault();
 
     setError("");
 
     if (!trackingCode.trim()) {
-      setError(
-        "لطفاً کد پیگیری واریز را وارد کنید."
-      );
+      setError("لطفاً کد پیگیری واریز را وارد کنید.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/orders",
-        {
-          method: "POST",
+      const response = await fetch("/api/orders", {
+        method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          customer: {
+            name: form.name.trim(),
+            phone: form.phone.trim(),
+            address: form.address.trim(),
           },
 
-          body: JSON.stringify({
-            customer: {
-              name: form.name.trim(),
-              phone: form.phone.trim(),
-              address: form.address.trim(),
-            },
+          payment: {
+            trackingCode: trackingCode.trim(),
+            transactionTime: transactionTime.trim(),
+          },
 
-            payment: {
-              trackingCode:
-                trackingCode.trim(),
+          items: cart.map((item) => ({
+            productId: item.product.id,
+            qty: item.qty,
+          })),
+        }),
+      });
 
-              transactionTime:
-                transactionTime.trim(),
-            },
+      /*
+       * اول متن پاسخ را می‌گیریم.
+       * این کار باعث می‌شود اگر API به جای JSON
+       * یک صفحه HTML خطا برگرداند، برنامه کرش نکند.
+       */
 
-            items: cart.map((item) => ({
-              productId:
-                item.product.id,
+      const responseText = await response.text();
 
-              qty: item.qty,
-            })),
-          }),
-        }
-      );
+      let data;
 
-      const data = await response.json();
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        console.error("SERVER RESPONSE:", responseText);
 
-      if (!response.ok) {
         throw new Error(
-          data.error ||
-            "ثبت سفارش انجام نشد."
+          "پاسخ نامعتبر از سرور دریافت شد. لطفاً دوباره تلاش کنید."
         );
       }
 
-      // فقط بعد از ثبت واقعی سفارش
-      // به صفحه موفقیت می رویم
+      if (!response.ok) {
+        throw new Error(
+          data?.error || "ثبت سفارش انجام نشد."
+        );
+      }
 
-      router.push(
-        `/order-success?id=${data.order.id}`
+      if (!data?.order) {
+        throw new Error(
+          "اطلاعات سفارش از سرور دریافت نشد."
+        );
+      }
+
+      /*
+       * اطلاعات سفارش را قبل از رفتن به صفحه موفقیت
+       * داخل sessionStorage ذخیره می‌کنیم.
+       */
+
+      sessionStorage.setItem(
+        "completedOrder",
+        JSON.stringify(data.order)
       );
+
+      /*
+       * سپس به صفحه موفقیت می‌رویم.
+       */
+
+      router.push("/order-success");
+
     } catch (err) {
-      console.error(err);
+      console.error("ORDER ERROR:", err);
 
       setError(
-        err.message ||
+        err?.message ||
           "خطایی هنگام ثبت سفارش رخ داد."
       );
+
     } finally {
       setLoading(false);
     }
   };
 
-  // =========================
-  // سبد خالی
-  // =========================
+  /*
+   * سبد خالی
+   */
 
   if (cart.length === 0) {
     return (
       <div
         dir="rtl"
-        style={{
-          maxWidth: 600,
-          margin: "0 auto",
-          padding: "80px 20px",
-          textAlign: "center",
-        }}
+        className="empty-checkout"
       >
-        <h1
-          style={{
-            fontFamily: "Vazirmatn",
-            fontWeight: 800,
-            marginBottom: 15,
-          }}
-        >
+        <h1>
           سبد خرید خالی است
         </h1>
 
         <button
-          onClick={() =>
-            router.push("/shop")
-          }
-          style={{
-            background: "#22E5C9",
-            border: "none",
-            borderRadius: 12,
-            padding:
-              "12px 28px",
-            fontFamily:
-              "Vazirmatn",
-            fontWeight: 800,
-            cursor: "pointer",
-          }}
+          onClick={() => router.push("/shop")}
+          className="primary-button"
         >
           بازگشت به فروشگاه
         </button>
+
+        <style jsx>{`
+
+          .empty-checkout {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            text-align: center;
+            font-family: Vazirmatn, sans-serif;
+            box-sizing: border-box;
+          }
+
+          .empty-checkout h1 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 20px;
+          }
+
+          .primary-button {
+            width: 100%;
+            background: #22e5c9;
+            color: #061014;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-family: Vazirmatn, sans-serif;
+            font-weight: 800;
+            cursor: pointer;
+          }
+
+        `}</style>
       </div>
     );
   }
@@ -278,25 +241,10 @@ export default function CheckoutPage() {
   return (
     <div
       dir="rtl"
-      style={{
-        maxWidth: 900,
-        margin: "0 auto",
-        padding:
-          "40px 20px 80px",
-      }}
+      className="checkout-page"
     >
-      {/* ========================= */}
-      {/* عنوان */}
-      {/* ========================= */}
 
-      <h1
-        style={{
-          fontFamily: "Vazirmatn",
-          fontWeight: 800,
-          fontSize: 26,
-          marginBottom: 30,
-        }}
-      >
+      <h1 className="checkout-title">
         {step === 1
           ? "اطلاعات سفارش"
           : "پرداخت سفارش"}
@@ -309,79 +257,56 @@ export default function CheckoutPage() {
       {step === 1 && (
         <form
           onSubmit={goToPayment}
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "minmax(0, 1fr) minmax(280px, 380px)",
-            gap: 20,
-          }}
+          className="checkout-form"
         >
+
           {/* اطلاعات مشتری */}
 
-          <div
-            style={{
-              background:
-                "var(--surface)",
-              borderRadius: 18,
-              padding: 22,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 18,
-                marginBottom: 20,
-              }}
-            >
+          <div className="checkout-card">
+
+            <h2 className="section-title">
               مشخصات گیرنده
             </h2>
 
-            <label style={labelStyle}>
+            <label className="label">
               نام و نام خانوادگی
             </label>
 
             <input
               name="name"
               value={form.name}
-              onChange={
-                handleChange
-              }
+              onChange={handleChange}
               placeholder="مثلاً علی رضایی"
-              style={inputStyle}
+              className="input"
+              autoComplete="name"
             />
 
-            <label style={labelStyle}>
+            <label className="label">
               شماره موبایل
             </label>
 
             <input
               name="phone"
               value={form.phone}
-              onChange={
-                handleChange
-              }
+              onChange={handleChange}
               placeholder="09123456789"
               inputMode="tel"
-              style={inputStyle}
+              className="input"
+              autoComplete="tel"
+              dir="ltr"
             />
 
-            <label style={labelStyle}>
+            <label className="label">
               آدرس کامل
             </label>
 
             <textarea
               name="address"
               value={form.address}
-              onChange={
-                handleChange
-              }
+              onChange={handleChange}
               placeholder="استان، شهر، خیابان، کوچه، پلاک..."
               rows={5}
-              style={{
-                ...inputStyle,
-                resize: "vertical",
-              }}
+              className="input textarea"
             />
 
             {error && (
@@ -389,27 +314,14 @@ export default function CheckoutPage() {
                 {error}
               </ErrorBox>
             )}
+
           </div>
 
           {/* خلاصه سفارش */}
 
-          <div
-            style={{
-              background:
-                "var(--surface)",
-              borderRadius: 18,
-              padding: 22,
-              height: "fit-content",
-            }}
-          >
-            <h2
-              style={{
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 18,
-                marginBottom: 18,
-              }}
-            >
+          <div className="checkout-card summary-card">
+
+            <h2 className="section-title">
               خلاصه سفارش
             </h2>
 
@@ -420,11 +332,13 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              style={primaryButton}
+              className="primary-button"
             >
               ادامه و پرداخت
             </button>
+
           </div>
+
         </form>
       )}
 
@@ -435,239 +349,105 @@ export default function CheckoutPage() {
       {step === 2 && (
         <form
           onSubmit={submitPayment}
-          style={{
-            maxWidth: 650,
-            margin: "0 auto",
-          }}
+          className="payment-form"
         >
+
           {/* کارت پرداخت */}
 
-          <div
-            style={{
-              background:
-                "var(--surface)",
-              borderRadius: 20,
-              padding: 25,
-              marginBottom: 20,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 20,
-                fontWeight: 900,
-                marginBottom: 10,
-              }}
-            >
+          <div className="checkout-card">
+
+            <h2 className="section-title">
               پرداخت سفارش
             </h2>
 
-            <p
-              style={{
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 13,
-                color:
-                  "var(--text-mut)",
-                lineHeight: 1.9,
-                marginBottom: 20,
-              }}
-            >
-              لطفاً مبلغ سفارش را به
-              شماره کارت زیر واریز کنید
-              و سپس کد پیگیری تراکنش را
+            <p className="description">
+              لطفاً مبلغ سفارش را به شماره کارت زیر
+              واریز کنید و سپس کد پیگیری تراکنش را
               وارد کنید.
             </p>
 
             {/* مبلغ */}
 
-            <div
-              style={{
-                background:
-                  "var(--bg)",
-                borderRadius: 14,
-                padding: 16,
-                marginBottom: 15,
-                display: "flex",
-                justifyContent:
-                  "space-between",
-                alignItems:
-                  "center",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily:
-                    "Vazirmatn",
-                  fontSize: 13,
-                  color:
-                    "var(--text-mut)",
-                }}
-              >
+            <div className="payment-total">
+
+              <span>
                 مبلغ قابل پرداخت
               </span>
 
-              <strong
-                style={{
-                  fontFamily:
-                    "Vazirmatn",
-                  fontSize: 18,
-                }}
-              >
+              <strong>
                 {money(total)}
               </strong>
+
             </div>
 
             {/* شماره کارت */}
 
             <button
               type="button"
-              onClick={
-                copyCardNumber
-              }
-              style={{
-                width: "100%",
-                border:
-                  "1px solid var(--surface2)",
-                background:
-                  "var(--bg)",
-                borderRadius: 14,
-                padding:
-                  "17px 12px",
-                cursor: "pointer",
-                color:
-                  "var(--text-hi)",
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 18,
-                fontWeight: 900,
-                letterSpacing: 1.5,
-                direction: "ltr",
-                display: "flex",
-                alignItems:
-                  "center",
-                justifyContent:
-                  "center",
-                gap: 10,
-              }}
+              onClick={copyCardNumber}
+              className="card-number-button"
             >
-              <span>
+
+              <span className="card-number">
                 {cardNumber}
               </span>
 
               {copied ? (
-                <span
-                  style={{
-                    color:
-                      "#22E5C9",
-                    fontSize: 12,
-                    fontWeight: 900,
-                  }}
-                >
-                  Copied ✓
+                <span className="copied">
+                  کپی شد ✓
                 </span>
               ) : (
                 <Copy size={17} />
               )}
+
             </button>
 
-            <div
-              style={{
-                textAlign:
-                  "center",
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 12,
-                color:
-                  "var(--text-mut)",
-                marginTop: 9,
-              }}
-            >
-              برای کپی شماره کارت
-              روی آن کلیک کنید
+            <div className="copy-hint">
+              برای کپی شماره کارت روی آن کلیک کنید
             </div>
+
           </div>
 
-          {/* ========================= */}
-          {/* کد پیگیری */}
-          {/* ========================= */}
+          {/* اطلاعات پرداخت */}
 
-          <div
-            style={{
-              background:
-                "var(--surface)",
-              borderRadius: 20,
-              padding: 25,
-            }}
-          >
-            <h2
-              style={{
-                fontFamily:
-                  "Vazirmatn",
-                fontSize: 18,
-                fontWeight: 900,
-                marginBottom: 15,
-              }}
-            >
+          <div className="checkout-card">
+
+            <h2 className="section-title">
               ثبت اطلاعات پرداخت
             </h2>
 
-            <label
-              style={labelStyle}
-            >
+            <label className="label">
               کد پیگیری تراکنش
             </label>
 
             <input
               value={trackingCode}
               onChange={(e) =>
-                setTrackingCode(
-                  e.target.value
-                )
+                setTrackingCode(e.target.value)
               }
               placeholder="کد پیگیری واریز را وارد کنید"
               inputMode="numeric"
-              style={{
-                ...inputStyle,
-                fontSize: 15,
-                direction: "ltr",
-                textAlign: "left",
-              }}
+              className="input"
+              dir="ltr"
             />
 
-            <label
-              style={labelStyle}
-            >
+            <label className="label">
               ساعت تراکنش
-              <span
-                style={{
-                  color:
-                    "var(--text-mut)",
-                  fontSize: 11,
-                  marginRight: 5,
-                }}
-              >
+
+              <span className="optional">
                 (اختیاری)
               </span>
             </label>
 
             <input
               type="text"
-              value={
-                transactionTime
-              }
+              value={transactionTime}
               onChange={(e) =>
-                setTransactionTime(
-                  e.target.value
-                )
+                setTransactionTime(e.target.value)
               }
               placeholder="مثلاً 14:35"
-              style={{
-                ...inputStyle,
-                direction: "ltr",
-                textAlign: "left",
-              }}
+              className="input"
+              dir="ltr"
             />
 
             {error && (
@@ -676,23 +456,10 @@ export default function CheckoutPage() {
               </ErrorBox>
             )}
 
-            {/* ثبت نهایی */}
-
             <button
               type="submit"
               disabled={loading}
-              style={{
-                ...primaryButton,
-                marginTop: 5,
-                opacity:
-                  loading
-                    ? 0.6
-                    : 1,
-                cursor:
-                  loading
-                    ? "not-allowed"
-                    : "pointer",
-              }}
+              className="primary-button submit-button"
             >
               {loading
                 ? "در حال ثبت سفارش..."
@@ -706,86 +473,409 @@ export default function CheckoutPage() {
                 setError("");
                 setStep(1);
               }}
-              style={{
-                width: "100%",
-                marginTop: 10,
-                background:
-                  "transparent",
-                border:
-                  "1px solid var(--surface2)",
-                color:
-                  "var(--text-hi)",
-                borderRadius: 12,
-                padding:
-                  "12px 0",
-                fontFamily:
-                  "Vazirmatn",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
+              className="back-button"
             >
               بازگشت به اطلاعات سفارش
             </button>
+
           </div>
+
         </form>
       )}
+
+      <style jsx>{`
+
+        .checkout-page {
+          width: 100%;
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 40px 20px 80px;
+          box-sizing: border-box;
+          font-family: Vazirmatn, sans-serif;
+        }
+
+        .checkout-title {
+          margin: 0 0 30px;
+          font-size: 26px;
+          font-weight: 800;
+          color: var(--text-hi);
+        }
+
+        /*
+         * دسکتاپ
+         */
+
+        .checkout-form {
+          width: 100%;
+          display: grid;
+          grid-template-columns:
+            minmax(0, 1fr)
+            minmax(280px, 380px);
+          gap: 20px;
+          align-items: start;
+        }
+
+        .payment-form {
+          width: 100%;
+          max-width: 650px;
+          margin: 0 auto;
+        }
+
+        .checkout-card {
+          width: 100%;
+          min-width: 0;
+          background: var(--surface);
+          border-radius: 18px;
+          padding: 22px;
+          box-sizing: border-box;
+          overflow: hidden;
+        }
+
+        .summary-card {
+          height: fit-content;
+        }
+
+        .section-title {
+          margin: 0 0 20px;
+          font-size: 18px;
+          font-weight: 800;
+          color: var(--text-hi);
+        }
+
+        .label {
+          display: block;
+          margin-bottom: 7px;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text-hi);
+        }
+
+        .optional {
+          margin-right: 6px;
+          color: var(--text-mut);
+          font-size: 11px;
+          font-weight: 400;
+        }
+
+        .input {
+          display: block;
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
+          margin-bottom: 16px;
+          padding: 12px 13px;
+          background: var(--bg);
+          border: 1px solid var(--surface2);
+          color: var(--text-hi);
+          border-radius: 10px;
+          outline: none;
+          font-family: Vazirmatn, sans-serif;
+          font-size: 13px;
+        }
+
+        .input:focus {
+          border-color: #22e5c9;
+        }
+
+        .textarea {
+          resize: vertical;
+          min-height: 130px;
+          line-height: 1.8;
+        }
+
+        .description {
+          margin: -5px 0 20px;
+          color: var(--text-mut);
+          font-size: 13px;
+          line-height: 1.9;
+        }
+
+        .payment-total {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 15px;
+          padding: 16px;
+          margin-bottom: 15px;
+          background: var(--bg);
+          border-radius: 14px;
+          box-sizing: border-box;
+          color: var(--text-mut);
+          font-size: 13px;
+        }
+
+        .payment-total strong {
+          color: var(--text-hi);
+          font-size: 18px;
+          white-space: nowrap;
+        }
+
+        .card-number-button {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 17px 12px;
+          box-sizing: border-box;
+          border: 1px solid var(--surface2);
+          background: var(--bg);
+          color: var(--text-hi);
+          border-radius: 14px;
+          cursor: pointer;
+          font-family: Arial, sans-serif;
+        }
+
+        .card-number {
+          min-width: 0;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: clamp(16px, 3vw, 21px);
+          font-weight: 900;
+          letter-spacing: 1.5px;
+          direction: ltr;
+          white-space: nowrap;
+        }
+
+        .copied {
+          color: #22e5c9;
+          font-family: Vazirmatn, sans-serif;
+          font-size: 11px;
+          font-weight: 900;
+          white-space: nowrap;
+        }
+
+        .copy-hint {
+          margin-top: 9px;
+          text-align: center;
+          color: var(--text-mut);
+          font-size: 12px;
+        }
+
+        .primary-button {
+          display: block;
+          width: 100%;
+          border: none;
+          background: #22e5c9;
+          color: #061014;
+          border-radius: 12px;
+          padding: 14px 0;
+          font-family: Vazirmatn, sans-serif;
+          font-weight: 800;
+          font-size: 14px;
+          cursor: pointer;
+        }
+
+        .primary-button:hover {
+          opacity: 0.9;
+        }
+
+        .submit-button {
+          margin-top: 5px;
+        }
+
+        .primary-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .back-button {
+          display: block;
+          width: 100%;
+          margin-top: 10px;
+          padding: 12px 0;
+          background: transparent;
+          border: 1px solid var(--surface2);
+          color: var(--text-hi);
+          border-radius: 12px;
+          font-family: Vazirmatn, sans-serif;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .back-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /*
+         * تبلت
+         */
+
+        @media (max-width: 760px) {
+
+          .checkout-page {
+            max-width: 100%;
+            padding: 30px 16px 70px;
+          }
+
+          .checkout-form {
+            grid-template-columns: 1fr !important;
+            gap: 15px;
+          }
+
+          .checkout-card {
+            width: 100%;
+            padding: 20px;
+          }
+
+          .summary-card {
+            order: 2;
+          }
+
+        }
+
+        /*
+         * موبایل
+         */
+
+        @media (max-width: 600px) {
+
+          .checkout-page {
+            width: 100%;
+            padding: 22px 12px 60px;
+            margin: 0;
+          }
+
+          .checkout-title {
+            font-size: 22px;
+            margin-bottom: 18px;
+          }
+
+          .checkout-form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 12px;
+          }
+
+          .payment-form {
+            width: 100%;
+            max-width: 100%;
+          }
+
+          .checkout-card {
+            width: 100%;
+            padding: 17px;
+            border-radius: 16px;
+          }
+
+          .section-title {
+            font-size: 17px;
+            margin-bottom: 18px;
+          }
+
+          .input {
+            padding: 13px 12px;
+            font-size: 14px;
+          }
+
+          .card-number-button {
+            padding: 16px 8px;
+          }
+
+          .card-number {
+            font-size: 15px;
+            letter-spacing: 0.5px;
+          }
+
+          .payment-total {
+            padding: 14px;
+          }
+
+          .payment-total strong {
+            font-size: 16px;
+          }
+
+        }
+
+        /*
+         * موبایل خیلی کوچک
+         */
+
+        @media (max-width: 380px) {
+
+          .checkout-page {
+            padding-left: 8px;
+            padding-right: 8px;
+          }
+
+          .checkout-card {
+            padding: 14px;
+          }
+
+          .card-number {
+            font-size: 13px;
+            letter-spacing: 0;
+          }
+
+          .payment-total {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 7px;
+          }
+
+        }
+
+      `}</style>
+
     </div>
   );
 }
 
-// ========================================
-// خلاصه سفارش
-// ========================================
 
-function OrderSummary({
-  cart,
-  total,
-}) {
+/* ========================================
+   خلاصه سفارش
+======================================== */
+
+function OrderSummary({ cart, total }) {
   return (
     <>
       <div
         style={{
           display: "flex",
-          flexDirection:
-            "column",
+          flexDirection: "column",
           gap: 12,
           marginBottom: 20,
         }}
       >
+
         {cart.map((item) => (
           <div
-            key={
-              item.product.id
-            }
+            key={item.product.id}
             style={{
               display: "flex",
-              justifyContent:
-                "space-between",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
               gap: 10,
               fontSize: 13,
-              fontFamily:
-                "Vazirmatn",
+              fontFamily: "Vazirmatn",
             }}
           >
+
             <span>
-              {item.product.name} ×{" "}
-              {item.qty}
+              {item.product.name} × {item.qty}
             </span>
 
             <span
               style={{
-                whiteSpace:
-                  "nowrap",
+                whiteSpace: "nowrap",
               }}
             >
               {money(
-                discountedPrice(
-                  item.product
-                ) * item.qty
+                discountedPrice(item.product) *
+                  item.qty
               )}
             </span>
+
           </div>
         ))}
+
       </div>
 
       <div
@@ -794,30 +884,33 @@ function OrderSummary({
             "1px solid var(--surface2)",
           paddingTop: 15,
           display: "flex",
-          justifyContent:
-            "space-between",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 10,
           fontWeight: 800,
           fontSize: 17,
           marginBottom: 20,
-          fontFamily:
-            "Vazirmatn",
+          fontFamily: "Vazirmatn",
         }}
       >
+
         <span>
           مبلغ نهایی
         </span>
 
-        <span>
+        <span style={{ whiteSpace: "nowrap" }}>
           {money(total)}
         </span>
+
       </div>
     </>
   );
 }
 
-// ========================================
-// خطا
-// ========================================
+
+/* ========================================
+   خطا
+======================================== */
 
 function ErrorBox({ children }) {
   return (
@@ -827,54 +920,14 @@ function ErrorBox({ children }) {
         marginBottom: 15,
         padding: 12,
         borderRadius: 10,
-        background:
-          "#ff3b3b18",
+        background: "#ff3b3b18",
         color: "#ff6b6b",
         fontSize: 13,
-        fontFamily:
-          "Vazirmatn",
+        fontFamily: "Vazirmatn",
+        lineHeight: 1.8,
       }}
     >
       {children}
     </div>
   );
 }
-
-// ========================================
-// استایل
-// ========================================
-
-const labelStyle = {
-  display: "block",
-  fontSize: 13,
-  marginBottom: 7,
-  fontFamily: "Vazirmatn",
-};
-
-const inputStyle = {
-  width: "100%",
-  boxSizing: "border-box",
-  background: "var(--bg)",
-  border:
-    "1px solid var(--surface2)",
-  color: "var(--text-hi)",
-  borderRadius: 10,
-  padding: "12px 13px",
-  outline: "none",
-  fontFamily: "Vazirmatn",
-  fontSize: 13,
-  marginBottom: 16,
-};
-
-const primaryButton = {
-  width: "100%",
-  background: "#22E5C9",
-  color: "#061014",
-  border: "none",
-  borderRadius: 12,
-  padding: "14px 0",
-  fontFamily: "Vazirmatn",
-  fontWeight: 800,
-  fontSize: 14,
-  cursor: "pointer",
-};
