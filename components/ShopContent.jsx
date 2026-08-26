@@ -10,6 +10,96 @@ import {
   discountedPrice,
 } from "@/lib/data";
 
+/* =========================================
+   نرمال‌سازی متن فارسی
+========================================= */
+
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/ي/g, "ی")
+    .replace(/ى/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/ۀ/g, "ه")
+    .replace(/ة/g, "ه")
+    .replace(/\u200c/g, " ")
+    .replace(/\u200f/g, "")
+    .replace(/\u200e/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* =========================================
+   ساخت متن قابل جستجو برای محصول
+========================================= */
+
+function getSearchText(product) {
+  const category = CATEGORIES.find(
+    (c) => c.id === product.category
+  );
+
+  const categoryLabel = category?.label || "";
+
+  const specs = Array.isArray(product.specs)
+    ? product.specs
+        .map((spec) => `${spec.k} ${spec.v}`)
+        .join(" ")
+    : "";
+
+  return normalizeText(
+    [
+      product.name,
+      product.brand,
+      categoryLabel,
+      product.description,
+      specs,
+    ].join(" ")
+  );
+}
+
+/* =========================================
+   تطبیق هوشمند سرچ
+========================================= */
+
+function matchesSearch(product, query) {
+  const q = normalizeText(query);
+
+  if (!q) return true;
+
+  const productText = getSearchText(product);
+
+  /*
+   اگر عبارت کامل داخل اطلاعات محصول باشد
+   نتیجه معتبر است.
+  */
+  if (productText.includes(q)) {
+    return true;
+  }
+
+  /*
+   اگر کاربر چند کلمه وارد کرد،
+   همه کلمات باید در محصول وجود داشته باشند.
+   
+   مثال:
+   "پاد کالیبرن"
+   
+   فقط محصولی که هر دو عبارت را داشته باشد
+   نمایش داده می‌شود.
+  */
+  const words = q
+    .split(" ")
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+  if (words.length > 1) {
+    return words.every((word) =>
+      productText.includes(word)
+    );
+  }
+
+  return false;
+}
+
 export default function ShopContent({
   initialCategory,
   initialSearch,
@@ -41,97 +131,33 @@ export default function ShopContent({
     ...CATEGORIES,
   ];
 
-  // -----------------------------
-  // نرمال‌سازی متن فارسی
-  // -----------------------------
-
-  function normalizeText(value) {
-    if (!value) return "";
-
-    return String(value)
-      .toLowerCase()
-      .trim()
-      .replace(/ي/g, "ی")
-      .replace(/ى/g, "ی")
-      .replace(/ك/g, "ک")
-      .replace(/ة/g, "ه")
-      .replace(/ۀ/g, "ه")
-      .replace(/ؤ/g, "و")
-      .replace(/إ/g, "ا")
-      .replace(/أ/g, "ا")
-      .replace(/آ/g, "ا")
-      .replace(/‌/g, " ")
-      .replace(/\s+/g, " ");
-  }
-
-  // -----------------------------
-  // جستجو
-  // -----------------------------
+  /* =========================================
+     فیلتر محصولات
+  ========================================= */
 
   const list = useMemo(() => {
     let arr =
       active === "all"
-        ? [...PRODUCTS]
+        ? PRODUCTS
         : PRODUCTS.filter(
             (p) => p.category === active
           );
 
-    const q = normalizeText(search);
-
-    if (q) {
-      /*
-       * فقط فیلدهایی که واقعاً برای جستجو
-       * مناسب هستند بررسی می‌شوند.
-       *
-       * name
-       * brand
-       * category
-       * description
-       * tags
-       */
-
-      const searchWords = q
-        .split(" ")
-        .filter(Boolean);
-
-      arr = arr.filter((p) => {
-        const searchableText = normalizeText(
-          [
-            p.name,
-            p.brand,
-            p.category,
-            p.description,
-            p.shortDescription,
-            ...(Array.isArray(p.tags)
-              ? p.tags
-              : []),
-          ]
-            .filter(Boolean)
-            .join(" ")
-        );
-
-        /*
-         * تمام کلمات جستجو باید داخل
-         * اطلاعات محصول وجود داشته باشند.
-         *
-         * مثلاً:
-         *
-         * "شکلات پسته"
-         *
-         * باید هم "شکلات"
-         * و هم "پسته"
-         * در محصول وجود داشته باشد.
-         */
-
-        return searchWords.every((word) =>
-          searchableText.includes(word)
-        );
-      });
+    /*
+     * سرچ دقیق
+     */
+    if (search.trim()) {
+      arr = arr.filter((product) =>
+        matchesSearch(product, search)
+      );
     }
 
-    // -----------------------------
-    // مرتب‌سازی
-    // -----------------------------
+    /*
+     * جلوگیری از تغییر مستقیم PRODUCTS
+     */
+    arr = [...arr];
+
+    /* مرتب‌سازی */
 
     if (sort === "price-asc") {
       arr.sort(
@@ -151,9 +177,7 @@ export default function ShopContent({
 
     if (sort === "rating") {
       arr.sort(
-        (a, b) =>
-          (b.rating || 0) -
-          (a.rating || 0)
+        (a, b) => b.rating - a.rating
       );
     }
 
@@ -164,14 +188,14 @@ export default function ShopContent({
     <div
       dir="rtl"
       style={{
-        width: "100%",
         maxWidth: 1180,
         margin: "0 auto",
         padding: "40px 20px 70px",
-        boxSizing: "border-box",
       }}
     >
-      {/* عنوان */}
+      {/* =====================================
+          عنوان
+      ===================================== */}
 
       <h1
         style={{
@@ -184,8 +208,6 @@ export default function ShopContent({
         فروشگاه
       </h1>
 
-      {/* تعداد نتایج */}
-
       <p
         style={{
           color: "var(--text-lo)",
@@ -197,16 +219,18 @@ export default function ShopContent({
         {search
           ? `نتایج جستجو برای «${search}» — `
           : ""}
-
         {list.length} محصول
       </p>
 
-      {/* فیلتر و مرتب‌سازی */}
+      {/* =====================================
+          فیلترها
+      ===================================== */}
 
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent:
+            "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: 14,
@@ -292,6 +316,7 @@ export default function ShopContent({
               fontFamily:
                 "Vazirmatn",
               fontSize: 13,
+              outline: "none",
             }}
           >
             <option value="default">
@@ -313,28 +338,40 @@ export default function ShopContent({
         </div>
       </div>
 
-      {/* نتایج */}
+      {/* =====================================
+          نتیجه جستجو
+      ===================================== */}
 
       {list.length === 0 ? (
         <div
           style={{
             textAlign: "center",
             padding: "60px 20px",
+            color:
+              "var(--text-mut)",
+            fontFamily:
+              "Vazirmatn",
           }}
         >
-          <p
+          <div
             style={{
-              color:
-                "var(--text-mut)",
-              fontSize: 14,
-              fontFamily:
-                "Vazirmatn",
-              margin: 0,
+              fontSize: 18,
+              fontWeight: 800,
+              marginBottom: 8,
             }}
           >
-            محصولی با این مشخصات
-            پیدا نشد.
-          </p>
+            محصولی پیدا نشد
+          </div>
+
+          <div
+            style={{
+              fontSize: 13,
+            }}
+          >
+            عبارت جستجو را تغییر دهید
+            یا دسته‌بندی دیگری را
+            امتحان کنید.
+          </div>
         </div>
       ) : (
         <div
