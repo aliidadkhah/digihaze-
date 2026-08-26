@@ -242,12 +242,6 @@ button {
    CHECKOUT
    ========================================================= */
 
-/*
-  نکته:
-  این قوانین برای جلوگیری از بیرون زدن
-  بخش‌های checkout در موبایل هستند.
-*/
-
 .checkout-page {
   width: 100%;
   max-width: 100%;
@@ -261,8 +255,6 @@ button {
   box-sizing: border-box;
 }
 
-/* هر ساختار دو ستونه احتمالی Checkout */
-
 .checkout-layout,
 .checkout-container,
 .checkout-content,
@@ -274,8 +266,6 @@ button {
   box-sizing: border-box;
 }
 
-/* آیتم‌های داخل Checkout اجازه ندارند عرض صفحه را بشکنند */
-
 .checkout-layout > *,
 .checkout-container > *,
 .checkout-content > *,
@@ -285,8 +275,6 @@ button {
   max-width: 100%;
   box-sizing: border-box;
 }
-
-/* کارت‌های Checkout */
 
 .checkout-card,
 .checkout-summary,
@@ -298,8 +286,6 @@ button {
   box-sizing: border-box;
 }
 
-/* فیلدهای فرم */
-
 .checkout-page input,
 .checkout-page textarea,
 .checkout-page select {
@@ -307,8 +293,6 @@ button {
   min-width: 0;
   box-sizing: border-box;
 }
-
-/* شماره کارت و اعداد طولانی */
 
 .checkout-page .card-number,
 .checkout-page [class*="card-number"] {
@@ -335,11 +319,6 @@ button {
     grid-template-columns: 1fr !important;
   }
 
-  /*
-    اگر Checkout دو ستونه باشد،
-    در این اندازه یک ستونه می‌شود.
-  */
-
   .checkout-layout,
   .checkout-container,
   .checkout-grid,
@@ -365,6 +344,10 @@ button {
 
   .about-stats {
     grid-template-columns: 1fr !important;
+  }
+
+  .banner-slider {
+    aspect-ratio: 8 / 3;
   }
 }
 
@@ -542,29 +525,16 @@ button {
 
 @media (max-width: 760px) {
 
-  /*
-    جلوگیری از بیرون زدن متن‌های خیلی طولانی
-  */
-
   .checkout-page,
   .checkout-page * {
     overflow-wrap: break-word;
     word-break: normal;
   }
 
-  /*
-    اما input و textarea نباید متنشان
-    باعث تغییر عرض شوند.
-  */
-
   .checkout-page input,
   .checkout-page textarea {
     overflow: hidden;
   }
-
-  /*
-    جلوگیری از شکستن صفحه توسط flex
-  */
 
   .checkout-page [style*="display: flex"] {
     min-width: 0;
