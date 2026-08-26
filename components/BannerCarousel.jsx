@@ -111,11 +111,11 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Dots - پایین و دقیقاً وسط */}
+        {/* Dots - پایینِ پایین و وسط */}
         <div
           style={{
             position: "absolute",
-            bottom: 12,
+            bottom: 2,
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
