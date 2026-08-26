@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import crypto from "crypto";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,23 +8,13 @@ const supabaseAdmin = createClient(
 );
 
 function normalizePhone(phone) {
-  const value = String(phone || "").replace(/\D/g, "");
-
-  if (/^09\d{9}$/.test(value)) {
-    return value;
-  }
-
-  if (/^989\d{9}$/.test(value)) {
-    return "0" + value.slice(2);
-  }
-
-  return null;
+  return String(phone || "").replace(/\D/g, "");
 }
 
 function hashCode(code) {
   return crypto
     .createHash("sha256")
-    .update(String(code))
+    .update(code)
     .digest("hex");
 }
 
@@ -32,134 +22,123 @@ export async function POST(request) {
   try {
     const body = await request.json();
 
-    const phone = normalizePhone(body?.phone);
-    const code = String(body?.code || "")
-      .replace(/\D/g, "")
-      .trim();
+    const phone = normalizePhone(body.phone);
+    const code = String(body.code || "").trim();
 
-    if (!phone) {
+    if (!/^09\d{9}$/.test(phone)) {
       return NextResponse.json(
         {
-          error: "شماره موبایل معتبر نیست",
+          error: "شماره موبایل معتبر نیست.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    if (!/^\d{5,9}$/.test(code)) {
+    if (!/^\d{4,10}$/.test(code)) {
       return NextResponse.json(
         {
-          error: "کد تایید معتبر نیست",
+          error: "کد تایید معتبر نیست.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
-    const { data: otp, error: dbError } = await supabaseAdmin
+    const { data: otp, error } = await supabaseAdmin
       .from("otp_codes")
       .select("*")
       .eq("phone", phone)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    if (dbError) {
-      console.error("OTP lookup error:", dbError);
+    if (error) {
+      console.error("OTP lookup error:", error);
 
       return NextResponse.json(
         {
-          error: "خطا در بررسی کد تایید",
+          error: "خطا در بررسی کد تایید.",
         },
-        {
-          status: 500,
-        }
+        { status: 500 }
       );
     }
 
     if (!otp) {
       return NextResponse.json(
         {
-          error: "برای این شماره کد تاییدی وجود ندارد",
+          error: "کد تاییدی برای این شماره پیدا نشد.",
         },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    if (new Date(otp.expires_at).getTime() < Date.now()) {
-      await supabaseAdmin
-        .from("otp_codes")
-        .delete()
-        .eq("phone", phone);
-
-      return NextResponse.json(
-        {
-          error: "کد تایید منقضی شده است",
-        },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
     /*
-     * محدودیت تلاش برای جلوگیری از حدس زدن کد
+     * انقضای کد
      */
+    if (new Date(otp.expires_at).getTime() < Date.now()) {
+      await supabaseAdmin
+        .from("otp_codes")
+        .delete()
+        .eq("id", otp.id);
 
+      return NextResponse.json(
+        {
+          error: "کد تایید منقضی شده. دوباره درخواست کد کن.",
+        },
+        { status: 400 }
+      );
+    }
+
+    /*
+     * محدودیت تعداد تلاش
+     */
     if (otp.attempts >= 5) {
       await supabaseAdmin
         .from("otp_codes")
         .delete()
-        .eq("phone", phone);
+        .eq("id", otp.id);
 
       return NextResponse.json(
         {
-          error: "تعداد تلاش‌های مجاز تمام شده است. دوباره کد بگیر.",
+          error: "تعداد تلاش‌ها بیش از حد مجاز است. دوباره کد بگیر.",
         },
-        {
-          status: 429,
-        }
+        { status: 429 }
       );
     }
 
-    const incomingHash = hashCode(code);
+    const codeHash = hashCode(code);
 
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(incomingHash, "hex"),
-      Buffer.from(otp.code_hash, "hex")
-    );
-
-    if (!isValid) {
+    /*
+     * بررسی کد
+     */
+    if (codeHash !== otp.code_hash) {
       await supabaseAdmin
         .from("otp_codes")
         .update({
           attempts: otp.attempts + 1,
         })
-        .eq("phone", phone);
+        .eq("id", otp.id);
 
       return NextResponse.json(
         {
-          error: "کد تایید اشتباه است",
+          error: "کد تایید اشتباه است.",
         },
-        {
-          status: 400,
-        }
+        { status: 400 }
       );
     }
 
     /*
-     * کد صحیح است.
-     * بعد از استفاده حذفش می‌کنیم.
+     * کد درست است.
+     * بعد از استفاده حذف می‌شود.
      */
-
     await supabaseAdmin
       .from("otp_codes")
       .delete()
-      .eq("phone", phone);
+      .eq("id", otp.id);
 
+    /*
+     * فعلاً اطلاعات کاربر را برمی‌گردانیم.
+     * مرحله بعد می‌توانیم Session واقعی و Cookie امن هم اضافه کنیم.
+     */
     return NextResponse.json({
       success: true,
       user: {
@@ -172,11 +151,9 @@ export async function POST(request) {
 
     return NextResponse.json(
       {
-        error: "خطایی در بررسی کد تایید رخ داد",
+        error: "خطایی در بررسی کد تایید رخ داد.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
