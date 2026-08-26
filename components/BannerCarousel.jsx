@@ -34,7 +34,7 @@ export default function BannerCarousel() {
 
     const timer = setInterval(() => {
       setIdx((current) => (current + 1) % BANNER_SLIDES.length);
-    }, 4500);
+    }, 2500);
 
     return () => clearInterval(timer);
   }, [paused]);
@@ -112,7 +112,7 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Dots */}
+        {/* Dots - پایین و وسط */}
         <div
           style={{
             position: "absolute",
