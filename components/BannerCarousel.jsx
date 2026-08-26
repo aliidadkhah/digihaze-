@@ -7,11 +7,11 @@ import { navArrowStyle } from "./ui";
 
 const BANNER_SLIDES = [
   {
-  id: "b1",
-  color: "#2F86FF",
-  href: "/shop?category=eliquid",
-  img: "/slider.jpg",
-}
+    id: "b1",
+    color: "#2F86FF",
+    href: "/shop?category=eliquid",
+    img: "/slider.jpg",
+  },
   {
     id: "b2",
     color: "#FF8A3D",
@@ -33,11 +33,17 @@ export default function BannerCarousel() {
 
   useEffect(() => {
     if (paused) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % BANNER_SLIDES.length), 4500);
+
+    const t = setInterval(() => {
+      setIdx((i) => (i + 1) % BANNER_SLIDES.length);
+    }, 4500);
+
     return () => clearInterval(t);
   }, [paused]);
 
-  const go = (i) => setIdx((i + BANNER_SLIDES.length) % BANNER_SLIDES.length);
+  const go = (i) => {
+    setIdx((i + BANNER_SLIDES.length) % BANNER_SLIDES.length);
+  };
 
   return (
     <section style={{ width: "100%", padding: "18px 0 0" }}>
@@ -55,28 +61,90 @@ export default function BannerCarousel() {
           boxSizing: "border-box",
         }}
       >
-        <div style={{ display: "flex", width: "100%", height: "100%", direction: "ltr", transform: `translateX(-${idx * 100}%)`, transition: "transform 0.6s cubic-bezier(.65,0,.35,1)" }}>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: "100%",
+            direction: "ltr",
+            transform: `translateX(-${idx * 100}%)`,
+            transition:
+              "transform 0.6s cubic-bezier(.65,0,.35,1)",
+          }}
+        >
           {BANNER_SLIDES.map((s) => (
             <button
               key={s.id}
               onClick={() => router.push(s.href)}
-              style={{ position: "relative", flex: "0 0 100%", width: "100%", maxWidth: "100%", height: "100%", border: "none", padding: 0, margin: 0, cursor: "pointer", display: "block", boxSizing: "border-box" }}
+              style={{
+                position: "relative",
+                flex: "0 0 100%",
+                width: "100%",
+                maxWidth: "100%",
+                height: "100%",
+                border: "none",
+                padding: 0,
+                margin: 0,
+                cursor: "pointer",
+                display: "block",
+                boxSizing: "border-box",
+              }}
             >
-              <img src={s.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <img
+                src={s.img}
+                alt=""
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
             </button>
           ))}
         </div>
 
-        <button onClick={() => go(idx + 1)} className="banner-arrow" style={{ ...navArrowStyle("right"), top: "50%" }}>
+        <button
+          onClick={() => go(idx + 1)}
+          className="banner-arrow"
+          style={{ ...navArrowStyle("right"), top: "50%" }}
+        >
           <ChevronRight size={18} color="#120C22" />
         </button>
-        <button onClick={() => go(idx - 1)} className="banner-arrow" style={{ ...navArrowStyle("left"), top: "50%" }}>
+
+        <button
+          onClick={() => go(idx - 1)}
+          className="banner-arrow"
+          style={{ ...navArrowStyle("left"), top: "50%" }}
+        >
           <ChevronLeft size={18} color="#120C22" />
         </button>
 
-        <div style={{ position: "absolute", top: 8, right: "50%", transform: "translateX(50%)", display: "flex", gap: 7, zIndex: 2 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            right: "50%",
+            transform: "translateX(50%)",
+            display: "flex",
+            gap: 7,
+            zIndex: 2,
+          }}
+        >
           {BANNER_SLIDES.map((s, i) => (
-            <button key={s.id} onClick={() => go(i)} style={{ width: i === idx ? 22 : 8, height: 8, borderRadius: 999, border: "none", background: i === idx ? s.color : "#ffffff77", cursor: "pointer", transition: "all 0.3s ease" }} />
+            <button
+              key={s.id}
+              onClick={() => go(i)}
+              style={{
+                width: i === idx ? 22 : 8,
+                height: 8,
+                borderRadius: 999,
+                border: "none",
+                background: i === idx ? s.color : "#ffffff77",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+            />
           ))}
         </div>
       </div>
