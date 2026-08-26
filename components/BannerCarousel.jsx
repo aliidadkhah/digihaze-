@@ -7,11 +7,11 @@ import { navArrowStyle } from "./ui";
 
 const BANNER_SLIDES = [
   {
-    id: "b1",
-    color: "#2F86FF",
-    href: "/shop?category=eliquid",
-    img: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?q=80&w=1200&auto=format&fit=crop",
-  },
+  id: "b1",
+  color: "#2F86FF",
+  href: "/shop?category=eliquid",
+  img: "/slider.jpg",
+}
   {
     id: "b2",
     color: "#FF8A3D",
