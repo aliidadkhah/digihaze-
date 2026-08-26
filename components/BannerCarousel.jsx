@@ -1,9 +1,8 @@
+```jsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { navArrowStyle } from "./ui";
 
 const BANNER_SLIDES = [
   {
@@ -61,6 +60,7 @@ export default function BannerCarousel() {
           boxSizing: "border-box",
         }}
       >
+        {/* Slides */}
         <div
           style={{
             display: "flex",
@@ -88,6 +88,7 @@ export default function BannerCarousel() {
                 cursor: "pointer",
                 display: "block",
                 boxSizing: "border-box",
+                background: "none",
               }}
             >
               <img
@@ -104,43 +105,35 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        <button
-          onClick={() => go(idx + 1)}
-          className="banner-arrow"
-          style={{ ...navArrowStyle("right"), top: "50%" }}
-        >
-          <ChevronRight size={18} color="#120C22" />
-        </button>
-
-        <button
-          onClick={() => go(idx - 1)}
-          className="banner-arrow"
-          style={{ ...navArrowStyle("left"), top: "50%" }}
-        >
-          <ChevronLeft size={18} color="#120C22" />
-        </button>
-
+        {/* Slider dots */}
         <div
           style={{
             position: "absolute",
-            top: 8,
-            right: "50%",
-            transform: "translateX(50%)",
+            bottom: 12,
+            left: "50%",
+            transform: "translateX(-50%)",
             display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             gap: 7,
-            zIndex: 2,
+            zIndex: 5,
+            direction: "ltr",
           }}
         >
           {BANNER_SLIDES.map((s, i) => (
             <button
               key={s.id}
               onClick={() => go(i)}
+              aria-label={`اسلاید ${i + 1}`}
               style={{
                 width: i === idx ? 22 : 8,
                 height: 8,
                 borderRadius: 999,
                 border: "none",
-                background: i === idx ? s.color : "#ffffff77",
+                padding: 0,
+                margin: 0,
+                background:
+                  i === idx ? s.color : "#ffffff77",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
               }}
@@ -151,3 +144,4 @@ export default function BannerCarousel() {
     </section>
   );
 }
+```
