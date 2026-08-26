@@ -34,7 +34,7 @@ export default function BannerCarousel() {
 
     const timer = setInterval(() => {
       setIdx((current) => (current + 1) % BANNER_SLIDES.length);
-    }, 2500);
+    }, 1800);
 
     return () => clearInterval(timer);
   }, [paused]);
@@ -76,7 +76,7 @@ export default function BannerCarousel() {
             transform:
               "translateX(-" + idx * 100 + "%)",
             transition:
-              "transform 0.6s cubic-bezier(.65,0,.35,1)",
+              "transform 0.35s cubic-bezier(.65,0,.35,1)",
           }}
         >
           {BANNER_SLIDES.map((slide) => (
@@ -112,13 +112,17 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Dots - پایین و وسط */}
+        {/* Dots - پایین، کمی متمایل به راست */}
         <div
           style={{
             position: "absolute",
             bottom: 12,
-            left: "50%",
+
+            /* به جای وسط کامل، کمی سمت راست */
+            left: "65%",
+
             transform: "translateX(-50%)",
+
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -144,7 +148,7 @@ export default function BannerCarousel() {
                     ? slide.color
                     : "#ffffff77",
                 cursor: "pointer",
-                transition: "all 0.3s ease",
+                transition: "all 0.2s ease",
               }}
             />
           ))}
