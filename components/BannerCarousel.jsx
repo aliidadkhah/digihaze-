@@ -34,7 +34,7 @@ export default function BannerCarousel() {
 
     const timer = setInterval(() => {
       setIdx((current) => (current + 1) % BANNER_SLIDES.length);
-    }, 1800);
+    }, 2500);
 
     return () => clearInterval(timer);
   }, [paused]);
@@ -73,8 +73,7 @@ export default function BannerCarousel() {
             width: "100%",
             height: "100%",
             direction: "ltr",
-            transform:
-              "translateX(-" + idx * 100 + "%)",
+            transform: "translateX(-" + idx * 100 + "%)",
             transition:
               "transform 0.35s cubic-bezier(.65,0,.35,1)",
           }}
@@ -112,17 +111,13 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Dots - پایین، کمی متمایل به راست */}
+        {/* Dots - پایین و دقیقاً وسط */}
         <div
           style={{
             position: "absolute",
             bottom: 12,
-
-            /* به جای وسط کامل، کمی سمت راست */
-            left: "65%",
-
+            left: "50%",
             transform: "translateX(-50%)",
-
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -154,6 +149,21 @@ export default function BannerCarousel() {
           ))}
         </div>
       </div>
+
+      {/* افزایش ارتفاع بنر در موبایل */}
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .banner-slider {
+            aspect-ratio: 16 / 5 !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .banner-slider {
+            aspect-ratio: 16 / 6 !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
