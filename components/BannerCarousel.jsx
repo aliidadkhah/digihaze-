@@ -20,7 +20,7 @@ const BANNER_SLIDES = [
     id: "b3",
     color: "#22E5C9",
     href: "/shop",
-    img: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?q=80&w=1200&auto=format&fit=crop",
+    img: "/slider3.jpg",
   },
 ];
 
