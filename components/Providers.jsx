@@ -47,6 +47,38 @@ export default function Providers({ children }) {
 
 
 
+  // خواندن کاربر ذخیره‌شده هنگام بارگذاری اولیه
+  useEffect(() => {
+
+    const savedUser = localStorage.getItem("user");
+
+    if(savedUser){
+
+      setUser(JSON.parse(savedUser));
+
+    }
+
+  }, []);
+
+
+
+  // ذخیره کاربر بعد از هر تغییر (ورود/خروج)
+  useEffect(() => {
+
+    if(user){
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+    } else {
+
+      localStorage.removeItem("user");
+
+    }
+
+  }, [user]);
+
+
+
 
   // ذخیره سبد خرید بعد از هر تغییر
   useEffect(() => {
