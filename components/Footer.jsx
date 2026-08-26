@@ -38,7 +38,7 @@ export default function Footer() {
             دیجی<span style={{ color: "#2F86FF" }}>هیز</span>
           </div>
           <p style={{ color: "var(--text-lo)", fontSize: 13, lineHeight: 2 }}>
-            فروشگاه تخصصی مایع ویپ، دستگاه و لوازم جانبی با ارسال سریع و ضمانت اصالت کالا.
+            فروشگاه پاد، ویپ، سالت نیکوتین و لوازم جانبی با ارسال سریع و ضمانت اصالت کالا.
           </p>
           <p style={{ color: "var(--text-mut)", fontSize: 11, marginTop: 10 }}>
             فروش این محصولات صرفاً به افراد بالای ۱۸ سال مجاز است.
