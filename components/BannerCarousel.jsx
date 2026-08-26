@@ -1,4 +1,3 @@
-```jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,23 +32,30 @@ export default function BannerCarousel() {
   useEffect(() => {
     if (paused) return;
 
-    const t = setInterval(() => {
-      setIdx((i) => (i + 1) % BANNER_SLIDES.length);
+    const timer = setInterval(() => {
+      setIdx((current) => (current + 1) % BANNER_SLIDES.length);
     }, 4500);
 
-    return () => clearInterval(t);
+    return () => clearInterval(timer);
   }, [paused]);
 
-  const go = (i) => {
-    setIdx((i + BANNER_SLIDES.length) % BANNER_SLIDES.length);
+  const go = (index) => {
+    setIdx(
+      (index + BANNER_SLIDES.length) % BANNER_SLIDES.length
+    );
   };
 
   return (
-    <section style={{ width: "100%", padding: "18px 0 0" }}>
+    <section
+      style={{
+        width: "100%",
+        padding: "18px 0 0",
+      }}
+    >
       <div
+        className="banner-slider"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
-        className="banner-slider"
         style={{
           position: "relative",
           width: "100%",
@@ -67,15 +73,16 @@ export default function BannerCarousel() {
             width: "100%",
             height: "100%",
             direction: "ltr",
-            transform: `translateX(-${idx * 100}%)`,
+            transform:
+              "translateX(-" + idx * 100 + "%)",
             transition:
               "transform 0.6s cubic-bezier(.65,0,.35,1)",
           }}
         >
-          {BANNER_SLIDES.map((s) => (
+          {BANNER_SLIDES.map((slide) => (
             <button
-              key={s.id}
-              onClick={() => router.push(s.href)}
+              key={slide.id}
+              onClick={() => router.push(slide.href)}
               style={{
                 position: "relative",
                 flex: "0 0 100%",
@@ -92,7 +99,7 @@ export default function BannerCarousel() {
               }}
             >
               <img
-                src={s.img}
+                src={slide.img}
                 alt=""
                 style={{
                   width: "100%",
@@ -105,7 +112,7 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Slider dots */}
+        {/* Dots */}
         <div
           style={{
             position: "absolute",
@@ -120,11 +127,11 @@ export default function BannerCarousel() {
             direction: "ltr",
           }}
         >
-          {BANNER_SLIDES.map((s, i) => (
+          {BANNER_SLIDES.map((slide, i) => (
             <button
-              key={s.id}
+              key={slide.id}
               onClick={() => go(i)}
-              aria-label={`اسلاید ${i + 1}`}
+              aria-label={"اسلاید " + (i + 1)}
               style={{
                 width: i === idx ? 22 : 8,
                 height: 8,
@@ -133,7 +140,9 @@ export default function BannerCarousel() {
                 padding: 0,
                 margin: 0,
                 background:
-                  i === idx ? s.color : "#ffffff77",
+                  i === idx
+                    ? slide.color
+                    : "#ffffff77",
                 cursor: "pointer",
                 transition: "all 0.3s ease",
               }}
@@ -144,4 +153,3 @@ export default function BannerCarousel() {
     </section>
   );
 }
-```
