@@ -19,9 +19,9 @@ function WhatsAppIcon({ size = 16, color = "var(--text-hi)" }) {
   );
 }
 
-const WHATSAPP_NUMBER = "989120000000";
-const INSTAGRAM_USERNAME = "your_instagram_id";
-const TELEGRAM_USERNAME = "your_telegram_id";
+const WHATSAPP_NUMBER = "989020951384";
+const INSTAGRAM_USERNAME = "digihaze.ir";
+const TELEGRAM_USERNAME = "digihaze";
 
 export default function Footer() {
   const SOCIAL_LINKS = [
