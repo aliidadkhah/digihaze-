@@ -6,6 +6,75 @@ import {
   discountedPrice,
 } from "@/lib/data";
 
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+
+    const phone = searchParams
+      .get("phone")
+      ?.trim();
+
+    if (!phone) {
+      return NextResponse.json(
+        {
+          error:
+            "شماره موبایل ارسال نشده است",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const {
+      data: orders,
+      error,
+    } = await supabaseAdmin
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("customer_phone", phone)
+      .order("created_at", {
+        ascending: false,
+      });
+
+    if (error) {
+      console.error(
+        "ORDERS FETCH ERROR:",
+        error
+      );
+
+      return NextResponse.json(
+        {
+          error: error.message,
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
+    return NextResponse.json({
+      orders: orders || [],
+    });
+  } catch (error) {
+    console.error(
+      "API ERROR:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error?.message ||
+          "خطای سرور",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
 export async function POST(req) {
   try {
     const body = await req.json();
