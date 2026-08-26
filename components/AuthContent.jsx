@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ShoppingBag, Phone } from "lucide-react";
+import { User, LogOut, ShoppingBag, Phone, PackageSearch } from "lucide-react";
 import { Badge, inputStyle } from "./ui";
 import { useUser } from "./Providers";
 
@@ -90,6 +90,9 @@ export default function AuthContent() {
           </button>
           <button onClick={() => router.push("/cart")} style={accountRowStyle}>
             <ShoppingBag size={16} color="var(--text-lo)" /> سبد خرید من
+          </button>
+          <button onClick={() => router.push("/orders")} style={accountRowStyle}>
+            <PackageSearch size={16} color="var(--text-lo)" /> سفارش‌های من
           </button>
           <button onClick={logout} style={{ ...accountRowStyle, color: "#2F86FF", borderColor: "#3a1440" }}>
             <LogOut size={16} color="#2F86FF" /> خروج از حساب
