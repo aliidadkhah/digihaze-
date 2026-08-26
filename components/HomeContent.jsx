@@ -4,8 +4,14 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Flame } from "lucide-react";
+
 import { Badge, Reveal, Countdown } from "./ui";
-import { FlavorCloud, VaporParticles, FloatingBottle } from "./visuals";
+import {
+FlavorCloud,
+VaporParticles,
+FloatingBottle,
+} from "./visuals";
+
 import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
 import { CATEGORIES, PRODUCTS } from "@/lib/data";
@@ -93,7 +99,8 @@ return ( <div>
           top: -160,
           right: "50%",
           transform: "translateX(50%)",
-          animation: "driftA 14s ease-in-out infinite",
+          animation:
+            "driftA 14s ease-in-out infinite",
         }}
       />
 
@@ -103,7 +110,8 @@ return ( <div>
         style={{
           top: 40,
           left: "8%",
-          animation: "driftB 11s ease-in-out infinite",
+          animation:
+            "driftB 11s ease-in-out infinite",
         }}
       />
 
@@ -113,7 +121,8 @@ return ( <div>
         style={{
           top: 120,
           right: "6%",
-          animation: "driftA 16s ease-in-out infinite reverse",
+          animation:
+            "driftA 16s ease-in-out infinite reverse",
         }}
       />
     </div>
@@ -146,7 +155,8 @@ return ( <div>
         style={{
           fontFamily: "Vazirmatn",
           fontWeight: 800,
-          fontSize: "clamp(32px, 6vw, 56px)",
+          fontSize:
+            "clamp(32px, 6vw, 56px)",
           lineHeight: 1.25,
           margin: "20px 0 16px",
           animationDelay: "0.16s",
@@ -156,7 +166,8 @@ return ( <div>
         <span
           style={{
             color: "#2F86FF",
-            textShadow: "0 0 30px #2F86FF66",
+            textShadow:
+              "0 0 30px #2F86FF66",
           }}
         >
           طعم
@@ -174,7 +185,7 @@ return ( <div>
           animationDelay: "0.28s",
         }}
       >
-        سالت نیکوتین، جویس، پاد، ویپ،کویل و
+        سالت نیکوتین، جویس، پاد، ویپ، کویل و
         کارتریج با ارسال سریع به سراسر کشور.
         طعم مورد علاقه‌ت رو پیدا کن
       </p>
@@ -212,7 +223,8 @@ return ( <div>
           style={{
             background: "transparent",
             color: "var(--text-hi)",
-            border: "1px solid var(--border-soft)",
+            border:
+              "1px solid var(--border-soft)",
             borderRadius: 14,
             padding: "14px 30px",
             fontFamily: "Vazirmatn",
@@ -256,12 +268,16 @@ return ( <div>
               setHeroColor(c.color)
             }
             onClick={() =>
-              router.push(`/shop?category=${c.id}`)
+              router.push(
+                `/shop?category=${c.id}`
+              )
             }
             style={{
               width: "100%",
-              background: "var(--surface)",
-              border: "1px solid var(--surface2)",
+              background:
+                "var(--surface)",
+              border:
+                "1px solid var(--surface2)",
               borderRadius: 16,
               padding: "22px 14px",
               cursor: "pointer",
@@ -272,12 +288,14 @@ return ( <div>
             onMouseOver={(e) => {
               e.currentTarget.style.borderColor =
                 c.color;
+
               e.currentTarget.style.transform =
                 "translateY(-4px)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.borderColor =
                 "var(--surface2)";
+
               e.currentTarget.style.transform =
                 "translateY(0)";
             }}
@@ -335,7 +353,8 @@ return ( <div>
           borderRadius: 24,
           background:
             "linear-gradient(120deg,#3a1440,var(--bg) 70%)",
-          border: "1px solid var(--border-soft)",
+          border:
+            "1px solid var(--border-soft)",
           padding: "42px 30px",
           display: "flex",
           alignItems: "center",
@@ -414,24 +433,21 @@ return ( <div>
 
   {/* =========================
       SALE OFFERS
-      EDGE TO EDGE
+      دارای بک‌گراند edge-to-edge
   ========================= */}
 
   <section
     className="sale-section"
     style={{
       width: "100%",
-      margin: "0 0 50px",
-      padding: "42px 0 48px",
+      margin: "0",
+      padding: "38px 0 50px",
       background:
-        "linear-gradient(180deg, rgba(47,134,255,0.07) 0%, rgba(29,20,54,0.72) 50%, rgba(47,134,255,0.05) 100%)",
+        "linear-gradient(180deg, rgba(47,134,255,0.035), rgba(34,229,201,0.02))",
       borderTop:
-        "1px solid rgba(47,134,255,0.18)",
+        "1px solid rgba(255,255,255,0.035)",
       borderBottom:
-        "1px solid rgba(47,134,255,0.18)",
-      boxShadow:
-        "0 0 50px rgba(47,134,255,0.05) inset",
-      boxSizing: "border-box",
+        "1px solid rgba(255,255,255,0.035)",
     }}
   >
     <div
@@ -513,14 +529,14 @@ return ( <div>
 
   {/* =========================
       FEATURED PRODUCTS
-      MOBILE = 2 CARDS
+      موبایل = ۲ کارت در هر ردیف
   ========================= */}
 
   <section
     style={{
       maxWidth: 1180,
       margin: "0 auto",
-      padding: "0 20px 70px",
+      padding: "50px 20px 70px",
     }}
   >
     <div
@@ -585,11 +601,17 @@ return ( <div>
           2,
           minmax(0, 1fr)
         ) !important;
+
         gap: 10px !important;
       }
 
       .sale-section {
-        padding: 30px 0 36px !important;
+        padding-top: 30px !important;
+        padding-bottom: 38px !important;
+      }
+
+      .sale-scroll {
+        gap: 10px !important;
       }
     }
 
@@ -599,9 +621,7 @@ return ( <div>
       }
     }
   `}</style>
-
 </div>
-```
 
 );
 }
