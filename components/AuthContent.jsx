@@ -37,6 +37,7 @@ export default function AuthContent() {
   const [code, setCode] = useState("");
 
   const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   const [timer, setTimer] = useState(0);
@@ -44,11 +45,11 @@ export default function AuthContent() {
   useEffect(() => {
     if (timer <= 0) return;
 
-    const interval = setInterval(() => {
-      setTimer((value) => Math.max(0, value - 1));
+    const t = setInterval(() => {
+      setTimer((s) => Math.max(0, s - 1));
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(t);
   }, [timer]);
 
   const validPhone = /^09\d{9}$/.test(phone);
@@ -56,7 +57,6 @@ export default function AuthContent() {
   /*
    * ارسال OTP واقعی
    */
-
   const sendCode = async (e) => {
     e?.preventDefault();
 
@@ -64,46 +64,38 @@ export default function AuthContent() {
 
     if (!validPhone) {
       setError(
-        "شماره موبایل را درست وارد کن؛ مثلاً 09123456789"
+        "شماره موبایل رو درست وارد کن (مثلاً 09123456789)"
       );
-      return;
-    }
-
-    if (timer > 0) {
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/auth/send-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phone,
-          }),
-        }
-      );
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone,
+        }),
+      });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         throw new Error(
-          data?.error || "ارسال کد تایید انجام نشد"
+          data?.error || "ارسال کد تایید انجام نشد."
         );
       }
 
-      setCode("");
       setStep("code");
+      setCode("");
       setTimer(60);
-    } catch (error) {
+    } catch (err) {
       setError(
-        error?.message ||
-          "خطایی در ارسال کد تایید رخ داد"
+        err.message || "ارسال کد تایید انجام نشد."
       );
     } finally {
       setLoading(false);
@@ -113,53 +105,44 @@ export default function AuthContent() {
   /*
    * بررسی OTP واقعی
    */
-
   const verifyCode = async (e) => {
     e.preventDefault();
 
     setError("");
 
-    if (!/^\d{5,9}$/.test(code)) {
-      setError("کد تایید را کامل وارد کن");
+    if (!code || code.length < 4) {
+      setError("کد تایید را کامل وارد کن.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "/api/auth/verify-otp",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            phone,
-            code,
-          }),
-        }
-      );
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone,
+          code,
+        }),
+      });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         throw new Error(
-          data?.error || "کد تایید صحیح نیست"
+          data?.error || "کد تایید صحیح نیست."
         );
       }
-
-      /*
-       * ورود کاربر در Providers
-       */
 
       login(data.user);
 
       router.push("/");
-    } catch (error) {
+    } catch (err) {
       setError(
-        error?.message ||
-          "کد تایید صحیح نیست"
+        err.message || "کد تایید صحیح نیست."
       );
     } finally {
       setLoading(false);
@@ -167,9 +150,8 @@ export default function AuthContent() {
   };
 
   /*
-   * اگر قبلاً وارد شده
+   * کاربر وارد شده
    */
-
   if (user) {
     return (
       <div
@@ -193,10 +175,7 @@ export default function AuthContent() {
             border: "2px solid #22E5C9",
           }}
         >
-          <User
-            size={30}
-            color="#22E5C9"
-          />
+          <User size={30} color="#22E5C9" />
         </div>
 
         <h2
@@ -269,10 +248,7 @@ export default function AuthContent() {
               borderColor: "#3a1440",
             }}
           >
-            <LogOut
-              size={16}
-              color="#2F86FF"
-            />
+            <LogOut size={16} color="#2F86FF" />
             خروج از حساب
           </button>
         </div>
@@ -283,7 +259,6 @@ export default function AuthContent() {
   /*
    * صفحه ورود
    */
-
   return (
     <div
       style={{
@@ -426,14 +401,13 @@ export default function AuthContent() {
           <input
             type="tel"
             inputMode="numeric"
-            autoComplete="one-time-code"
             placeholder="کد تایید"
             value={code}
             onChange={(e) =>
               setCode(
                 e.target.value
                   .replace(/\D/g, "")
-                  .slice(0, 9)
+                  .slice(0, 10)
               )
             }
             style={{
@@ -510,10 +484,8 @@ export default function AuthContent() {
 
             <button
               type="button"
-              disabled={
-                timer > 0 || loading
-              }
-              onClick={sendCode}
+              disabled={timer > 0 || loading}
+              onClick={() => sendCode()}
               style={{
                 background: "none",
                 border: "none",
