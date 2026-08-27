@@ -34,7 +34,6 @@ export default function OrdersContent() {
     } else {
       setLoading(false);
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.contact]);
 
@@ -67,42 +66,14 @@ export default function OrdersContent() {
 
   if (!user) {
     return (
-      <div
-        style={{
-          maxWidth: 420,
-          margin: "0 auto",
-          padding: "80px 20px",
-          textAlign: "center",
-        }}
-      >
-        <PackageSearch
-          size={40}
-          color="var(--text-mut)"
-          style={{ margin: "0 auto 16px" }}
-        />
-
-        <h1
-          style={{
-            fontFamily: "Vazirmatn",
-            fontWeight: 800,
-            fontSize: 20,
-            marginBottom: 8,
-          }}
-        >
+      <div style={{ maxWidth: 420, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
+        <PackageSearch size={40} color="var(--text-mut)" style={{ margin: "0 auto 16px" }} />
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20, marginBottom: 8 }}>
           ابتدا وارد حساب کاربری‌ات شو
         </h1>
-
-        <p
-          style={{
-            color: "var(--text-mut)",
-            fontSize: 13,
-            marginBottom: 24,
-            lineHeight: 2,
-          }}
-        >
+        <p style={{ color: "var(--text-mut)", fontSize: 13, marginBottom: 24, lineHeight: 2 }}>
           برای دیدن سفارش‌هایت باید با شماره موبایلت وارد شوی.
         </p>
-
         <button
           onClick={() => router.push("/auth")}
           style={{
@@ -124,34 +95,9 @@ export default function OrdersContent() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 780,
-        margin: "0 auto",
-        padding: "50px 20px 90px",
-      }}
-    >
-      {/* HEADER */}
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 24,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: "Vazirmatn",
-            fontWeight: 800,
-            fontSize: 22,
-          }}
-        >
-          سفارش‌های من
-        </h1>
+    <div style={{ maxWidth: 780, margin: "0 auto", padding: "50px 20px 90px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22 }}>سفارش‌های من</h1>
 
         <button
           onClick={fetchOrders}
@@ -171,66 +117,24 @@ export default function OrdersContent() {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          <RefreshCw size={14} />
-          به‌روزرسانی
+          <RefreshCw size={14} /> به‌روزرسانی
         </button>
       </div>
 
-      {/* LOADING */}
-
       {loading && (
-        <p
-          style={{
-            color: "var(--text-mut)",
-            fontSize: 13.5,
-          }}
-        >
-          در حال بارگذاری سفارش‌ها...
-        </p>
+        <p style={{ color: "var(--text-mut)", fontSize: 13.5 }}>در حال بارگذاری سفارش‌ها...</p>
       )}
 
-      {/* ERROR */}
-
       {!loading && error && (
-        <div
-          style={{
-            background: "#ff3b3b18",
-            color: "#ff6b6b",
-            borderRadius: 10,
-            padding: "12px 14px",
-            fontSize: 13,
-            marginBottom: 16,
-          }}
-        >
+        <div style={{ background: "#ff3b3b18", color: "#ff6b6b", borderRadius: 10, padding: "12px 14px", fontSize: 13, marginBottom: 16 }}>
           {error}
         </div>
       )}
 
-      {/* EMPTY */}
-
       {!loading && !error && orders.length === 0 && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "60px 20px",
-            color: "var(--text-mut)",
-          }}
-        >
-          <PackageSearch
-            size={36}
-            color="var(--text-faint)"
-            style={{ margin: "0 auto 14px" }}
-          />
-
-          <p
-            style={{
-              fontSize: 14,
-              marginBottom: 20,
-            }}
-          >
-            هنوز هیچ سفارشی ثبت نکردی.
-          </p>
-
+        <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-mut)" }}>
+          <PackageSearch size={36} color="var(--text-faint)" style={{ margin: "0 auto 14px" }} />
+          <p style={{ fontSize: 14, marginBottom: 20 }}>هنوز هیچ سفارشی ثبت نکردی.</p>
           <button
             onClick={() => router.push("/shop")}
             style={{
@@ -250,15 +154,7 @@ export default function OrdersContent() {
         </div>
       )}
 
-      {/* ORDERS */}
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {orders.map((o) => (
           <div
             key={o.id}
@@ -269,48 +165,20 @@ export default function OrdersContent() {
               padding: 18,
             }}
           >
-            {/* ORDER HEADER */}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: 10,
-                marginBottom: 14,
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
               <div>
-                <div
-                  style={{
-                    fontWeight: 800,
-                    fontSize: 14,
-                    fontFamily: "Vazirmatn",
-                  }}
-                >
+                <div style={{ fontWeight: 800, fontSize: 14, fontFamily: "Vazirmatn" }}>
                   سفارش #{String(o.id).slice(0, 8)}
                 </div>
-
-                <div
-                  style={{
-                    color: "var(--text-mut)",
-                    fontSize: 12,
-                    marginTop: 3,
-                  }}
-                >
+                <div style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 3 }}>
                   {new Date(o.created_at).toLocaleString("fa-IR")}
                 </div>
               </div>
 
               <span
                 style={{
-                  background: `${
-                    STATUS_COLORS[o.status] ||
-                    "var(--text-faint)"
-                  }22`,
-                  color:
-                    STATUS_COLORS[o.status] ||
-                    "var(--text-hi)",
+                  background: `${STATUS_COLORS[o.status] || "var(--text-faint)"}22`,
+                  color: STATUS_COLORS[o.status] || "var(--text-hi)",
                   fontFamily: "Vazirmatn",
                   fontWeight: 700,
                   fontSize: 12,
@@ -323,16 +191,7 @@ export default function OrdersContent() {
               </span>
             </div>
 
-            {/* ORDER ITEMS */}
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-                marginBottom: 14,
-              }}
-            >
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
               {(o.order_items || []).map((it) => {
                 const product = getProductById(it.product_id);
 
@@ -350,20 +209,11 @@ export default function OrdersContent() {
                     <span>
                       {product?.name || it.product_id} × {it.qty}
                     </span>
-
-                    <span
-                      style={{
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {money(it.price * it.qty)}
-                    </span>
+                    <span style={{ whiteSpace: "nowrap" }}>{money(it.price * it.qty)}</span>
                   </div>
                 );
               })}
             </div>
-
-            {/* TOTAL */}
 
             <div
               style={{
@@ -375,29 +225,12 @@ export default function OrdersContent() {
                 fontFamily: "Vazirmatn",
               }}
             >
-              <span
-                style={{
-                  color: "var(--text-mut)",
-                  fontSize: 12.5,
-                }}
-              >
-                مبلغ کل
-              </span>
-
-              <span
-                style={{
-                  fontWeight: 800,
-                  fontSize: 15,
-                }}
-              >
-                {money(o.total)}
-              </span>
+              <span style={{ color: "var(--text-mut)", fontSize: 12.5 }}>مبلغ کل</span>
+              <span style={{ fontWeight: 800, fontSize: 15 }}>{money(o.total)}</span>
             </div>
           </div>
         ))}
       </div>
-
-      {/* BACK */}
 
       <button
         onClick={() => router.push("/auth")}
@@ -415,8 +248,7 @@ export default function OrdersContent() {
           padding: 0,
         }}
       >
-        <ChevronLeft size={15} />
-        بازگشت به حساب کاربری
+        <ChevronLeft size={15} /> بازگشت به حساب کاربری
       </button>
     </div>
   );
