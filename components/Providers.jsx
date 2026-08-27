@@ -15,6 +15,19 @@ export function useUser() {
   return useContext(UserContext);
 }
 
+// آیا پروفایل کاربر برای تسویه‌حساب کامله؟
+export function isProfileComplete(user) {
+  return !!(
+    user &&
+    user.name &&
+    user.contact &&
+    user.province &&
+    user.city &&
+    user.address &&
+    user.postalCode
+  );
+}
+
 export function useTheme() {
   return useContext(ThemeContext);
 }
@@ -262,13 +275,19 @@ export default function Providers({ children }) {
 
 
 
+  const updateProfile = (fields) => {
+    setUser((prev) => (prev ? { ...prev, ...fields } : prev));
+  };
+
   const userValue={
 
     user,
 
     login:setUser,
 
-    logout:()=>setUser(null)
+    logout:()=>setUser(null),
+
+    updateProfile,
 
   };
 
