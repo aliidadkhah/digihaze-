@@ -14,9 +14,9 @@ export default function ContactContent() {
         <Reveal>
           <div>
             {[
-              { icon: Phone, label: "تلفن تماس", value: "021-88889999" },
-              { icon: Mail, label: "ایمیل", value: "info@abrforoush.ir" },
-              { icon: MapPin, label: "آدرس", value: "تهران، خیابان نمونه، پلاک ۱۲" },
+              { icon: Phone, label: "تلفن تماس", value: "09020961384" },
+              { icon: Mail, label: "ایمیل", value: "info@digihaze.ir" },
+              { icon: MapPin, label: "آدرس", value: "تبریز، مرزداران، بهارستان" },
             ].map((it, i) => (
               <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 22 }}>
                 <div style={{ background: "var(--surface2)", borderRadius: 12, padding: 10 }}>
