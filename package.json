@@ -6,13 +6,28 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:vinext": "vinext dev --port 3001",
+    "build:vinext": "vinext build",
+    "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "deploy:vinext": "vinext-cloudflare deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
+    "@vinext/cloudflare": "^1.0.0-beta.6",
     "lucide-react": "^0.383.0",
     "next": "^16.3.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-server-dom-webpack": "^19.2.8",
+    "vinext": "^1.0.0-beta.8"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.54.1",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@vitejs/plugin-rsc": "^0.5.34",
+    "vite": "^8.2.2",
+    "wrangler": "^4.127.0"
   }
 }

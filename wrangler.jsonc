@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "digihaze",
+  "compatibility_date": "2026-08-27",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "main": "vinext/server/fetch-handler",
+  "assets": {
+    "directory": "dist/client",
+    "not_found_handling": "none",
+    "binding": "ASSETS"
+  },
+  "cache": {
+    "enabled": true
+  },
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://okaocbpofqnyzapqdcpu.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_wwPZG06DJgO58_4Q9FQbRg_ala7an5l",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rYW9jYnBvZnFueXphcHFkY3B1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0NjEzNDgsImV4cCI6MjEwMzAzNzM0OH0.M7yRxi5zGJiBZccImLpsVE7VTT6rHgYTWYg6ZBkgMhM",
+    "SUPABASE_URL": "https://okaocbpofqnyzapqdcpu.supabase.co"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "VINEXT_KV_CACHE",
+      "id": "a3c048bcbb5b44588efa2ee7ce7dde5f"
+    }
+  ]
+}
