@@ -1,14 +1,22 @@
 import { notFound } from "next/navigation";
 import ProductContent from "@/components/ProductContent";
-import { PRODUCTS, getProductById, getRelated, money, discountedPrice } from "@/lib/data";
+import {
+  PRODUCTS,
+  getProductById,
+  getRelated,
+  money,
+  discountedPrice,
+} from "@/lib/data";
 
-// این تابع در زمان build صفحه‌ی هر محصول رو از قبل می‌سازه (SSG) تا گوگل سریع ایندکسش کنه
+// این تابع در زمان build صفحه‌ی هر محصول رو از قبل می‌سازه
 export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ id: p.id }));
 }
 
-export function generateMetadata({ params }) {
-  const product = getProductById(params.id);
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const product = getProductById(id);
+
   if (!product) return { title: "محصول پیدا نشد" };
 
   const priceText = money(discountedPrice(product));
@@ -29,20 +37,25 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function ProductPage({ params }) {
-  const product = getProductById(params.id);
+export default async function ProductPage({ params }) {
+  const { id } = await params;
+
+  const product = getProductById(id);
+
   if (!product) notFound();
 
   const related = getRelated(product);
 
-  // JSON-LD ساختاریافته برای نمایش قیمت/امتیاز در نتایج گوگل (Rich Results)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     image: product.images,
     description: product.description,
-    brand: { "@type": "Brand", name: product.brand },
+    brand: {
+      "@type": "Brand",
+      name: product.brand,
+    },
     offers: {
       "@type": "Offer",
       priceCurrency: "IRR",
@@ -60,8 +73,17 @@ export default function ProductPage({ params }) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductContent product={product} related={related} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
+
+      <ProductContent
+        product={product}
+        related={related}
+      />
     </>
   );
 }

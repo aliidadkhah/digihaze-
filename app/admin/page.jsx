@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { Lock, RefreshCw, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 
-const STATUS_LABELS = { pending: "در انتظار پرداخت", paid: "پرداخت‌شده", failed: "ناموفق", cancelled: "لغوشده" };
+const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
+const SHIPPING_LABELS = { post: "پست", tipax: "تیپاکس", chapar: "چاپار" };
 
 export default function AdminPage() {
   const [session, setSession] = useState(null);
@@ -16,6 +17,8 @@ export default function AdminPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
+  const [savingId, setSavingId] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -50,6 +53,16 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "خطا در دریافت سفارش‌ها");
       setOrders(data.orders || []);
+
+      const drafts = {};
+      (data.orders || []).forEach((o) => {
+        drafts[o.id] = {
+          post: o.tracking_url_post || "",
+          tipax: o.tracking_url_tipax || "",
+          chapar: o.tracking_url_chapar || "",
+        };
+      });
+      setTrackingDrafts(drafts);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -65,6 +78,21 @@ export default function AdminPage() {
       body: JSON.stringify({ orderId, status }),
     });
     fetchOrders();
+  };
+
+  const saveTrackingLinks = async (orderId) => {
+    setSavingId(orderId);
+    try {
+      const token = session.access_token;
+      await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId, trackingUrls: trackingDrafts[orderId] }),
+      });
+      await fetchOrders();
+    } finally {
+      setSavingId(null);
+    }
   };
 
   if (checking) return null;
@@ -120,40 +148,78 @@ export default function AdminPage() {
       {orders.length === 0 && !loading && <p style={{ color: "var(--text-mut)" }}>هنوز سفارشی ثبت نشده.</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {orders.map((o) => (
-          <div key={o.id} style={{ background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 14, padding: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 13.5 }}>سفارش #{o.id.slice(0, 8)}</div>
-                <div style={{ color: "var(--text-mut)", fontSize: 12 }}>{new Date(o.created_at).toLocaleString("fa-IR")}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontWeight: 800 }}>{o.total?.toLocaleString("fa-IR")} تومان</span>
-                <select
-                  value={o.status}
-                  onChange={(e) => changeStatus(o.id, e.target.value)}
-                  style={{ background: "var(--surface2)", color: STATUS_COLORS[o.status] || "var(--text-hi)", border: "none", borderRadius: 8, padding: "6px 10px", fontFamily: "Vazirmatn", fontSize: 12, fontWeight: 700 }}
-                >
-                  {Object.entries(STATUS_LABELS).map(([k, label]) => (
-                    <option key={k} value={k}>{label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              {(o.order_items || []).map((it) => (
-                <div key={it.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-lo)" }}>
-                  <span>{it.product_id}</span>
-                  <span>× {it.qty}</span>
+        {orders.map((o) => {
+          const draft = trackingDrafts[o.id] || { post: "", tipax: "", chapar: "" };
+          return (
+            <div key={o.id} style={{ background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 14, padding: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13.5 }}>سفارش #{String(o.id).slice(0, 8)}</div>
+                  <div style={{ color: "var(--text-mut)", fontSize: 12 }}>{new Date(o.created_at).toLocaleString("fa-IR")}</div>
                 </div>
-              ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontWeight: 800 }}>{Number(o.total || 0).toLocaleString("fa-IR")} تومان</span>
+                  <select
+                    value={o.status}
+                    onChange={(e) => changeStatus(o.id, e.target.value)}
+                    style={{ background: "var(--surface2)", color: STATUS_COLORS[o.status] || "var(--text-hi)", border: "none", borderRadius: 8, padding: "6px 10px", fontFamily: "Vazirmatn", fontSize: 12, fontWeight: 700 }}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([k, label]) => (
+                      <option key={k} value={k}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* اطلاعات مشتری و ارسال */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 10, fontSize: 12.5, color: "var(--text-lo)" }}>
+                <div>{o.customer_name} — <span dir="ltr">{o.customer_phone}</span></div>
+                <div>{o.customer_province} / {o.customer_city} — کدپستی: <span dir="ltr">{o.customer_postal_code || "—"}</span></div>
+                <div>{o.customer_address}</div>
+                <div>روش ارسال: {SHIPPING_LABELS[o.shipping_method] || o.shipping_method || "—"} • روش پرداخت: {o.payment_method === "gateway" ? "درگاه" : "کارت به کارت"}</div>
+                {o.payment_tracking_code && <div>کد پیگیری واریز: <span dir="ltr">{o.payment_tracking_code}</span></div>}
+              </div>
+
+              {/* اقلام سفارش */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
+                {(o.order_items || []).map((it) => (
+                  <div key={it.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-lo)" }}>
+                    <span>{it.product_id}</span>
+                    <span>× {it.qty}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* لینک‌های رهگیری */}
+              <div style={{ borderTop: "1px solid var(--surface2)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-hi)" }}>لینک‌های رهگیری مرسوله</div>
+                {["post", "tipax", "chapar"].map((key) => (
+                  <input
+                    key={key}
+                    placeholder={`لینک رهگیری ${SHIPPING_LABELS[key]}`}
+                    value={draft[key]}
+                    dir="ltr"
+                    onChange={(e) =>
+                      setTrackingDrafts((prev) => ({ ...prev, [o.id]: { ...prev[o.id], [key]: e.target.value } }))
+                    }
+                    style={{ ...inputStyle, padding: "9px 12px", fontSize: 12 }}
+                  />
+                ))}
+                <button
+                  onClick={() => saveTrackingLinks(o.id)}
+                  disabled={savingId === o.id}
+                  style={{ ...iconTextBtn, alignSelf: "flex-start", opacity: savingId === o.id ? 0.6 : 1 }}
+                >
+                  {savingId === o.id ? "در حال ذخیره..." : "ذخیره لینک‌ها"}
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
 
-const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "Vazirmatn", outline: "none" };
+const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "Vazirmatn", outline: "none", width: "100%", boxSizing: "border-box" };
 const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadius: 10, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--text-hi)", fontFamily: "Vazirmatn", fontSize: 13 };

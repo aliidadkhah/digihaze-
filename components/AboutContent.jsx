@@ -7,9 +7,9 @@ export default function AboutContent() {
     <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 20px 80px" }}>
       <Reveal>
         <Badge bg="#FF8A3D">داستان ما</Badge>
-        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره ابرفروش</h1>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره دیجی هیز</h1>
         <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 18 }}>
-          ابرفروش از دل علاقه به دنیای طعم‌ها شکل گرفت. هدف ما اینه که تجربه‌ی خرید مایع ویپ و دستگاه رو ساده، مطمئن و
+          دیجی هیز از دل علاقه به دنیای طعم‌ها شکل گرفت. هدف ما اینه که تجربه‌ی خرید پاد و سالت و لوازم جانبی ویپینگ رو ساده، مطمئن و
           لذت‌بخش کنیم؛ با تضمین اصالت کالا، بسته‌بندی مناسب و پشتیبانی واقعی قبل و بعد از خرید.
         </p>
         <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 30 }}>
