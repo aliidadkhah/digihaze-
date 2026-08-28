@@ -14,7 +14,7 @@ const BANNER_SLIDES = [
     id: "b2",
     color: "#FF8A3D",
     href: "/product/p3",
-    img: "/slider2.jpg",
+    img: "/slider2+.jpg",
   },
   {
     id: "b3",
