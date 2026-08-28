@@ -87,27 +87,17 @@ export async function POST(request) {
     const smsData = await response.json();
 
     /*
-     * طبق مستندات ملی پیامک:
-     *
-     * code = کد ارسال‌شده
-     * status = توضیح خطا
+     * توجه: ملی‌پیامک توی این وب‌سرویس همیشه یه فیلد status برمی‌گردونه،
+     * چه موفق باشه چه ناموفق (مثلاً "عملیات موفق" هم توی status میاد).
+     * پس ملاک تشخیص خطا، وجود یا نبودِ خودِ کد (code) هست، نه وجود status.
      */
-
-    if (smsData.status) {
-      return NextResponse.json(
-        {
-          error: smsData.status,
-        },
-        { status: 400 }
-      );
-    }
 
     if (!smsData.code) {
       return NextResponse.json(
         {
-          error: "کد تایید از ملی پیامک دریافت نشد.",
+          error: smsData.status || "کد تایید از ملی پیامک دریافت نشد.",
         },
-        { status: 502 }
+        { status: 400 }
       );
     }
 
