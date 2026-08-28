@@ -27,14 +27,32 @@ const selectStyle = {
   appearance: "auto",
 };
 
-// ⚠️ این یک شبیه‌سازی سمت فرانت‌اند هست (بدون پیامک واقعی).
-// برای اتصال واقعی باید دو مسیر از بک‌اند صدا زده بشه:
-//   POST /api/auth/send-otp   { phone }
-//   POST /api/auth/verify-otp { phone, code }
-// که پیامک واقعی رو از طریق سرویس‌هایی مثل کاوه‌نگار یا SMS.ir ارسال می‌کنن.
-function fakeSendOtp(phone) {
-  const code = String(Math.floor(1000 + Math.random() * 9000));
-  return new Promise((resolve) => setTimeout(() => resolve(code), 700));
+// ارسال کد تایید واقعی از طریق ملی‌پیامک (سمت سرور، مسیر /api/auth/send-otp)
+async function sendOtpRequest(phone) {
+  const response = await fetch("/api/auth/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error || "ارسال کد تایید ناموفق بود");
+  }
+  return data;
+}
+
+// بررسی کد تایید واقعی (سمت سرور، مسیر /api/auth/verify-otp)
+async function verifyOtpRequest(phone, code) {
+  const response = await fetch("/api/auth/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, code }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error || "کد وارد شده صحیح نیست");
+  }
+  return data;
 }
 
 export default function AuthContent() {
@@ -46,7 +64,6 @@ export default function AuthContent() {
   const [step, setStep] = useState("phone"); // phone | code | profile
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
-  const [devCode, setDevCode] = useState(""); // فقط برای نمایش دمو، در نسخه‌ی واقعی حذف می‌شه
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
@@ -84,11 +101,15 @@ export default function AuthContent() {
       return;
     }
     setLoading(true);
-    const generated = await fakeSendOtp(phone);
-    setDevCode(generated);
-    setLoading(false);
-    setStep("code");
-    setTimer(60);
+    try {
+      await sendOtpRequest(phone);
+      setStep("code");
+      setTimer(60);
+    } catch (err) {
+      setError(err.message || "ارسال کد تایید ناموفق بود");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const finishLogin = (loggedInUser) => {
@@ -99,16 +120,20 @@ export default function AuthContent() {
     }
   };
 
-  const verifyCode = (e) => {
+  const verifyCode = async (e) => {
     e.preventDefault();
     setError("");
-    if (code.trim() !== devCode) {
-      setError("کد وارد شده صحیح نیست");
-      return;
+    setLoading(true);
+    try {
+      const data = await verifyOtpRequest(phone, code.trim());
+      const newUser = data.user || { name: `کاربر ${phone.slice(-4)}`, contact: phone };
+      login(newUser);
+      finishLogin(newUser);
+    } catch (err) {
+      setError(err.message || "کد وارد شده صحیح نیست");
+    } finally {
+      setLoading(false);
     }
-    const newUser = { name: `کاربر ${phone.slice(-4)}`, contact: phone };
-    login(newUser);
-    finishLogin(newUser);
   };
 
   const handleProfileChange = (e) => {
@@ -304,7 +329,7 @@ export default function AuthContent() {
           {step === "phone" ? "ورود با شماره موبایل" : "کد تایید رو وارد کن"}
         </h1>
         <p style={{ color: "var(--text-mut)", fontSize: 13 }}>
-          {step === "phone" ? "کد تایید برات پیامک می‌شه" : `کد ۴ رقمی به ${phone} ارسال شد`}
+          {step === "phone" ? "کد تایید برات پیامک می‌شه" : `کد تایید به ${phone} ارسال شد`}
         </p>
       </div>
 
@@ -333,22 +358,17 @@ export default function AuthContent() {
           <input
             type="tel"
             inputMode="numeric"
-            placeholder="کد ۴ رقمی"
+            placeholder="کد تایید"
             value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 10))}
             style={{ ...inputStyle, textAlign: "center", letterSpacing: 6, fontSize: 20, direction: "ltr" }}
             autoFocus
           />
 
-          {/* فقط برای دمو، چون پیامک واقعی وصل نیست — در نسخه‌ی واقعی این باکس حذف می‌شه */}
-          <div style={{ background: "#C6FF3D22", border: "1px solid #C6FF3D55", borderRadius: 10, padding: "8px 12px", fontSize: 12, color: "var(--text-hi)" }}>
-            حالت دمو — کد ارسالی: <b style={{ direction: "ltr", display: "inline-block" }}>{devCode}</b>
-          </div>
-
           {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
 
-          <button type="submit" style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
-            تایید و ورود
+          <button type="submit" disabled={loading} style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+            {loading ? "در حال بررسی..." : "تایید و ورود"}
           </button>
 
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5 }}>
