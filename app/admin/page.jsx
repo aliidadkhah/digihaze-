@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
+import ProductsManager from "@/components/ProductsManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -20,7 +21,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
-  const [tab, setTab] = useState("orders"); // "orders" | "images"
+  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products"
   const [resetSending, setResetSending] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
@@ -179,7 +180,11 @@ export default function AdminPage() {
     <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 24 }}>
-          {tab === "orders" ? `سفارش‌ها (${orders.length})` : "مدیریت عکس‌ها"}
+          {tab === "orders"
+            ? `سفارش‌ها (${orders.length})`
+            : tab === "images"
+            ? "مدیریت عکس‌ها"
+            : "مدیریت محصولات"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           {tab === "orders" && (
@@ -206,9 +211,17 @@ export default function AdminPage() {
         >
           <ImageIcon size={14} /> تصاویر سایت
         </button>
+        <button
+          onClick={() => setTab("products")}
+          style={tabBtnStyle(tab === "products")}
+        >
+          <Tag size={14} /> محصولات
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
+
+      {tab === "products" && <ProductsManager />}
 
       {tab === "orders" && (
         <>
