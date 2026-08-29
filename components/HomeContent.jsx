@@ -14,16 +14,18 @@ import {
 
 import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
-import { CATEGORIES, PRODUCTS } from "@/lib/data";
+import { CATEGORIES } from "@/lib/data";
+import { useProducts } from "./ProductsProvider";
 
 export default function HomeContent() {
   const router = useRouter();
+  const { products } = useProducts();
 
-  const featured = PRODUCTS.filter(
+  const featured = products.filter(
     (p) => p.discount > 0 || p.badge
   );
 
-  const saleItems = PRODUCTS.filter(
+  const saleItems = products.filter(
     (p) => p.discount > 0
   );
 
