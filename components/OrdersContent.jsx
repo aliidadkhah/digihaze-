@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PackageSearch, RefreshCw, ChevronLeft } from "lucide-react";
 import { useUser } from "./Providers";
-import { getProductById, money } from "@/lib/data";
+import { money } from "@/lib/data";
+import { useProducts } from "./ProductsProvider";
 
 const STATUS_LABELS = {
   pending: "در انتظار بررسی پرداخت",
@@ -23,6 +24,7 @@ const STATUS_COLORS = {
 export default function OrdersContent() {
   const { user } = useUser();
   const router = useRouter();
+  const { getProductById } = useProducts();
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
