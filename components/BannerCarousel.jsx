@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import SiteImage from "./SiteImage";
 
 const BANNER_SLIDES = [
   {
@@ -97,7 +98,7 @@ export default function BannerCarousel() {
                 background: "none",
               }}
             >
-              <img
+              <SiteImage
                 src={slide.img}
                 alt=""
                 style={{
