@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import SiteImage from "./SiteImage";
 import {
   ShoppingBag,
   Menu,
@@ -117,7 +118,7 @@ export default function Navbar() {
           aria-label="دیجی هیز"
           className="navbar-logo-link"
         >
-          <img
+          <SiteImage
             src="/digihaze.svg"
             alt="Digihaze"
             className="navbar-logo"
