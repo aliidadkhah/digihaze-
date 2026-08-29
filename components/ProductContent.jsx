@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import SiteImage from "./SiteImage";
 import {
   ChevronLeft,
   ChevronRight,
@@ -330,7 +331,7 @@ export default function ProductContent({ product, related }) {
               }}
             />
 
-            <img
+            <SiteImage
               src={product.images[imgIdx]}
               alt={product.name}
               style={{
@@ -405,7 +406,7 @@ export default function ProductContent({ product, related }) {
                     cursor: "pointer",
                   }}
                 >
-                  <img
+                  <SiteImage
                     src={im}
                     alt=""
                     style={{
