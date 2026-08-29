@@ -181,7 +181,7 @@ export default function TermsContent() {
           </p>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
-            
+            <a
               href="mailto:info@digihaze.ir"
               style={{
                 display: "flex",
@@ -200,7 +200,7 @@ export default function TermsContent() {
               info@digihaze.ir
             </a>
 
-            
+            <a
               href="tel:09020951384"
               dir="ltr"
               style={{
