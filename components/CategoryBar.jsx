@@ -1,22 +1,35 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { CATEGORIES } from "@/lib/data";
+import { ChevronDown } from "lucide-react";
 
 /* =========================================
    نوار دسته‌بندی زیر ناوبری اصلی
    (مشابه ردیف دسته‌بندی سایت‌های مرجع)
+
+   همیشه نمایان است (نه با هاور)، و اگر دسته‌ای
+   زیردسته داشته باشد با کلیک روی فلش کنارش،
+   یک پنل کوچک زیرش باز/بسته می‌شود.
 ========================================= */
 
 export default function CategoryBar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [openId, setOpenId] = useState(null);
+
+  const wrapRef = useRef(null);
+
   const activeCategory =
     pathname === "/shop"
       ? searchParams.get("category") || "all"
       : null;
+
+  const activeSub =
+    pathname === "/shop" ? searchParams.get("sub") || "" : "";
 
   const items = [
     { href: "/shop", label: "همه محصولات", id: "all" },
@@ -25,16 +38,39 @@ export default function CategoryBar() {
       label: c.label,
       id: c.id,
       color: c.color,
+      subcategories: c.subcategories || [],
     })),
   ];
+
+  /* بستن پنل با کلیک بیرون از نوار */
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (
+        wrapRef.current &&
+        !wrapRef.current.contains(e.target)
+      ) {
+        setOpenId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", onClickOutside);
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        onClickOutside
+      );
+  }, []);
 
   return (
     <div
       className="category-bar"
+      ref={wrapRef}
       style={{
         borderTop: "1px solid var(--surface2)",
         borderBottom: "1px solid var(--surface2)",
         background: "var(--surface)",
+        position: "relative",
       }}
     >
       <div
@@ -51,40 +87,150 @@ export default function CategoryBar() {
       >
         {items.map((it) => {
           const active = activeCategory === it.id;
+          const hasSubs = it.subcategories?.length > 0;
+          const panelOpen = openId === it.id;
 
           return (
-            <Link
+            <div
               key={it.href}
-              href={it.href}
-              className="category-bar-link"
-              style={{
-                position: "relative",
-                flexShrink: 0,
-                whiteSpace: "nowrap",
-                fontFamily: "Vazirmatn, sans-serif",
-                fontSize: 13.5,
-                fontWeight: active ? 800 : 600,
-                color: active ? "#22E5C9" : "var(--text-lo)",
-                textDecoration: "none",
-                padding: "13px 2px",
-              }}
+              style={{ position: "relative", flexShrink: 0 }}
             >
-              {it.label}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Link
+                  href={it.href}
+                  className="category-bar-link"
+                  onClick={() => setOpenId(null)}
+                  style={{
+                    position: "relative",
+                    whiteSpace: "nowrap",
+                    fontFamily: "Vazirmatn, sans-serif",
+                    fontSize: 13.5,
+                    fontWeight: active ? 800 : 600,
+                    color: active
+                      ? "#22E5C9"
+                      : "var(--text-lo)",
+                    textDecoration: "none",
+                    padding: "13px 2px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  {it.color && (
+                    <span
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: it.color,
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
 
-              {active && (
-                <span
+                  {it.label}
+
+                  {active && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        left: 0,
+                        height: 2,
+                        background: "#22E5C9",
+                        borderRadius: 2,
+                      }}
+                    />
+                  )}
+                </Link>
+
+                {hasSubs && (
+                  <button
+                    type="button"
+                    aria-label={`زیردسته‌های ${it.label}`}
+                    onClick={() =>
+                      setOpenId(panelOpen ? null : it.id)
+                    }
+                    className="category-bar-chevron"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "13px 2px 13px 0",
+                      display: "flex",
+                      alignItems: "center",
+                      color: active
+                        ? "#22E5C9"
+                        : "var(--text-lo)",
+                    }}
+                  >
+                    <ChevronDown
+                      size={14}
+                      style={{
+                        transition: "transform .16s",
+                        transform: panelOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                )}
+              </div>
+
+              {hasSubs && panelOpen && (
+                <div
+                  className="category-bar-panel"
                   style={{
                     position: "absolute",
-                    bottom: 0,
+                    top: "100%",
                     right: 0,
-                    left: 0,
-                    height: 2,
-                    background: "#22E5C9",
-                    borderRadius: 2,
+                    marginTop: 6,
+                    background: "var(--surface)",
+                    border: "1px solid var(--surface2)",
+                    borderRadius: 12,
+                    boxShadow: "0 14px 30px rgba(0,0,0,.24)",
+                    padding: 8,
+                    minWidth: 170,
+                    zIndex: 60,
                   }}
-                />
+                >
+                  {it.subcategories.map((s) => {
+                    const subActive =
+                      active && activeSub === s.id;
+
+                    return (
+                      <Link
+                        key={s.id}
+                        href={`/shop?category=${it.id}&sub=${s.id}`}
+                        onClick={() => setOpenId(null)}
+                        style={{
+                          display: "block",
+                          padding: "8px 10px",
+                          borderRadius: 8,
+                          fontFamily: "Vazirmatn, sans-serif",
+                          fontSize: 13.5,
+                          fontWeight: subActive ? 700 : 500,
+                          color: subActive
+                            ? "#22E5C9"
+                            : "var(--text-hi)",
+                          textDecoration: "none",
+                        }}
+                        className="category-bar-sub-item"
+                      >
+                        {s.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
-            </Link>
+            </div>
           );
         })}
       </div>
@@ -101,6 +247,10 @@ export default function CategoryBar() {
 
         .category-bar-link:hover {
           color: var(--text-hi);
+        }
+
+        .category-bar-sub-item:hover {
+          background: var(--surface2);
         }
 
         @media (max-width: 760px) {
