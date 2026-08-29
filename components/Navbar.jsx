@@ -54,9 +54,7 @@ export default function Navbar() {
 
     if (!q) return;
 
-    router.push(
-      `/shop?search=${encodeURIComponent(q)}`
-    );
+    router.push(`/shop?search=${encodeURIComponent(q)}`);
   };
 
   const iconBtnStyle = {
@@ -79,7 +77,7 @@ export default function Navbar() {
     border: "none",
     outline: "none",
     color: "var(--text-hi)",
-    fontFamily: "Vazirmatn",
+    fontFamily: "Vazirmatn, sans-serif",
     fontSize: 13,
     padding: "10px 12px",
   };
@@ -93,13 +91,12 @@ export default function Navbar() {
         background:
           "color-mix(in srgb, var(--bg) 85%, transparent)",
         backdropFilter: "blur(10px)",
-        borderBottom:
-          "1px solid var(--surface2)",
+        borderBottom: "1px solid var(--surface2)",
       }}
     >
-      {/* ===================================== */}
-      {/* ردیف اصلی Navbar */}
-      {/* ===================================== */}
+      {/* ============================= */}
+      {/* ردیف اصلی */}
+      {/* ============================= */}
 
       <div
         className="navbar-main"
@@ -113,9 +110,9 @@ export default function Navbar() {
           gap: 16,
         }}
       >
-        {/* ================================= */}
+        {/* ============================= */}
         {/* LOGO */}
-        {/* ================================= */}
+        {/* ============================= */}
 
         <Link
           href="/"
@@ -129,74 +126,41 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* ================================= */}
+        {/* ============================= */}
         {/* منوی دسکتاپ */}
-        {/* ================================= */}
+        {/* ============================= */}
 
-        <nav
-          className="nav-desktop"
-          style={{
-            gap: 24,
-            flexShrink: 0,
-          }}
-        >
+        <nav className="nav-desktop">
           {LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
+              className="desktop-nav-link"
               style={{
-                fontFamily:
-                  "Vazirmatn, sans-serif",
-                fontSize: 15,
-                fontWeight: isActive(l.href)
-                  ? 700
-                  : 500,
                 color: isActive(l.href)
                   ? "#22E5C9"
                   : "var(--text-hi)",
-                textDecoration: "none",
-                position: "relative",
-                paddingBottom: 4,
-                whiteSpace: "nowrap",
+                fontWeight: isActive(l.href)
+                  ? 700
+                  : 500,
               }}
             >
               {l.label}
 
               {isActive(l.href) && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    height: 2,
-                    background: "#22E5C9",
-                    borderRadius: 2,
-                  }}
-                />
+                <span className="active-line" />
               )}
             </Link>
           ))}
         </nav>
 
-        {/* ================================= */}
-        {/* سرچ دسکتاپ */}
-        {/* ================================= */}
+        {/* ============================= */}
+        {/* جستجوی دسکتاپ */}
+        {/* ============================= */}
 
         <form
           onSubmit={submitSearch}
           className="nav-desktop nav-search-desktop"
-          style={{
-            flex: "1 1 auto",
-            minWidth: 0,
-            maxWidth: 320,
-            alignItems: "center",
-            background: "var(--surface)",
-            border:
-              "1px solid var(--surface2)",
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
         >
           <input
             value={query}
@@ -210,15 +174,7 @@ export default function Navbar() {
           <button
             type="submit"
             aria-label="جستجو"
-            style={{
-              background: "none",
-              border: "none",
-              padding: "0 12px",
-              height: 38,
-              display: "flex",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
+            className="search-button"
           >
             <Search
               size={17}
@@ -227,21 +183,16 @@ export default function Navbar() {
           </button>
         </form>
 
-        {/* ================================= */}
+        {/* ============================= */}
         {/* آیکون‌ها */}
-        {/* ================================= */}
+        {/* ============================= */}
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            flexShrink: 0,
-          }}
-        >
+        <div className="navbar-actions">
+
           {/* تغییر تم */}
 
           <button
+            type="button"
             onClick={toggle}
             aria-label="تغییر حالت روشن/تاریک"
             style={iconBtnStyle}
@@ -329,6 +280,7 @@ export default function Navbar() {
           {/* منوی موبایل */}
 
           <button
+            type="button"
             className="nav-burger"
             onClick={() =>
               setMenuOpen((v) => !v)
@@ -351,38 +303,20 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* ===================================== */}
-      {/* نوار دسته‌بندی محصولات */}
-      {/* ===================================== */}
+      {/* ============================= */}
+      {/* دسته‌بندی‌ها */}
+      {/* ============================= */}
 
       <Suspense fallback={null}>
         <CategoryBar />
       </Suspense>
 
-      {/* ===================================== */}
-      {/* سرچ موبایل */}
-      {/* ===================================== */}
+      {/* ============================= */}
+      {/* جستجوی موبایل */}
+      {/* ============================= */}
 
-      <div
-        className="search-mobile-row"
-        style={{
-          borderTop:
-            "1px solid var(--surface2)",
-          padding: "10px 20px",
-        }}
-      >
-        <form
-          onSubmit={submitSearch}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            background: "var(--surface)",
-            border:
-              "1px solid var(--surface2)",
-            borderRadius: 12,
-            overflow: "hidden",
-          }}
-        >
+      <div className="search-mobile-row">
+        <form className="mobile-search-form" onSubmit={submitSearch}>
           <input
             value={query}
             onChange={(e) =>
@@ -395,15 +329,7 @@ export default function Navbar() {
           <button
             type="submit"
             aria-label="جستجو"
-            style={{
-              background: "none",
-              border: "none",
-              padding: "0 12px",
-              height: 38,
-              display: "flex",
-              alignItems: "center",
-              cursor: "pointer",
-            }}
+            className="search-button"
           >
             <Search
               size={17}
@@ -413,47 +339,32 @@ export default function Navbar() {
         </form>
       </div>
 
-      {/* ===================================== */}
-      {/* منوی باز موبایل */}
-      {/* ===================================== */}
+      {/* ============================= */}
+      {/* منوی موبایل */}
+      {/* ============================= */}
 
       {menuOpen && (
-        <div
-          style={{
-            borderTop:
-              "1px solid var(--surface2)",
-            padding:
-              "12px 20px 18px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
+        <div className="mobile-menu">
+
           {LINKS.map((l) =>
             l.dropdown ? (
               <div key={l.href}>
+
                 <button
+                  type="button"
                   onClick={() =>
-                    setMobileShopOpen((v) => !v)
+                    setMobileShopOpen(
+                      (v) => !v
+                    )
                   }
+                  className="mobile-shop-button"
                   style={{
-                    width: "100%",
-                    background: "none",
-                    border: "none",
-                    padding: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    fontFamily:
-                      "Vazirmatn, sans-serif",
-                    fontSize: 16,
-                    fontWeight: isActive(l.href)
-                      ? 700
-                      : 500,
                     color: isActive(l.href)
                       ? "#22E5C9"
                       : "var(--text-hi)",
-                    cursor: "pointer",
+                    fontWeight: isActive(l.href)
+                      ? 700
+                      : 500,
                   }}
                 >
                   {l.label}
@@ -472,31 +383,13 @@ export default function Navbar() {
                 </button>
 
                 {mobileShopOpen && (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection:
-                        "column",
-                      gap: 12,
-                      padding:
-                        "12px 4px 2px 14px",
-                    }}
-                  >
+                  <div className="mobile-submenu">
+
                     <Link
                       href="/shop"
                       onClick={() =>
                         setMenuOpen(false)
                       }
-                      style={{
-                        fontFamily:
-                          "Vazirmatn, sans-serif",
-                        fontSize: 14.5,
-                        fontWeight: 700,
-                        color:
-                          "var(--text-hi)",
-                        textDecoration:
-                          "none",
-                      }}
                     >
                       همه محصولات
                     </Link>
@@ -508,27 +401,12 @@ export default function Navbar() {
                         onClick={() =>
                           setMenuOpen(false)
                         }
-                        style={{
-                          display: "flex",
-                          alignItems:
-                            "center",
-                          gap: 8,
-                          fontFamily:
-                            "Vazirmatn, sans-serif",
-                          fontSize: 14.5,
-                          fontWeight: 500,
-                          color:
-                            "var(--text-mut)",
-                          textDecoration:
-                            "none",
-                        }}
                       >
                         <span
                           style={{
                             width: 8,
                             height: 8,
-                            borderRadius:
-                              "50%",
+                            borderRadius: "50%",
                             background:
                               c.color,
                             flexShrink: 0,
@@ -548,18 +426,14 @@ export default function Navbar() {
                 onClick={() =>
                   setMenuOpen(false)
                 }
+                className="mobile-nav-link"
                 style={{
-                  fontFamily:
-                    "Vazirmatn, sans-serif",
-                  fontSize: 16,
-                  fontWeight: isActive(l.href)
-                    ? 700
-                    : 500,
                   color: isActive(l.href)
                     ? "#22E5C9"
                     : "var(--text-hi)",
-                  textDecoration:
-                    "none",
+                  fontWeight: isActive(l.href)
+                    ? 700
+                    : 500,
                 }}
               >
                 {l.label}
@@ -569,14 +443,11 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* ===================================== */}
+      {/* ============================= */}
       {/* CSS */}
-      {/* ===================================== */}
+      {/* ============================= */}
 
       <style jsx>{`
-        /* ------------------------------- */
-        /* لوگو */
-        /* ------------------------------- */
 
         .navbar-logo-link {
           display: flex;
@@ -595,35 +466,119 @@ export default function Navbar() {
           object-position: center;
         }
 
-        /* ------------------------------- */
-        /* منوی دسکتاپ */
-        /* ------------------------------- */
-
         .nav-desktop {
           display: flex;
         }
 
-        .nav-dropdown-item:hover {
-          background: var(--surface2);
+        .desktop-nav-link {
+          position: relative;
+          padding-bottom: 4px;
+          white-space: nowrap;
+          text-decoration: none;
+          font-family: Vazirmatn, sans-serif;
+          font-size: 15px;
+        }
+
+        .nav-desktop:not(.nav-search-desktop) {
+          align-items: center;
+          gap: 24px;
+          flex-shrink: 0;
+        }
+
+        .active-line {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          left: 0;
+          height: 2px;
+          background: #22E5C9;
+          border-radius: 2px;
+        }
+
+        .nav-search-desktop {
+          flex: 1 1 auto;
+          min-width: 0;
+          max-width: 320px;
+          align-items: center;
+          background: var(--surface);
+          border: 1px solid var(--surface2);
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .search-button {
+          background: none;
+          border: none;
+          padding: 0 12px;
+          height: 38px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+
+        .navbar-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-shrink: 0;
         }
 
         .nav-burger {
           display: none;
         }
 
-        /* ------------------------------- */
-        /* سرچ موبایل */
-        /* ------------------------------- */
-
         .search-mobile-row {
           display: none;
         }
 
-        /* ------------------------------- */
-        /* تبلت و موبایل */
-        /* ------------------------------- */
+        .mobile-menu {
+          border-top: 1px solid var(--surface2);
+          padding: 12px 20px 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .mobile-nav-link {
+          font-family: Vazirmatn, sans-serif;
+          font-size: 16px;
+          text-decoration: none;
+        }
+
+        .mobile-shop-button {
+          width: 100%;
+          background: none;
+          border: none;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: Vazirmatn, sans-serif;
+          font-size: 16px;
+          cursor: pointer;
+        }
+
+        .mobile-submenu {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding: 12px 4px 2px 14px;
+        }
+
+        .mobile-submenu a {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: Vazirmatn, sans-serif;
+          font-size: 14.5px;
+          color: var(--text-mut);
+          text-decoration: none;
+        }
 
         @media (max-width: 760px) {
+
           .nav-desktop {
             display: none !important;
           }
@@ -634,6 +589,17 @@ export default function Navbar() {
 
           .search-mobile-row {
             display: block;
+            border-top: 1px solid var(--surface2);
+            padding: 10px 20px;
+          }
+
+          .mobile-search-form {
+            display: flex;
+            align-items: center;
+            background: var(--surface);
+            border: 1px solid var(--surface2);
+            border-radius: 12px;
+            overflow: hidden;
           }
 
           .navbar-main {
@@ -647,11 +613,8 @@ export default function Navbar() {
           }
         }
 
-        /* ------------------------------- */
-        /* موبایل کوچک */
-        /* ------------------------------- */
-
         @media (max-width: 480px) {
+
           .navbar-main {
             padding: 10px 10px !important;
             gap: 8px !important;
@@ -662,25 +625,24 @@ export default function Navbar() {
             height: 36px;
           }
 
+          .navbar-actions {
+            gap: 7px;
+          }
+
           .search-mobile-row {
             padding: 8px 10px !important;
           }
-
-          .navbar-main > div {
-            gap: 7px !important;
-          }
         }
 
-        /* ------------------------------- */
-        /* موبایل خیلی کوچک */
-        /* ------------------------------- */
-
         @media (max-width: 380px) {
+
           .navbar-logo {
             width: 82px;
             height: 34px;
           }
+
         }
+
       `}</style>
     </header>
   );
