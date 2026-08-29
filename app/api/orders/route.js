@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
-import {
-  PRODUCTS,
-  discountedPrice,
-} from "@/lib/data";
+import { discountedPrice } from "@/lib/data";
+import { getProductById } from "@/lib/products";
 
 export async function GET(req) {
   try {
@@ -128,7 +126,7 @@ export async function POST(req) {
     const orderItems = [];
 
     for (const item of items) {
-      const product = PRODUCTS.find((p) => p.id === item.productId);
+      const product = await getProductById(item.productId);
 
       if (!product) {
         return NextResponse.json({ error: "محصول پیدا نشد" }, { status: 400 });
