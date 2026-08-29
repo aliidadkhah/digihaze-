@@ -21,6 +21,8 @@ export default function AdminPage() {
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
   const [tab, setTab] = useState("orders"); // "orders" | "images"
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -40,6 +42,25 @@ export default function AdminPage() {
     setLoginError("");
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setLoginError("ایمیل یا رمز عبور اشتباهه");
+  };
+
+  const sendResetEmail = async () => {
+    setLoginError("");
+    setResetSent(false);
+    if (!email) {
+      setLoginError("اول ایمیلت رو توی فیلد بالا بنویس");
+      return;
+    }
+    setResetSending(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://digihaze.ir/reset-password",
+    });
+    setResetSending(false);
+    if (error) {
+      setLoginError("ارسال ایمیل ریست ناموفق بود");
+      return;
+    }
+    setResetSent(true);
   };
 
   const logout = async () => {
@@ -110,8 +131,30 @@ export default function AdminPage() {
           <input type="email" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
           <input type="password" placeholder="رمز عبور" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
           {loginError && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{loginError}</div>}
+          {resetSent && (
+            <div style={{ color: "#22E5C9", fontSize: 12.5, background: "#22E5C922", borderRadius: 10, padding: "8px 12px" }}>
+              اگه این ایمیل توی سیستم ثبت باشه، لینک ریست پسورد براش ارسال شد. صندوق ورودی (و اسپم) رو چک کن.
+            </div>
+          )}
           <button type="submit" style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, cursor: "pointer" }}>
             ورود
+          </button>
+          <button
+            type="button"
+            onClick={sendResetEmail}
+            disabled={resetSending}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-mut)",
+              fontFamily: "Vazirmatn",
+              fontSize: 12.5,
+              cursor: "pointer",
+              opacity: resetSending ? 0.6 : 1,
+              padding: "2px 0",
+            }}
+          >
+            {resetSending ? "در حال ارسال..." : "رمز عبور رو فراموش کردم"}
           </button>
         </form>
         <p style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 16, textAlign: "center" }}>
