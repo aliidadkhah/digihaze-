@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "@/components/Providers";
+import ProductsProvider from "@/components/ProductsProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
@@ -32,11 +33,13 @@ export default function RootLayout({ children }) {
     <html lang="fa" dir="rtl">
      <body>
   <Providers>
-    <ScrollMorphBackground />
-    <Navbar />
-    {children}
-    <Footer />
-    <SupportWidget />
+    <ProductsProvider>
+      <ScrollMorphBackground />
+      <Navbar />
+      {children}
+      <Footer />
+      <SupportWidget />
+    </ProductsProvider>
   </Providers>
 </body>
     </html>
