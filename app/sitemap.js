@@ -1,7 +1,9 @@
-import { PRODUCTS } from "@/lib/data";
+import { getProducts } from "@/lib/products";
 import { SITE_URL } from "@/lib/site";
 
-export default function sitemap() {
+export default async function sitemap() {
+  const PRODUCTS = await getProducts();
+
   const staticPages = ["", "/shop", "/about", "/contact"].map((path) => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
