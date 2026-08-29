@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import SiteImage from "./SiteImage";
 import { ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
 import { money, discountedPrice } from "@/lib/data";
 import { useCart } from "./Providers";
@@ -111,7 +112,7 @@ marginBottom: 25,
               textDecoration: "none",
             }}
           >
-            <img
+            <SiteImage
               src={product.images?.[0]}
               alt={product.name}
               style={{
