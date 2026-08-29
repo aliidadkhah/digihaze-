@@ -70,7 +70,7 @@ export default function Footer() {
           <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 14 }}>ما را دنبال کنید</div>
           <div style={{ display: "flex", gap: 10 }}>
             {SOCIAL_LINKS.map((s) => (
-              
+              <a
                 key={s.label}
                 href={s.href}
                 target="_blank"
