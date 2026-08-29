@@ -1,21 +1,15 @@
 import { notFound } from "next/navigation";
 import ProductContent from "@/components/ProductContent";
-import {
-  PRODUCTS,
-  getProductById,
-  getRelated,
-  money,
-  discountedPrice,
-} from "@/lib/data";
+import { money, discountedPrice } from "@/lib/data";
+import { getProductById, getRelated } from "@/lib/products";
 
-// این تابع در زمان build صفحه‌ی هر محصول رو از قبل می‌سازه
-export function generateStaticParams() {
-  return PRODUCTS.map((p) => ({ id: p.id }));
-}
+// محصولات حالا توی Supabase هستن و از پنل ادمین قابل تغییرن،
+// پس دیگه لیست ثابتی از قبل (در زمان build) نمی‌سازیم؛ هر صفحه در لحظه‌ی درخواست رندر می‌شه.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
 
   if (!product) return { title: "محصول پیدا نشد" };
 
@@ -40,11 +34,11 @@ export async function generateMetadata({ params }) {
 export default async function ProductPage({ params }) {
   const { id } = await params;
 
-  const product = getProductById(id);
+  const product = await getProductById(id);
 
   if (!product) notFound();
 
-  const related = getRelated(product);
+  const related = await getRelated(product);
 
   const jsonLd = {
     "@context": "https://schema.org",
