@@ -32,6 +32,8 @@ export default function ProductsManager() {
       badge: p.badge || "",
       color: p.color || "#2F86FF",
       description: p.description || "",
+      price: p.price ?? 0,
+      discount: p.discount ?? 0,
     };
 
   const setDraftField = (id, field, value) => {
@@ -58,6 +60,8 @@ export default function ProductsManager() {
         badge: draft.badge.trim(),
         color: draft.color,
         description: draft.description.trim(),
+        price: Number(draft.price) || 0,
+        discount: Math.min(100, Math.max(0, Number(draft.discount) || 0)),
       })
       .eq("id", product.id);
 
@@ -94,8 +98,8 @@ export default function ProductsManager() {
           marginBottom: 20,
         }}
       >
-        روی هر محصول بزن، اسم، برچسب (مثل «پرفروش» یا «تخفیف»)، رنگ و توضیحاتش رو تغییر بده و
-        ذخیره کن. برای تغییر عکس محصول از تب «تصاویر سایت» استفاده کن.
+        روی هر محصول بزن، اسم، برچسب (مثل «پرفروش» یا «تخفیف»)، رنگ، قیمت، درصد تخفیف و
+        توضیحاتش رو تغییر بده و ذخیره کن. برای تغییر عکس محصول از تب «تصاویر سایت» استفاده کن.
       </p>
 
       <div style={{ position: "relative", marginBottom: 18 }}>
@@ -251,6 +255,44 @@ export default function ProductsManager() {
                       />
                     </div>
                   </label>
+
+                  <label style={fieldLabelStyle}>
+                    قیمت (تومان)
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={draft.price}
+                      onChange={(e) => setDraftField(product.id, "price", e.target.value)}
+                      dir="ltr"
+                      style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }}
+                    />
+                  </label>
+
+                  <label style={fieldLabelStyle}>
+                    درصد تخفیف (۰ تا ۱۰۰، برای بدون تخفیف صفر بذار)
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={100}
+                      value={draft.discount}
+                      onChange={(e) => setDraftField(product.id, "discount", e.target.value)}
+                      dir="ltr"
+                      style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }}
+                    />
+                  </label>
+
+                  {Number(draft.price) > 0 && (
+                    <div style={{ color: "var(--text-mut)", fontSize: 12 }}>
+                      قیمت نهایی بعد از تخفیف:{" "}
+                      <b style={{ color: "var(--text-hi)" }}>
+                        {Math.round(
+                          Number(draft.price) * (1 - (Number(draft.discount) || 0) / 100)
+                        ).toLocaleString("fa-IR")}{" "}
+                        تومان
+                      </b>
+                    </div>
+                  )}
 
                   <label style={fieldLabelStyle}>
                     توضیحات
