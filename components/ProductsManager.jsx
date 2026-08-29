@@ -29,6 +29,7 @@ export default function ProductsManager() {
   const draftFor = (p) =>
     drafts[p.id] || {
       name: p.name || "",
+      brand: p.brand || "",
       badge: p.badge || "",
       color: p.color || "#2F86FF",
       description: p.description || "",
@@ -57,6 +58,7 @@ export default function ProductsManager() {
       .from("products")
       .update({
         name: draft.name.trim(),
+        brand: draft.brand.trim(),
         badge: draft.badge.trim(),
         color: draft.color,
         description: draft.description.trim(),
@@ -98,7 +100,7 @@ export default function ProductsManager() {
           marginBottom: 20,
         }}
       >
-        روی هر محصول بزن، اسم، برچسب (مثل «پرفروش» یا «تخفیف»)، رنگ، قیمت، درصد تخفیف و
+        روی هر محصول بزن، اسم، برند، برچسب (مثل «پرفروش» یا «تخفیف»)، رنگ، قیمت، درصد تخفیف و
         توضیحاتش رو تغییر بده و ذخیره کن. برای تغییر عکس محصول از تب «تصاویر سایت» استفاده کن.
       </p>
 
@@ -216,6 +218,16 @@ export default function ProductsManager() {
                     <input
                       value={draft.name}
                       onChange={(e) => setDraftField(product.id, "name", e.target.value)}
+                      style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }}
+                    />
+                  </label>
+
+                  <label style={fieldLabelStyle}>
+                    برند (همون متن کوچیک بالای اسم محصول، مثل Oxva یا Caliburn)
+                    <input
+                      value={draft.brand}
+                      onChange={(e) => setDraftField(product.id, "brand", e.target.value)}
+                      dir="ltr"
                       style={{ ...inputStyle, width: "100%", boxSizing: "border-box" }}
                     />
                   </label>
