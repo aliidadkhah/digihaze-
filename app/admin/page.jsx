@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import ImagesManager from "@/components/ImagesManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -19,6 +20,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
+  const [tab, setTab] = useState("orders"); // "orders" | "images"
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -132,18 +134,41 @@ export default function AdminPage() {
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26 }}>
-        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 24 }}>سفارش‌ها ({orders.length})</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 24 }}>
+          {tab === "orders" ? `سفارش‌ها (${orders.length})` : "مدیریت عکس‌ها"}
+        </h1>
         <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={fetchOrders} style={iconTextBtn}>
-            <RefreshCw size={14} /> به‌روزرسانی
-          </button>
+          {tab === "orders" && (
+            <button onClick={fetchOrders} style={iconTextBtn}>
+              <RefreshCw size={14} /> به‌روزرسانی
+            </button>
+          )}
           <button onClick={logout} style={iconTextBtn}>
             <LogOut size={14} /> خروج
           </button>
         </div>
       </div>
 
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, borderBottom: "1px solid var(--surface2)" }}>
+        <button
+          onClick={() => setTab("orders")}
+          style={tabBtnStyle(tab === "orders")}
+        >
+          <PackageSearch size={14} /> سفارش‌ها
+        </button>
+        <button
+          onClick={() => setTab("images")}
+          style={tabBtnStyle(tab === "images")}
+        >
+          <ImageIcon size={14} /> تصاویر سایت
+        </button>
+      </div>
+
+      {tab === "images" && <ImagesManager />}
+
+      {tab === "orders" && (
+        <>
       {loading && <p style={{ color: "var(--text-mut)" }}>در حال بارگذاری...</p>}
       {orders.length === 0 && !loading && <p style={{ color: "var(--text-mut)" }}>هنوز سفارشی ثبت نشده.</p>}
 
@@ -217,9 +242,25 @@ export default function AdminPage() {
           );
         })}
       </div>
+        </>
+      )}
     </div>
   );
 }
 
 const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "Vazirmatn", outline: "none", width: "100%", boxSizing: "border-box" };
 const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadius: 10, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--text-hi)", fontFamily: "Vazirmatn", fontSize: 13 };
+const tabBtnStyle = (active) => ({
+  background: "transparent",
+  border: "none",
+  borderBottom: active ? "2px solid #2F86FF" : "2px solid transparent",
+  color: active ? "var(--text-hi)" : "var(--text-mut)",
+  fontFamily: "Vazirmatn",
+  fontWeight: 700,
+  fontSize: 13.5,
+  padding: "0 4px 10px",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  cursor: "pointer",
+});
