@@ -51,6 +51,7 @@ export default function Footer() {
             { href: "/shop", label: "فروشگاه" },
             { href: "/about", label: "درباره ما" },
             { href: "/contact", label: "تماس با ما" },
+            { href: "/terms", label: "قوانین و مقررات" },
           ].map((l) => (
             <Link key={l.href} href={l.href} style={{ display: "block", color: "var(--text-lo)", fontSize: 13, padding: "5px 0", textDecoration: "none", fontFamily: "Vazirmatn" }}>
               {l.label}
@@ -69,7 +70,7 @@ export default function Footer() {
           <div style={{ fontWeight: 700, marginBottom: 10, fontSize: 14 }}>ما را دنبال کنید</div>
           <div style={{ display: "flex", gap: 10 }}>
             {SOCIAL_LINKS.map((s) => (
-              <a
+              
                 key={s.label}
                 href={s.href}
                 target="_blank"
