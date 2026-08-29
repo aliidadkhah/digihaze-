@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SiteImage from "./SiteImage";
 import {
   Percent,
   ShoppingCart,
@@ -88,7 +89,7 @@ export default function ProductCard({ product }) {
               background: "var(--bg)",
             }}
           >
-            <img
+            <SiteImage
               src={product.images[0]}
               alt={product.name}
               style={{
