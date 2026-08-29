@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import SiteImage from "./SiteImage";
+import CategoryBar from "./CategoryBar";
 import {
   ShoppingBag,
   Menu,
@@ -346,6 +347,14 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+
+      {/* ===================================== */}
+      {/* نوار دسته‌بندی محصولات */}
+      {/* ===================================== */}
+
+      <Suspense fallback={null}>
+        <CategoryBar />
+      </Suspense>
 
       {/* ===================================== */}
       {/* سرچ موبایل */}
