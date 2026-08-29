@@ -6,9 +6,9 @@ import { Reveal } from "./ui";
 import ProductCard from "./ProductCard";
 import {
   CATEGORIES,
-  PRODUCTS,
   discountedPrice,
 } from "@/lib/data";
+import { useProducts } from "./ProductsProvider";
 
 /* =========================================
    نرمال‌سازی متن فارسی
@@ -104,6 +104,8 @@ export default function ShopContent({
   initialCategory,
   initialSearch,
 }) {
+  const { products } = useProducts();
+
   const [active, setActive] = useState(
     initialCategory || "all"
   );
@@ -138,8 +140,8 @@ export default function ShopContent({
   const list = useMemo(() => {
     let arr =
       active === "all"
-        ? PRODUCTS
-        : PRODUCTS.filter(
+        ? products
+        : products.filter(
             (p) => p.category === active
           );
 
@@ -182,7 +184,7 @@ export default function ShopContent({
     }
 
     return arr;
-  }, [active, sort, search]);
+  }, [products, active, sort, search]);
 
   return (
     <div
