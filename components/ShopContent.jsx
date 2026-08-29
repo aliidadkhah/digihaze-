@@ -103,11 +103,16 @@ function matchesSearch(product, query) {
 export default function ShopContent({
   initialCategory,
   initialSearch,
+  initialSub,
 }) {
   const { products } = useProducts();
 
   const [active, setActive] = useState(
     initialCategory || "all"
+  );
+
+  const [activeSub, setActiveSub] = useState(
+    initialSub || ""
   );
 
   const [sort, setSort] = useState("default");
@@ -119,6 +124,10 @@ export default function ShopContent({
   useEffect(() => {
     setActive(initialCategory || "all");
   }, [initialCategory]);
+
+  useEffect(() => {
+    setActiveSub(initialSub || "");
+  }, [initialSub]);
 
   useEffect(() => {
     setSearch(initialSearch || "");
@@ -144,6 +153,25 @@ export default function ShopContent({
         : products.filter(
             (p) => p.category === active
           );
+
+    /*
+     * فیلتر زیردسته (بر اساس برند)
+     */
+    if (activeSub) {
+      const cat = CATEGORIES.find((c) => c.id === active);
+
+      const subLabel = cat?.subcategories?.find(
+        (s) => s.id === activeSub
+      )?.label;
+
+      if (subLabel) {
+        arr = arr.filter(
+          (p) =>
+            normalizeText(p.brand) ===
+            normalizeText(subLabel)
+        );
+      }
+    }
 
     /*
      * سرچ دقیق
@@ -184,7 +212,7 @@ export default function ShopContent({
     }
 
     return arr;
-  }, [products, active, sort, search]);
+  }, [products, active, activeSub, sort, search]);
 
   return (
     <div
@@ -255,9 +283,10 @@ export default function ShopContent({
             return (
               <button
                 key={c.id}
-                onClick={() =>
-                  setActive(c.id)
-                }
+                onClick={() => {
+                  setActive(c.id);
+                  setActiveSub("");
+                }}
                 style={{
                   border: `1.5px solid ${
                     selected
