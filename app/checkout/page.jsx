@@ -317,7 +317,7 @@ export default function CheckoutPage() {
         .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .section-title { margin: 0 0 20px; font-size: 18px; font-weight: 800; color: var(--text-hi); }
         .section-head .section-title { margin: 0; }
-        .edit-link { background: none; border: none; color: #22E5C9; font-family: Vazirmatn; font-size: 12.5; font-weight: 700; cursor: pointer; }
+        .edit-link { background: none; border: none; color: #22E5C9; font-family: Vazirmatn; font-size: 12.5px; font-weight: 700; cursor: pointer; }
         .receiver-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 9px 0; border-bottom: 1px solid var(--surface2); color: var(--text-mut); }
         .receiver-row strong { color: var(--text-hi); font-weight: 700; }
         .receiver-address { padding-top: 12px; font-size: 13px; color: var(--text-mut); }
@@ -327,7 +327,7 @@ export default function CheckoutPage() {
         .option-item.selected { border-color: #22E5C9; background: #22E5C910; }
         .option-item input { margin-top: 4px; }
         .option-text { flex: 1; min-width: 0; }
-        .option-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13.5; color: var(--text-hi); gap: 8px; }
+        .option-title { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13.5px; color: var(--text-hi); gap: 8px; }
         .option-price { font-size: 12px; color: #22E5C9; font-weight: 800; white-space: nowrap; }
         .option-desc { margin-top: 4px; font-size: 12px; color: var(--text-mut); line-height: 1.8; }
         .label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: var(--text-hi); }
