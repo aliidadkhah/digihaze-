@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import SiteImage from "./SiteImage";
 import CategoryBar from "./CategoryBar";
+import { CATEGORIES } from "@/lib/data";
 import {
   ShoppingBag,
   Menu,
@@ -13,6 +14,7 @@ import {
   Sun,
   Moon,
   Search,
+  ChevronDown,
 } from "lucide-react";
 
 import {
@@ -23,7 +25,7 @@ import {
 
 const LINKS = [
   { href: "/", label: "خانه" },
-  { href: "/shop", label: "فروشگاه" },
+  { href: "/shop", label: "فروشگاه", dropdown: true },
   { href: "/about", label: "درباره ما" },
   { href: "/contact", label: "تماس با ما" },
 ];
@@ -31,6 +33,7 @@ const LINKS = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [mobileShopOpen, setMobileShopOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -138,41 +141,41 @@ export default function Navbar() {
           }}
         >
           {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              style={{
-                fontFamily:
-                  "Vazirmatn, sans-serif",
-                fontSize: 15,
-                fontWeight: isActive(l.href)
-                  ? 700
-                  : 500,
-                color: isActive(l.href)
-                  ? "#22E5C9"
-                  : "var(--text-hi)",
-                textDecoration: "none",
-                position: "relative",
-                paddingBottom: 4,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {l.label}
+              <Link
+                key={l.href}
+                href={l.href}
+                style={{
+                  fontFamily:
+                    "Vazirmatn, sans-serif",
+                  fontSize: 15,
+                  fontWeight: isActive(l.href)
+                    ? 700
+                    : 500,
+                  color: isActive(l.href)
+                    ? "#22E5C9"
+                    : "var(--text-hi)",
+                  textDecoration: "none",
+                  position: "relative",
+                  paddingBottom: 4,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {l.label}
 
-              {isActive(l.href) && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    height: 2,
-                    background: "#22E5C9",
-                    borderRadius: 2,
-                  }}
-                />
-              )}
-            </Link>
+                {isActive(l.href) && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      left: 0,
+                      height: 2,
+                      background: "#22E5C9",
+                      borderRadius: 2,
+                    }}
+                  />
+                )}
+              </Link>
           ))}
         </nav>
 
@@ -426,29 +429,120 @@ export default function Navbar() {
             gap: 14,
           }}
         >
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() =>
-                setMenuOpen(false)
-              }
-              style={{
-                fontFamily:
-                  "Vazirmatn, sans-serif",
-                fontSize: 16,
-                fontWeight: isActive(l.href)
-                  ? 700
-                  : 500,
-                color: isActive(l.href)
-                  ? "#22E5C9"
-                  : "var(--text-hi)",
-                textDecoration: "none",
-              }}
-            >
-              {l.label}
-            </Link>
-          ))}
+          {LINKS.map((l) =>
+            l.dropdown ? (
+              <div key={l.href}>
+                <button
+                  onClick={() =>
+                    setMobileShopOpen((v) => !v)
+                  }
+                  style={{
+                    width: "100%",
+                    background: "none",
+                    border: "none",
+                    padding: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    fontFamily: "Vazirmatn, sans-serif",
+                    fontSize: 16,
+                    fontWeight: isActive(l.href) ? 700 : 500,
+                    color: isActive(l.href)
+                      ? "#22E5C9"
+                      : "var(--text-hi)",
+                    cursor: "pointer",
+                  }}
+                >
+                  {l.label}
+                  <ChevronDown
+                    size={17}
+                    style={{
+                      transition: "transform .18s",
+                      transform: mobileShopOpen
+                        ? "rotate(180deg)"
+                        : "rotate(0deg)",
+                    }}
+                  />
+                </button>
+
+                {mobileShopOpen && (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      padding: "12px 4px 2px 14px",
+                    }}
+                  >
+                    <Link
+                      href="/shop"
+                      onClick={() => setMenuOpen(false)}
+                      style={{
+                        fontFamily: "Vazirmatn, sans-serif",
+                        fontSize: 14.5,
+                        fontWeight: 700,
+                        color: "var(--text-hi)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      همه محصولات
+                    </Link>
+
+                    {CATEGORIES.map((c) => (
+                      <Link
+                        key={c.id}
+                        href={`/shop?category=${c.id}`}
+                        onClick={() => setMenuOpen(false)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          fontFamily: "Vazirmatn, sans-serif",
+                          fontSize: 14.5,
+                          fontWeight: 500,
+                          color: "var(--text-mut)",
+                          textDecoration: "none",
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: c.color,
+                            flexShrink: 0,
+                          }}
+                        />
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+                style={{
+                  fontFamily:
+                    "Vazirmatn, sans-serif",
+                  fontSize: 16,
+                  fontWeight: isActive(l.href)
+                    ? 700
+                    : 500,
+                  color: isActive(l.href)
+                    ? "#22E5C9"
+                    : "var(--text-hi)",
+                  textDecoration: "none",
+                }}
+              >
+                {l.label}
+              </Link>
+            )
+          )}
         </div>
       )}
 
@@ -484,6 +578,10 @@ export default function Navbar() {
 
         .nav-desktop {
           display: flex;
+        }
+
+        .nav-dropdown-item:hover {
+          background: var(--surface2);
         }
 
         .nav-burger {
