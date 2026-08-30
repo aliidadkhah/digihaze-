@@ -102,6 +102,54 @@ export const metadata = {
 };
 
 // =====================================================
+// WebSite Schema
+// =====================================================
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+
+  "@type": "WebSite",
+
+  "@id": `${SITE_URL}#website`,
+
+  url: SITE_URL,
+
+  name: SITE_NAME,
+
+  description: SITE_DESCRIPTION,
+
+  inLanguage: "fa-IR",
+
+  publisher: {
+    "@id": `${SITE_URL}#organization`,
+  },
+};
+
+// =====================================================
+// Organization Schema
+// =====================================================
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+
+  "@type": "Organization",
+
+  "@id": `${SITE_URL}#organization`,
+
+  name: SITE_NAME,
+
+  url: SITE_URL,
+
+  description: SITE_DESCRIPTION,
+
+  logo: {
+    "@type": "ImageObject",
+
+    url: `${SITE_URL}/digihaze.svg`,
+  },
+};
+
+// =====================================================
 // Layout
 // =====================================================
 
@@ -113,9 +161,42 @@ export default function RootLayout({
       lang="fa"
       dir="rtl"
     >
+      <head>
+
+        {/* =====================================
+            WebSite Schema
+        ====================================== */}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              websiteSchema
+            ),
+          }}
+        />
+
+        {/* =====================================
+            Organization Schema
+        ====================================== */}
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(
+              organizationSchema
+            ),
+          }}
+        />
+
+      </head>
+
       <body>
+
         <Providers>
+
           <ProductsProvider>
+
             <ScrollMorphBackground />
 
             <Navbar />
@@ -125,8 +206,11 @@ export default function RootLayout({
             <Footer />
 
             <SupportWidget />
+
           </ProductsProvider>
+
         </Providers>
+
       </body>
     </html>
   );
