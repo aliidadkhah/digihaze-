@@ -53,7 +53,10 @@ const EMPTY_FORM = {
 };
 
 function mapRowToForm(row) {
-  const existingSpecs = row.specs || [];
+  const existingSpecs = (row.specs || []).map((s) => ({
+    label: s.label || s.k || "",
+    value: s.value || s.v || "",
+  }));
   const existingLabels = existingSpecs.map((s) => s.label);
   const missingPresets = DEFAULT_SPEC_LABELS.filter(
     (label) => !existingLabels.includes(label)
@@ -348,7 +351,7 @@ export default function ProductsManager() {
         <div
           style={{
             background: "#ff3b3b18",
-                        color: "#ff6b6b",
+            color: "#ff6b6b",
             borderRadius: 10,
             padding: "12px 14px",
             fontSize: 13,
@@ -698,7 +701,7 @@ export default function ProductsManager() {
                   <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <input
                       style={{ ...inputStyle, flex: 1 }}
-                                            placeholder="نام رنگ"
+                      placeholder="نام رنگ"
                       value={c.name}
                       onChange={(e) => updateColor(idx, "name", e.target.value)}
                     />
