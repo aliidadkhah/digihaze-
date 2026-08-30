@@ -8,7 +8,7 @@ const BANNER_SLIDES = [
   {
     id: "b1",
     color: "#2F86FF",
-    href: "/shop?category=salt",
+    href: "/shop/salt",
     img: "/slider.jpg",
   },
   {
@@ -34,7 +34,10 @@ export default function BannerCarousel() {
     if (paused) return;
 
     const timer = setInterval(() => {
-      setIdx((current) => (current + 1) % BANNER_SLIDES.length);
+      setIdx(
+        (current) =>
+          (current + 1) % BANNER_SLIDES.length
+      );
     }, 2500);
 
     return () => clearInterval(timer);
@@ -42,7 +45,8 @@ export default function BannerCarousel() {
 
   const go = (index) => {
     setIdx(
-      (index + BANNER_SLIDES.length) % BANNER_SLIDES.length
+      (index + BANNER_SLIDES.length) %
+        BANNER_SLIDES.length
     );
   };
 
@@ -73,7 +77,8 @@ export default function BannerCarousel() {
             width: "100%",
             height: "100%",
             direction: "ltr",
-            transform: "translateX(-" + idx * 100 + "%)",
+            transform:
+              "translateX(-" + idx * 100 + "%)",
             transition:
               "transform 0.35s cubic-bezier(.65,0,.35,1)",
           }}
@@ -81,7 +86,9 @@ export default function BannerCarousel() {
           {BANNER_SLIDES.map((slide) => (
             <button
               key={slide.id}
-              onClick={() => router.push(slide.href)}
+              onClick={() =>
+                router.push(slide.href)
+              }
               style={{
                 position: "relative",
                 flex: "0 0 100%",
@@ -142,7 +149,8 @@ export default function BannerCarousel() {
                     ? slide.color
                     : "#ffffff77",
                 cursor: "pointer",
-                transition: "all 0.2s ease",
+                transition:
+                  "all 0.2s ease",
               }}
             />
           ))}
