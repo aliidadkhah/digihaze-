@@ -1,3 +1,4 @@
+```jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,7 +9,7 @@ const BANNER_SLIDES = [
   {
     id: "b1",
     color: "#2F86FF",
-    href: "/shop?category=eliquid",
+    href: "/shop?category=salt",
     img: "/slider.jpg",
   },
   {
@@ -67,7 +68,6 @@ export default function BannerCarousel() {
           boxSizing: "border-box",
         }}
       >
-        {/* Slides */}
         <div
           style={{
             display: "flex",
@@ -112,7 +112,6 @@ export default function BannerCarousel() {
           ))}
         </div>
 
-        {/* Dots - پایینِ پایین و وسط */}
         <div
           style={{
             position: "absolute",
@@ -151,7 +150,6 @@ export default function BannerCarousel() {
         </div>
       </div>
 
-      {/* افزایش ارتفاع بنر در موبایل */}
       <style jsx>{`
         @media (max-width: 768px) {
           .banner-slider {
@@ -168,3 +166,4 @@ export default function BannerCarousel() {
     </section>
   );
 }
+```
