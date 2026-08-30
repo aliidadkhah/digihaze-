@@ -15,7 +15,7 @@ import {
 } from "@/lib/site";
 
 // =====================================================
-// Global SEO Metadata
+// SEO اصلی سایت
 // =====================================================
 
 export const metadata = {
@@ -40,6 +40,7 @@ export const metadata = {
   ],
 
   creator: SITE_NAME,
+
   publisher: SITE_NAME,
 
   alternates: {
@@ -68,16 +69,18 @@ export const metadata = {
 
     siteName: SITE_NAME,
 
-    title: `${SITE_NAME} | فروشگاه پاد، ویپ، سالت و کارتریج`,
+    title:
+      `${SITE_NAME} | فروشگاه پاد، ویپ، سالت و کارتریج`,
 
     description: SITE_DESCRIPTION,
 
     images: [
       {
-        url: "/og-image.jpg",
+        url: `${SITE_URL}/og-image.jpg`,
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} | فروشگاه آنلاین ویپینگ`,
+        alt:
+          `${SITE_NAME} | فروشگاه پاد و ویپ`,
       },
     ],
   },
@@ -85,23 +88,31 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
 
-    title: `${SITE_NAME} | فروشگاه پاد، ویپ، سالت و کارتریج`,
+    title:
+      `${SITE_NAME} | فروشگاه پاد، ویپ، سالت و کارتریج`,
 
     description: SITE_DESCRIPTION,
 
-    images: ["/og-image.jpg"],
+    images: [
+      `${SITE_URL}/og-image.jpg`,
+    ],
   },
 
   category: "shopping",
 };
 
 // =====================================================
-// Root Layout
+// Layout
 // =====================================================
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}) {
   return (
-    <html lang="fa" dir="rtl">
+    <html
+      lang="fa"
+      dir="rtl"
+    >
       <body>
         <Providers>
           <ProductsProvider>
@@ -109,7 +120,7 @@ export default function RootLayout({ children }) {
 
             <Navbar />
 
-            <main>{children}</main>
+            {children}
 
             <Footer />
 
