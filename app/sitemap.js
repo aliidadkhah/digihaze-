@@ -2,7 +2,7 @@ import { getProducts } from "@/lib/products";
 import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap() {
-  const PRODUCTS = await getProducts();
+  const products = await getProducts();
 
   // =========================
   // صفحات اصلی سایت
@@ -59,7 +59,7 @@ export default async function sitemap() {
   ];
 
   // =========================
-  // ساخت صفحات ثابت
+  // تبدیل صفحات ثابت به Sitemap
   // =========================
 
   const pages = [
@@ -73,16 +73,17 @@ export default async function sitemap() {
   }));
 
   // =========================
-  // صفحات محصولات از Supabase
+  // صفحات محصولات
+  // مستقیماً از Supabase
   // =========================
 
-  const productPages = PRODUCTS
+  const productPages = products
     .filter((product) => product?.id)
     .map((product) => ({
       url: `${SITE_URL}/product/${product.id}`,
 
-      // اگر updated_at داشته باشیم،
-      // تاریخ آخرین تغییر محصول را استفاده می‌کنیم.
+      // تاریخ آخرین ویرایش واقعی محصول
+      // از updated_at در Supabase
       lastModified: product.updated_at
         ? new Date(product.updated_at)
         : new Date(),
@@ -92,7 +93,7 @@ export default async function sitemap() {
     }));
 
   // =========================
-  // خروجی Sitemap
+  // Sitemap نهایی
   // =========================
 
   return [
