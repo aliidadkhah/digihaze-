@@ -6,9 +6,16 @@ export default function robots() {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/cart", "/auth", "/admin"],
+
+        disallow: [
+          "/cart",
+          "/auth",
+          "/admin",
+          "/checkout",
+        ],
       },
     ],
+
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
