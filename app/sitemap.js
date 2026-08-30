@@ -4,12 +4,63 @@ import { SITE_URL } from "@/lib/site";
 export default async function sitemap() {
   const PRODUCTS = await getProducts();
 
-  const staticPages = ["", "/shop", "/about", "/contact"].map((path) => ({
-    url: `${SITE_URL}${path}`,
-    lastModified: new Date(),
-    changeFrequency: path === "" ? "daily" : "weekly",
-    priority: path === "" ? 1 : 0.7,
-  }));
+  const staticPages = [
+    {
+      url: SITE_URL,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1,
+    },
+
+    {
+      url: `${SITE_URL}/shop`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+
+    {
+      url: `${SITE_URL}/shop/pod`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+
+    {
+      url: `${SITE_URL}/shop/salt`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+
+    {
+      url: `${SITE_URL}/shop/device`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+
+    {
+      url: `${SITE_URL}/shop/cartridge`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+
+    {
+      url: `${SITE_URL}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+  ];
 
   const productPages = PRODUCTS.map((p) => ({
     url: `${SITE_URL}/product/${p.id}`,
@@ -18,5 +69,8 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...productPages];
+  return [
+    ...staticPages,
+    ...productPages,
+  ];
 }
