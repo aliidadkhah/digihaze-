@@ -2,7 +2,6 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Flame } from "lucide-react";
 
 import { Badge, Reveal, Countdown } from "./ui";
@@ -19,7 +18,6 @@ import { CATEGORIES } from "@/lib/data";
 import { useProducts } from "./ProductsProvider";
 
 export default function HomeContent() {
-  const router = useRouter();
   const { products } = useProducts();
 
   const featured = products.filter(
@@ -35,7 +33,8 @@ export default function HomeContent() {
     []
   );
 
-  const [heroColor, setHeroColor] = useState("#2F86FF");
+  const [heroColor, setHeroColor] =
+    useState("#2F86FF");
 
   const heroRef = useRef(null);
 
@@ -52,11 +51,15 @@ export default function HomeContent() {
 
     setParallax({
       x:
-        ((e.clientX - rect.left) / rect.width - 0.5) *
+        ((e.clientX - rect.left) /
+          rect.width -
+          0.5) *
         30,
 
       y:
-        ((e.clientY - rect.top) / rect.height - 0.5) *
+        ((e.clientY - rect.top) /
+          rect.height -
+          0.5) *
         30,
     });
   };
@@ -76,6 +79,7 @@ export default function HomeContent() {
       <section
         ref={heroRef}
         onMouseMove={handleMouseMove}
+        aria-labelledby="home-title"
         style={{
           position: "relative",
           overflow: "hidden",
@@ -88,7 +92,8 @@ export default function HomeContent() {
             position: "absolute",
             inset: 0,
             transform: `translate(${parallax.x}px, ${parallax.y}px)`,
-            transition: "transform 0.3s ease-out",
+            transition:
+              "transform 0.3s ease-out",
           }}
         >
           <FlavorCloud
@@ -97,7 +102,8 @@ export default function HomeContent() {
             style={{
               top: -160,
               right: "50%",
-              transform: "translateX(50%)",
+              transform:
+                "translateX(50%)",
               animation:
                 "driftA 14s ease-in-out infinite",
             }}
@@ -126,7 +132,9 @@ export default function HomeContent() {
           />
         </div>
 
-        <VaporParticles color={heroColor} />
+        <VaporParticles
+          color={heroColor}
+        />
 
         <div
           style={{
@@ -136,7 +144,9 @@ export default function HomeContent() {
             margin: "0 auto",
           }}
         >
-          <FloatingBottle color={heroColor} />
+          <FloatingBottle
+            color={heroColor}
+          />
 
           <div
             className="hero-reveal"
@@ -150,6 +160,7 @@ export default function HomeContent() {
           </div>
 
           <h1
+            id="home-title"
             className="hero-reveal"
             style={{
               fontFamily: "Vazirmatn",
@@ -157,8 +168,10 @@ export default function HomeContent() {
               fontSize:
                 "clamp(32px, 6vw, 56px)",
               lineHeight: 1.25,
-              margin: "20px 0 16px",
-              animationDelay: "0.16s",
+              margin:
+                "20px 0 16px",
+              animationDelay:
+                "0.16s",
             }}
           >
             هر پاف، یک{" "}
@@ -175,36 +188,49 @@ export default function HomeContent() {
           </h1>
 
           {/* =========================
-              BRAND SEO TEXT
+              SEO INTRO
           ========================= */}
 
           <p
             className="hero-reveal"
             style={{
-              color: "var(--text-hi)",
+              color:
+                "var(--text-hi)",
               fontSize: 18,
               fontWeight: 700,
               lineHeight: 1.8,
-              margin: "0 0 12px",
-              animationDelay: "0.22s",
+              margin:
+                "0 0 12px",
+              animationDelay:
+                "0.22s",
             }}
           >
-            دیجی هیز، فروشگاه تخصصی پاد، ویپ، سالت نیکوتین و لوازم جانبی ویپینگ
+            دیجی هیز؛ فروشگاه آنلاین
+            پاد، سالت نیکوتین،
+            دستگاه ویپ و کارتریج
           </p>
 
           <p
             className="hero-reveal"
             style={{
-              color: "var(--text-lo)",
+              color:
+                "var(--text-lo)",
               fontSize: 16,
               lineHeight: 1.9,
               marginBottom: 30,
-              animationDelay: "0.28s",
+              animationDelay:
+                "0.28s",
             }}
           >
-            سالت نیکوتین، جویس، پاد، ویپ، کویل و
-            کارتریج با ارسال سریع به سراسر کشور.
-            طعم مورد علاقه‌ت رو پیدا کن
+            در دیجی هیز می‌توانید
+            محصولات مختلف پاد،
+            سالت نیکوتین، دستگاه و
+            کارتریج را مشاهده کنید،
+            مشخصات و قیمت محصولات
+            را بررسی کنید و از میان
+            دسته‌بندی‌های مختلف،
+            محصول موردنظر خود را
+            پیدا کنید.
           </p>
 
           <div
@@ -212,24 +238,31 @@ export default function HomeContent() {
             style={{
               display: "flex",
               gap: 14,
-              justifyContent: "center",
+              justifyContent:
+                "center",
               flexWrap: "wrap",
-              animationDelay: "0.4s",
+              animationDelay:
+                "0.4s",
             }}
           >
             <Link
               href="/shop"
               className="pulse-btn"
               style={{
-                background: "#2F86FF",
-                color: "var(--ink)",
+                background:
+                  "#2F86FF",
+                color:
+                  "var(--ink)",
                 border: "none",
                 borderRadius: 14,
-                padding: "14px 30px",
-                fontFamily: "Vazirmatn",
+                padding:
+                  "14px 30px",
+                fontFamily:
+                  "Vazirmatn",
                 fontWeight: 800,
                 fontSize: 15,
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
               مشاهده فروشگاه
@@ -238,16 +271,21 @@ export default function HomeContent() {
             <Link
               href="/about"
               style={{
-                background: "transparent",
-                color: "var(--text-hi)",
+                background:
+                  "transparent",
+                color:
+                  "var(--text-hi)",
                 border:
                   "1px solid var(--border-soft)",
                 borderRadius: 14,
-                padding: "14px 30px",
-                fontFamily: "Vazirmatn",
+                padding:
+                  "14px 30px",
+                fontFamily:
+                  "Vazirmatn",
                 fontWeight: 700,
                 fontSize: 15,
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
               درباره ما
@@ -261,12 +299,27 @@ export default function HomeContent() {
       ========================= */}
 
       <section
+        aria-labelledby="shop-categories-title"
         style={{
           maxWidth: 1180,
           margin: "0 auto",
-          padding: "10px 20px 50px",
+          padding:
+            "10px 20px 50px",
         }}
       >
+        <h2
+          id="shop-categories-title"
+          style={{
+            fontFamily:
+              "Vazirmatn",
+            fontWeight: 800,
+            fontSize: 22,
+            marginBottom: 20,
+          }}
+        >
+          دسته‌بندی محصولات
+        </h2>
+
         <div
           style={{
             display: "grid",
@@ -275,79 +328,101 @@ export default function HomeContent() {
             gap: 16,
           }}
         >
-          {CATEGORIES.map((c, i) => (
-            <Reveal
-              key={c.id}
-              delay={0.08 * i}
-            >
-              <button
-                onMouseEnter={() =>
-                  setHeroColor(c.color)
-                }
-                onClick={() =>
-                  router.push(
-                    `/shop?category=${c.id}`
-                  )
-                }
-                style={{
-                  width: "100%",
-                  background:
-                    "var(--surface)",
-                  border:
-                    "1px solid var(--surface2)",
-                  borderRadius: 16,
-                  padding: "22px 14px",
-                  cursor: "pointer",
-                  textAlign: "center",
-                  transition:
-                    "border-color 0.25s ease, transform 0.25s ease",
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.borderColor =
-                    c.color;
-
-                  e.currentTarget.style.transform =
-                    "translateY(-4px)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.borderColor =
-                    "var(--surface2)";
-
-                  e.currentTarget.style.transform =
-                    "translateY(0)";
-                }}
+          {CATEGORIES.map(
+            (c, i) => (
+              <Reveal
+                key={c.id}
+                delay={0.08 * i}
               >
-                <div
+                <Link
+                  href={`/shop/${c.id}`}
+                  onMouseEnter={() =>
+                    setHeroColor(
+                      c.color
+                    )
+                  }
+                  aria-label={`مشاهده ${c.label}`}
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
-                    background: `${c.color}22`,
-                    margin: "0 auto 12px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    display: "block",
+                    width: "100%",
+                    background:
+                      "var(--surface)",
+                    border:
+                      "1px solid var(--surface2)",
+                    borderRadius: 16,
+                    padding:
+                      "22px 14px",
+                    cursor:
+                      "pointer",
+                    textAlign:
+                      "center",
+                    transition:
+                      "border-color 0.25s ease, transform 0.25s ease",
+                    textDecoration:
+                      "none",
+                    boxSizing:
+                      "border-box",
                   }}
-                >
-                  <Flame
-                    size={20}
-                    color={c.color}
-                  />
-                </div>
+                  onMouseOver={(
+                    e
+                  ) => {
+                    e.currentTarget.style.borderColor =
+                      c.color;
 
-                <div
-                  style={{
-                    fontFamily: "Vazirmatn",
-                    fontWeight: 700,
-                    fontSize: 14,
-                    color: "var(--text-hi)",
+                    e.currentTarget.style.transform =
+                      "translateY(-4px)";
+                  }}
+                  onMouseOut={(
+                    e
+                  ) => {
+                    e.currentTarget.style.borderColor =
+                      "var(--surface2)";
+
+                    e.currentTarget.style.transform =
+                      "translateY(0)";
                   }}
                 >
-                  {c.label}
-                </div>
-              </button>
-            </Reveal>
-          ))}
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      background:
+                        `${c.color}22`,
+                      margin:
+                        "0 auto 12px",
+                      display:
+                        "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "center",
+                    }}
+                  >
+                    <Flame
+                      size={20}
+                      color={
+                        c.color
+                      }
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      fontFamily:
+                        "Vazirmatn",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color:
+                        "var(--text-hi)",
+                    }}
+                  >
+                    {c.label}
+                  </div>
+                </Link>
+              </Reveal>
+            )
+          )}
         </div>
       </section>
 
@@ -359,24 +434,32 @@ export default function HomeContent() {
         style={{
           maxWidth: 1180,
           margin: "0 auto",
-          padding: "0 20px 50px",
+          padding:
+            "0 20px 50px",
         }}
       >
         <Reveal>
           <div
             style={{
-              position: "relative",
-              overflow: "hidden",
+              position:
+                "relative",
+              overflow:
+                "hidden",
               borderRadius: 24,
               background:
                 "linear-gradient(120deg,#3a1440,var(--bg) 70%)",
               border:
                 "1px solid var(--border-soft)",
-              padding: "42px 30px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
+              padding:
+                "42px 30px",
+              display:
+                "flex",
+              alignItems:
+                "center",
+              justifyContent:
+                "space-between",
+              flexWrap:
+                "wrap",
               gap: 20,
             }}
           >
@@ -391,7 +474,8 @@ export default function HomeContent() {
 
             <div
               style={{
-                position: "relative",
+                position:
+                  "relative",
                 zIndex: 2,
               }}
             >
@@ -401,23 +485,29 @@ export default function HomeContent() {
 
               <h2
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily:
+                    "Vazirmatn",
                   fontWeight: 800,
                   fontSize: 26,
-                  margin: "14px 0 8px",
+                  margin:
+                    "14px 0 8px",
                 }}
               >
-                تا ۲۰٪ تخفیف روی مایع‌های یخی
+                تا ۲۰٪ تخفیف روی
+                مایع‌های یخی
               </h2>
 
               <p
                 style={{
-                  color: "var(--text-lo)",
+                  color:
+                    "var(--text-lo)",
                   fontSize: 14,
-                  marginBottom: 14,
+                  marginBottom:
+                    14,
                 }}
               >
-                فقط تا پایان این هفته، موجودی محدود
+                فقط تا پایان این
+                هفته، موجودی محدود
               </p>
 
               <Countdown
@@ -429,17 +519,23 @@ export default function HomeContent() {
             <Link
               href="/shop"
               style={{
-                position: "relative",
+                position:
+                  "relative",
                 zIndex: 2,
-                background: "#C6FF3D",
-                color: "var(--ink)",
+                background:
+                  "#C6FF3D",
+                color:
+                  "var(--ink)",
                 border: "none",
                 borderRadius: 14,
-                padding: "14px 26px",
-                fontFamily: "Vazirmatn",
+                padding:
+                  "14px 26px",
+                fontFamily:
+                  "Vazirmatn",
                 fontWeight: 800,
                 fontSize: 14,
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
               مشاهده تخفیف‌ها
@@ -454,10 +550,12 @@ export default function HomeContent() {
 
       <section
         className="sale-section"
+        aria-labelledby="sale-title"
         style={{
           width: "100%",
-          margin: "0",
-          padding: "38px 0 50px",
+          margin: 0,
+          padding:
+            "38px 0 50px",
           background:
             "linear-gradient(180deg, rgba(47,134,255,0.035), rgba(34,229,201,0.02))",
           borderTop:
@@ -470,24 +568,32 @@ export default function HomeContent() {
           style={{
             maxWidth: 1180,
             margin: "0 auto",
-            padding: "0 20px",
+            padding:
+              "0 20px",
           }}
         >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 22,
+              display:
+                "flex",
+              alignItems:
+                "center",
+              justifyContent:
+                "space-between",
+              marginBottom:
+                22,
             }}
           >
             <div>
               <h2
+                id="sale-title"
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily:
+                    "Vazirmatn",
                   fontWeight: 800,
                   fontSize: 22,
-                  marginBottom: 4,
+                  marginBottom:
+                    4,
                 }}
               >
                 پیشنهادهای فروش
@@ -495,21 +601,28 @@ export default function HomeContent() {
 
               <p
                 style={{
-                  color: "var(--text-mut)",
-                  fontSize: 12.5,
+                  color:
+                    "var(--text-mut)",
+                  fontSize:
+                    12.5,
                 }}
               >
-                محصولات تخفیف‌دار همین حالا
+                محصولات
+                تخفیف‌دار همین
+                حالا
               </p>
             </div>
 
             <Link
               href="/shop"
               style={{
-                color: "#22E5C9",
-                fontFamily: "Vazirmatn",
+                color:
+                  "#22E5C9",
+                fontFamily:
+                  "Vazirmatn",
                 fontSize: 13,
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
               مشاهده همه ←
@@ -519,26 +632,38 @@ export default function HomeContent() {
           <div
             className="sale-scroll"
             style={{
-              display: "flex",
+              display:
+                "flex",
               gap: 16,
-              overflowX: "auto",
-              paddingBottom: 10,
-              scrollSnapType: "x mandatory",
+              overflowX:
+                "auto",
+              paddingBottom:
+                10,
+              scrollSnapType:
+                "x mandatory",
             }}
           >
-            {saleItems.map((p, i) => (
-              <Reveal
-                key={p.id}
-                delay={0.06 * (i % 4)}
-                style={{
-                  minWidth: 190,
-                  maxWidth: 190,
-                  scrollSnapAlign: "start",
-                }}
-              >
-                <ProductCard product={p} />
-              </Reveal>
-            ))}
+            {saleItems.map(
+              (p, i) => (
+                <Reveal
+                  key={p.id}
+                  delay={
+                    0.06 *
+                    (i % 4)
+                  }
+                  style={{
+                    minWidth: 190,
+                    maxWidth: 190,
+                    scrollSnapAlign:
+                      "start",
+                  }}
+                >
+                  <ProductCard
+                    product={p}
+                  />
+                </Reveal>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -548,23 +673,31 @@ export default function HomeContent() {
       ========================= */}
 
       <section
+        aria-labelledby="featured-title"
         style={{
           maxWidth: 1180,
           margin: "0 auto",
-          padding: "50px 20px 70px",
+          padding:
+            "50px 20px 70px",
         }}
       >
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 22,
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "space-between",
+            marginBottom:
+              22,
           }}
         >
           <h2
+            id="featured-title"
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily:
+                "Vazirmatn",
               fontWeight: 800,
               fontSize: 22,
             }}
@@ -575,10 +708,13 @@ export default function HomeContent() {
           <Link
             href="/shop"
             style={{
-              color: "#22E5C9",
-              fontFamily: "Vazirmatn",
+              color:
+                "#22E5C9",
+              fontFamily:
+                "Vazirmatn",
               fontSize: 13,
-              textDecoration: "none",
+              textDecoration:
+                "none",
             }}
           >
             مشاهده همه ←
@@ -588,20 +724,28 @@ export default function HomeContent() {
         <div
           className="featured-grid"
           style={{
-            display: "grid",
+            display:
+              "grid",
             gridTemplateColumns:
               "repeat(auto-fill,minmax(190px,1fr))",
             gap: 18,
           }}
         >
-          {featured.map((p, i) => (
-            <Reveal
-              key={p.id}
-              delay={0.08 * (i % 4)}
-            >
-              <ProductCard product={p} />
-            </Reveal>
-          ))}
+          {featured.map(
+            (p, i) => (
+              <Reveal
+                key={p.id}
+                delay={
+                  0.08 *
+                  (i % 4)
+                }
+              >
+                <ProductCard
+                  product={p}
+                />
+              </Reveal>
+            )
+          )}
         </div>
       </section>
 
