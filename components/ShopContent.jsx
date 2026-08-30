@@ -211,6 +211,16 @@ export default function ShopContent({
       );
     }
 
+    /*
+     * محصولات ناموجود همیشه ته لیست باشن
+     * (بدون به‌هم‌ریختن ترتیب مرتب‌سازی بالا، چون Array.sort پایدار است)
+     */
+    arr.sort((a, b) => {
+      const aOut = a.available === false ? 1 : 0;
+      const bOut = b.available === false ? 1 : 0;
+      return aOut - bOut;
+    });
+
     return arr;
   }, [products, active, activeSub, sort, search]);
 
