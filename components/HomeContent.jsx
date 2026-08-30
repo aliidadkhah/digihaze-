@@ -174,6 +174,24 @@ export default function HomeContent() {
             تازه
           </h1>
 
+          {/* =========================
+              BRAND SEO TEXT
+          ========================= */}
+
+          <p
+            className="hero-reveal"
+            style={{
+              color: "var(--text-hi)",
+              fontSize: 18,
+              fontWeight: 700,
+              lineHeight: 1.8,
+              margin: "0 0 12px",
+              animationDelay: "0.22s",
+            }}
+          >
+            دیجی هیز، فروشگاه تخصصی پاد، ویپ، سالت نیکوتین و لوازم جانبی ویپینگ
+          </p>
+
           <p
             className="hero-reveal"
             style={{
