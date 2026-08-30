@@ -1,3 +1,4 @@
+import AboutContent from "@/components/AboutContent";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 export const metadata = {
@@ -28,16 +29,24 @@ export const metadata = {
     ],
   },
 
+  twitter: {
+    card: "summary_large_image",
+    title: "درباره دیجی هیز | فروشگاه پاد و ویپ",
+    description:
+      "آشنایی با دیجی هیز و خدمات فروشگاه آنلاین پاد، ویپ، سالت و کارتریج.",
+    images: [`${SITE_URL}/og-image.jpg`],
+  },
+
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
 };
 
 export default function AboutPage() {
-  return (
-    <main>
-      {/* محتوای فعلی صفحه درباره ما را اینجا نگه دار */}
-    </main>
-  );
+  return <AboutContent />;
 }
