@@ -1,954 +1,802 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import SiteImage from "./SiteImage";
 import {
-  ChevronLeft,
-  ChevronRight,
+  Package,
   Plus,
-  Minus,
-  ShoppingBag,
-  Check,
-  Percent,
-  Star,
+  Pencil,
+  Trash2,
+  X,
+  UploadCloud,
+  Loader2,
+  ImageOff,
 } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import { uploadProductImage } from "@/lib/productImages";
+import { money } from "@/lib/data";
 
-import {
-  Stars,
-  Reveal,
-  navArrowStyle,
-  qtyBtnStyle,
-  inputStyle,
-} from "./ui";
+const EMPTY_FORM = {
+  id: null,
+  name: "",
+  category: "",
+  brand: "",
+  price: "",
+  discount: "",
+  rating: "",
+  reviewsCount: "",
+  color: "",
+  badge: "",
+  available: true,
+  description: "",
+  images: [],
+  colors: [], // [{ name, hex }]
+  specs: [], // [{ label, value }]
+};
 
-import { FlavorCloud } from "./visuals";
-import ProductCard from "./ProductCard";
-import { money, discountedPrice } from "@/lib/data";
-import { useCart, useUser } from "./Providers";
+function mapRowToForm(row) {
+  return {
+    id: row.id,
+    name: row.name || "",
+    category: row.category || "",
+    brand: row.brand || "",
+    price: row.price ?? "",
+    discount: row.discount ?? "",
+    rating: row.rating ?? "",
+    reviewsCount: row.reviews_count ?? row.reviewsCount ?? "",
+    color: row.color || "",
+    badge: row.badge || "",
+    available: row.available !== false,
+    description: row.description || "",
+    images: row.images || [],
+    colors: row.colors || [],
+    specs: row.specs || [],
+  };
+}
 
-function ReviewForm({ onSubmit }) {
-  const { user } = useUser();
+const inputStyle = {
+  width: "100%",
+  background: "var(--bg)",
+  border: "1px solid var(--surface2)",
+  borderRadius: 10,
+  padding: "10px 12px",
+  fontFamily: "Vazirmatn",
+  fontSize: 13.5,
+  color: "var(--text-hi)",
+  outline: "none",
+};
 
-  const [name, setName] = useState(user?.name || "");
-  const [rating, setRating] = useState(5);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [text, setText] = useState("");
+const labelStyle = {
+  display: "block",
+  fontFamily: "Vazirmatn",
+  fontSize: 12.5,
+  fontWeight: 700,
+  color: "var(--text-mut)",
+  marginBottom: 6,
+};
+
+function Field({ label, children }) {
+  return (
+    <div>
+      <label style={labelStyle}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+export default function ProductsManager() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const [uploadingImg, setUploadingImg] = useState(false);
 
-  const submit = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const getToken = async () => {
+    const { data } = await supabase.auth.getSession();
+    return data?.session?.access_token;
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
     setError("");
-
-    if (!name.trim()) {
-      return setError("لطفاً نامت رو بنویس");
+    try {
+      const token = await getToken();
+      const res = await fetch("/api/admin/products", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "خطا در دریافت محصولات");
+      setProducts(data.products || []);
+    } catch (e) {
+      setError(e.message || "خطایی رخ داد");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (!text.trim()) {
-      return setError("لطفاً متن نظرت رو بنویس");
+  const openCreate = () => {
+    setForm(EMPTY_FORM);
+    setSaveError("");
+    setFormOpen(true);
+  };
+
+  const openEdit = (row) => {
+    setForm(mapRowToForm(row));
+    setSaveError("");
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+  };
+
+  const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  // ---------- تصاویر ----------
+  const addImageFile = async (file) => {
+    if (!file) return;
+    setUploadingImg(true);
+    try {
+      const url = await uploadProductImage(file);
+      if (url) update("images", [...form.images, url]);
+    } catch {
+      setSaveError("آپلود عکس ناموفق بود، دوباره امتحان کن");
+    } finally {
+      setUploadingImg(false);
     }
+  };
 
-    onSubmit({
-      name: name.trim(),
-      rating,
-      text: text.trim(),
-    });
+  const removeImage = (idx) =>
+    update(
+      "images",
+      form.images.filter((_, i) => i !== idx)
+    );
 
-    setText("");
+  // ---------- رنگ‌ها ----------
+  const addColor = () =>
+    update("colors", [...form.colors, { name: "", hex: "#000000" }]);
+
+  const updateColor = (idx, key, value) =>
+    update(
+      "colors",
+      form.colors.map((c, i) => (i === idx ? { ...c, [key]: value } : c))
+    );
+
+  const removeColor = (idx) =>
+    update(
+      "colors",
+      form.colors.filter((_, i) => i !== idx)
+    );
+
+  // ---------- مشخصات فنی ----------
+  const addSpec = () =>
+    update("specs", [...form.specs, { label: "", value: "" }]);
+
+  const updateSpec = (idx, key, value) =>
+    update(
+      "specs",
+      form.specs.map((s, i) => (i === idx ? { ...s, [key]: value } : s))
+    );
+
+  const removeSpec = (idx) =>
+    update(
+      "specs",
+      form.specs.filter((_, i) => i !== idx)
+    );
+
+  // ---------- ذخیره ----------
+  const save = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) {
+      setSaveError("نام محصول الزامی است");
+      return;
+    }
+    setSaving(true);
+    setSaveError("");
+    try {
+      const token = await getToken();
+      const res = await fetch("/api/admin/products", {
+        method: form.id ? "PATCH" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "ذخیره ناموفق بود");
+      setFormOpen(false);
+      fetchProducts();
+    } catch (e) {
+      setSaveError(e.message || "خطایی رخ داد");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ---------- حذف ----------
+  const remove = async (id) => {
+    if (!confirm("این محصول برای همیشه حذف بشه؟")) return;
+    setDeletingId(id);
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/admin/products?id=${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "حذف ناموفق بود");
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (e) {
+      alert(e.message || "خطایی رخ داد");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
-    <form
-      onSubmit={submit}
-      style={{
-        background: "var(--surface)",
-        borderRadius: 14,
-        padding: 16,
-        marginBottom: 18,
-        display: "flex",
-        flexDirection: "column",
-        gap: 10,
-      }}
-    >
-      <div
-        style={{
-          fontWeight: 700,
-          fontSize: 13.5,
-        }}
-      >
-        ثبت نظر شما
-      </div>
-
+    <div>
       <div
         style={{
           display: "flex",
-          gap: 4,
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 20,
+          flexWrap: "wrap",
+          gap: 12,
         }}
       >
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            onClick={() => setRating(n)}
-            onMouseEnter={() => setHoverRating(n)}
-            onMouseLeave={() => setHoverRating(0)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 2,
-            }}
-          >
-            <Star
-              size={20}
-              fill={
-                n <= (hoverRating || rating)
-                  ? "#C6FF3D"
-                  : "none"
-              }
-              stroke={
-                n <= (hoverRating || rating)
-                  ? "#C6FF3D"
-                  : "var(--text-lo)"
-              }
-            />
-          </button>
-        ))}
+        <p style={{ color: "var(--text-mut)", fontSize: 13, fontFamily: "Vazirmatn" }}>
+          {products.length} محصول
+        </p>
+
+        <button
+          onClick={openCreate}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: "#2F86FF",
+            color: "#fff",
+            border: "none",
+            borderRadius: 10,
+            padding: "10px 16px",
+            fontFamily: "Vazirmatn",
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: "pointer",
+          }}
+        >
+          <Plus size={15} /> افزودن محصول
+        </button>
       </div>
 
-      {!user && (
-        <input
-          placeholder="نام شما"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={inputStyle}
-        />
+      {loading && (
+        <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "Vazirmatn" }}>
+          در حال بارگذاری محصولات...
+        </p>
       )}
 
-      <textarea
-        placeholder="تجربه‌ات از این محصول رو بنویس..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        rows={3}
-        style={{
-          ...inputStyle,
-          resize: "vertical",
-        }}
-      />
-
-      {error && (
+      {!loading && error && (
         <div
           style={{
-            color: "#2F86FF",
-            fontSize: 12,
-            background: "#2F86FF22",
-            borderRadius: 8,
-            padding: "6px 10px",
+            background: "#ff3b3b18",
+            color: "#ff6b6b",
+            borderRadius: 10,
+            padding: "12px 14px",
+            fontSize: 13,
+            marginBottom: 16,
+            fontFamily: "Vazirmatn",
           }}
         >
           {error}
         </div>
       )}
 
-      <button
-        type="submit"
-        style={{
-          alignSelf: "flex-start",
-          background: "#2F86FF",
-          color: "var(--ink)",
-          border: "none",
-          borderRadius: 10,
-          padding: "9px 20px",
-          fontFamily: "Vazirmatn",
-          fontWeight: 700,
-          fontSize: 13,
-          cursor: "pointer",
-        }}
-      >
-        ثبت نظر
-      </button>
-    </form>
-  );
-}
-
-export default function ProductContent({ product, related }) {
-  const [imgIdx, setImgIdx] = useState(0);
-  const [qty, setQty] = useState(1);
-  const [tab, setTab] = useState("desc");
-  const [added, setAdded] = useState(false);
-
-  const [reviews, setReviews] = useState(
-    product.reviews || []
-  );
-
-  /*
-   * رنگ انتخاب‌شده
-   *
-   * اگر محصول رنگ داشته باشد، اولین رنگ به صورت پیش‌فرض انتخاب می‌شود.
-   * اگر محصول رنگ نداشته باشد، مقدار null خواهد بود.
-   */
-  const [selectedColor, setSelectedColor] = useState(
-    product.colors?.length > 0
-      ? product.colors[0]
-      : null
-  );
-
-  const { addToCart } = useCart();
-
-  useEffect(() => {
-    setImgIdx(0);
-    setQty(1);
-    setTab("desc");
-    setReviews(product.reviews || []);
-
-    setSelectedColor(
-      product.colors?.length > 0
-        ? product.colors[0]
-        : null
-    );
-  }, [product.id]);
-
-  const addReview = (review) => {
-    setReviews((prev) => [
-      { ...review },
-      ...prev,
-    ]);
-
-    setTab("reviews");
-  };
-
-  /*
-   * افزودن محصول به سبد خرید
-   *
-   * اگر محصول رنگ داشته باشد،
-   * رنگ انتخاب‌شده داخل cartProduct ذخیره می‌شود.
-   */
-  const handleAddToCart = () => {
-    if (
-      product.colors?.length > 0 &&
-      !selectedColor
-    ) {
-      return;
-    }
-
-    const cartProduct = {
-      ...product,
-
-      selectedColor:
-        product.colors?.length > 0
-          ? selectedColor
-          : null,
-    };
-
-    addToCart(cartProduct, qty);
-
-    setAdded(true);
-
-    setTimeout(() => {
-      setAdded(false);
-    }, 1600);
-  };
-
-  return (
-    <div
-      style={{
-        maxWidth: 1180,
-        margin: "0 auto",
-        padding: "30px 20px 70px",
-      }}
-    >
-      <Link
-        href="/shop"
-        style={{
-          color: "var(--text-lo)",
-          fontSize: 13,
-          marginBottom: 20,
-          display: "inline-block",
-          textDecoration: "none",
-          fontFamily: "Vazirmatn",
-        }}
-      >
-        ← بازگشت به فروشگاه
-      </Link>
-
-      {product.discount > 0 && (
-        <div
-          style={{
-            background: `linear-gradient(90deg, ${product.color}33, transparent)`,
-            border: `1px solid ${product.color}55`,
-            borderRadius: 14,
-            padding: "12px 18px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 24,
-          }}
-        >
-          <Percent
-            size={16}
-            color={product.color}
-          />
-
-          <span
-            style={{
-              fontFamily: "Vazirmatn",
-              fontSize: 13,
-              fontWeight: 700,
-            }}
-          >
-            {product.discount}٪ تخفیف ویژه فقط تا پایان موجودی
-          </span>
+      {!loading && !error && products.length === 0 && (
+        <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-mut)" }}>
+          <Package size={36} color="var(--text-faint)" style={{ margin: "0 auto 14px" }} />
+          <p style={{ fontSize: 14, fontFamily: "Vazirmatn" }}>هنوز هیچ محصولی اضافه نشده.</p>
         </div>
       )}
 
-      <div
-        className="product-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 46,
-        }}
-      >
-        {/* =========================
-            Gallery
-        ========================= */}
-        <div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {products.map((p) => (
           <div
-            style={{
-              position: "relative",
-              borderRadius: 20,
-              overflow: "hidden",
-              aspectRatio: "4/5",
-              background: "var(--surface)",
-            }}
-          >
-            <FlavorCloud
-              color={product.color}
-              size={400}
-              style={{
-                top: -100,
-                right: -100,
-              }}
-            />
-
-            <SiteImage
-              src={product.images[imgIdx]}
-              alt={product.name}
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-
-            {product.images.length > 1 && (
-              <>
-                <button
-                  onClick={() =>
-                    setImgIdx(
-                      (i) =>
-                        (i -
-                          1 +
-                          product.images.length) %
-                        product.images.length
-                    )
-                  }
-                  style={navArrowStyle("right")}
-                >
-                  <ChevronRight
-                    size={18}
-                    color="#120C22"
-                  />
-                </button>
-
-                <button
-                  onClick={() =>
-                    setImgIdx(
-                      (i) =>
-                        (i + 1) %
-                        product.images.length
-                    )
-                  }
-                  style={navArrowStyle("left")}
-                >
-                  <ChevronLeft
-                    size={18}
-                    color="#120C22"
-                  />
-                </button>
-              </>
-            )}
-          </div>
-
-          {product.images.length > 1 && (
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                marginTop: 12,
-              }}
-            >
-              {product.images.map((im, i) => (
-                <button
-                  key={i}
-                  onClick={() => setImgIdx(i)}
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    border:
-                      i === imgIdx
-                        ? `2px solid ${product.color}`
-                        : "2px solid transparent",
-                    padding: 0,
-                    cursor: "pointer",
-                  }}
-                >
-                  <SiteImage
-                    src={im}
-                    alt=""
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* =========================
-            Info
-        ========================= */}
-        <div>
-          <div
-            style={{
-              color: "var(--text-mut)",
-              fontSize: 12,
-              marginBottom: 6,
-            }}
-          >
-            {product.brand}
-          </div>
-
-          <h1
-            style={{
-              fontFamily: "Vazirmatn",
-              fontWeight: 800,
-              fontSize: 26,
-              marginBottom: 12,
-            }}
-          >
-            {product.name}
-          </h1>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 18,
-            }}
-          >
-            <Stars
-              rating={product.rating}
-              size={16}
-            />
-
-            <span
-              style={{
-                color: "var(--text-lo)",
-                fontSize: 13,
-              }}
-            >
-              {product.rating} از ۵ ({reviews.length} نظر)
-            </span>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 12,
-              marginBottom: 22,
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "Vazirmatn",
-                fontWeight: 800,
-                fontSize: 26,
-              }}
-            >
-              {money(discountedPrice(product))}
-            </span>
-
-            {product.discount > 0 && (
-              <span
-                style={{
-                  fontSize: 15,
-                  color: "var(--text-faint)",
-                  textDecoration: "line-through",
-                }}
-              >
-                {money(product.price)}
-              </span>
-            )}
-          </div>
-
-          {/* =========================
-              انتخاب رنگ
-          ========================= */}
-          {product.colors?.length > 0 && (
-            <div
-              style={{
-                marginBottom: 24,
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "Vazirmatn",
-                    fontWeight: 700,
-                    fontSize: 14,
-                  }}
-                >
-                  گزینه:
-                </span>
-
-                <span
-                  style={{
-                    color: "var(--text-lo)",
-                    fontSize: 13,
-                  }}
-                >
-                  {selectedColor?.name}
-                </span>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 10,
-                }}
-              >
-                {product.colors.map((color) => {
-                  const isSelected =
-                    selectedColor?.id ===
-                    color.id;
-
-                  return (
-                    <button
-                      key={color.id}
-                      type="button"
-                      onClick={() =>
-                        setSelectedColor(color)
-                      }
-                      title={color.name}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        padding: "7px 12px",
-                        borderRadius: 10,
-                        border: isSelected
-                          ? `2px solid ${product.color}`
-                          : "1px solid var(--surface2)",
-                        background: isSelected
-                          ? `${product.color}18`
-                          : "var(--surface)",
-                        color:
-                          "var(--text-hi)",
-                        cursor: "pointer",
-                        fontFamily:
-                          "Vazirmatn",
-                        fontSize: 12.5,
-                        fontWeight:
-                          isSelected
-                            ? 700
-                            : 500,
-                        transition:
-                          "all 0.2s ease",
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: "50%",
-                          background:
-                            color.hex,
-                          border:
-                            color.hex.toLowerCase() ===
-                            "#ffffff"
-                              ? "1px solid #999"
-                              : "none",
-                          boxShadow:
-                            isSelected
-                              ? `0 0 0 2px var(--surface), 0 0 0 4px ${product.color}`
-                              : "none",
-                        }}
-                      />
-
-                      {color.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* =========================
-              Quantity + Add To Cart
-          ========================= */}
-          <div
+            key={p.id}
             style={{
               display: "flex",
               alignItems: "center",
               gap: 14,
-              marginBottom: 26,
+              background: "var(--surface)",
+              border: "1px solid var(--surface2)",
+              borderRadius: 14,
+              padding: 12,
             }}
           >
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                border:
-                  "1px solid var(--surface2)",
-                borderRadius: 12,
+                width: 54,
+                height: 54,
+                borderRadius: 10,
                 overflow: "hidden",
-              }}
-            >
-              <button
-                onClick={() =>
-                  setQty((q) => q + 1)
-                }
-                style={qtyBtnStyle}
-              >
-                <Plus size={15} />
-              </button>
-
-              <span
-                style={{
-                  width: 40,
-                  textAlign: "center",
-                  fontFamily: "Vazirmatn",
-                  fontWeight: 700,
-                }}
-              >
-                {qty}
-              </span>
-
-              <button
-                onClick={() =>
-                  setQty((q) =>
-                    Math.max(1, q - 1)
-                  )
-                }
-                style={qtyBtnStyle}
-              >
-                <Minus size={15} />
-              </button>
-            </div>
-
-            <button
-              onClick={handleAddToCart}
-              style={{
-                flex: 1,
-                background: added
-                  ? "#22E5C9"
-                  : "#2F86FF",
-                color: "var(--ink)",
-                border: "none",
-                borderRadius: 12,
-                padding: "14px 0",
-                fontFamily: "Vazirmatn",
-                fontWeight: 800,
-                fontSize: 14,
-                cursor: "pointer",
+                flexShrink: 0,
+                background: "var(--bg)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 8,
-                transition:
-                  "background 0.25s ease",
               }}
             >
-              {added ? (
-                <Check size={16} />
+              {p.images?.[0] ? (
+                <img
+                  src={p.images[0]}
+                  alt={p.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               ) : (
-                <ShoppingBag size={16} />
+                <ImageOff size={18} color="var(--text-faint)" />
               )}
+            </div>
 
-              {added
-                ? "اضافه شد"
-                : "افزودن به سبد خرید"}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 800,
+                  fontSize: 13.5,
+                  color: "var(--text-hi)",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {p.name}
+              </div>
+              <div style={{ display: "flex", gap: 10, marginTop: 3, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                  {p.category || "بدون دسته"}
+                </span>
+                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                  {money(p.price || 0)}
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "Vazirmatn",
+                    fontWeight: 700,
+                    color: p.available ? "#22E5C9" : "#ff6b6b",
+                  }}
+                >
+                  {p.available ? "موجود" : "ناموجود"}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => openEdit(p)}
+              style={{
+                background: "var(--surface2)",
+                border: "none",
+                borderRadius: 10,
+                width: 36,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "var(--text-hi)",
+              }}
+              aria-label="ویرایش"
+            >
+              <Pencil size={15} />
+            </button>
+
+            <button
+              onClick={() => remove(p.id)}
+              disabled={deletingId === p.id}
+              style={{
+                background: "#ff3b3b18",
+                border: "none",
+                borderRadius: 10,
+                width: 36,
+                height: 36,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#ff6b6b",
+                opacity: deletingId === p.id ? 0.5 : 1,
+              }}
+              aria-label="حذف"
+            >
+              {deletingId === p.id ? (
+                <Loader2 size={15} className="spin" />
+              ) : (
+                <Trash2 size={15} />
+              )}
             </button>
           </div>
+        ))}
+      </div>
 
-          {/* =========================
-              Tabs
-          ========================= */}
-          <div
+      {formOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.55)",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            padding: "40px 16px",
+            overflowY: "auto",
+            zIndex: 100,
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeForm();
+          }}
+        >
+          <form
+            onSubmit={save}
             style={{
-              borderBottom:
-                "1px solid var(--surface2)",
+              width: "100%",
+              maxWidth: 640,
+              background: "var(--surface)",
+              border: "1px solid var(--surface2)",
+              borderRadius: 18,
+              padding: 22,
               display: "flex",
-              gap: 22,
-              marginBottom: 18,
+              flexDirection: "column",
+              gap: 16,
             }}
           >
-            {[
-              {
-                id: "desc",
-                label: "توضیحات",
-              },
-              {
-                id: "specs",
-                label: "مشخصات",
-              },
-              {
-                id: "reviews",
-                label: `نظرات (${reviews.length})`,
-              },
-            ].map((t) => (
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <h2 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 17, color: "var(--text-hi)" }}>
+                {form.id ? "ویرایش محصول" : "افزودن محصول جدید"}
+              </h2>
               <button
-                key={t.id}
-                onClick={() =>
-                  setTab(t.id)
-                }
+                type="button"
+                onClick={closeForm}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <Field label="نام محصول *">
+                <input
+                  style={inputStyle}
+                  value={form.name}
+                  onChange={(e) => update("name", e.target.value)}
+                />
+              </Field>
+              <Field label="دسته‌بندی">
+                <input
+                  style={inputStyle}
+                  value={form.category}
+                  onChange={(e) => update("category", e.target.value)}
+                />
+              </Field>
+              <Field label="برند">
+                <input
+                  style={inputStyle}
+                  value={form.brand}
+                  onChange={(e) => update("brand", e.target.value)}
+                />
+              </Field>
+              <Field label="برچسب (مثلا: پرفروش)">
+                <input
+                  style={inputStyle}
+                  value={form.badge}
+                  onChange={(e) => update("badge", e.target.value)}
+                />
+              </Field>
+              <Field label="قیمت (تومان)">
+                <input
+                  type="number"
+                  style={inputStyle}
+                  value={form.price}
+                  onChange={(e) => update("price", e.target.value)}
+                />
+              </Field>
+              <Field label="درصد تخفیف">
+                <input
+                  type="number"
+                  style={inputStyle}
+                  value={form.discount}
+                  onChange={(e) => update("discount", e.target.value)}
+                />
+              </Field>
+              <Field label="امتیاز (از ۵)">
+                <input
+                  type="number"
+                  step="0.1"
+                  style={inputStyle}
+                  value={form.rating}
+                  onChange={(e) => update("rating", e.target.value)}
+                />
+              </Field>
+              <Field label="تعداد نظرات">
+                <input
+                  type="number"
+                  style={inputStyle}
+                  value={form.reviewsCount}
+                  onChange={(e) => update("reviewsCount", e.target.value)}
+                />
+              </Field>
+            </div>
+
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontFamily: "Vazirmatn",
+                fontSize: 13,
+                color: "var(--text-hi)",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={form.available}
+                onChange={(e) => update("available", e.target.checked)}
+              />
+              موجود در انبار
+            </label>
+
+            <Field label="توضیحات محصول">
+              <textarea
+                style={{ ...inputStyle, minHeight: 90, resize: "vertical" }}
+                value={form.description}
+                onChange={(e) => update("description", e.target.value)}
+              />
+            </Field>
+
+            {/* تصاویر */}
+            <div>
+              <label style={labelStyle}>تصاویر محصول</label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {form.images.map((url, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      position: "relative",
+                      width: 64,
+                      height: 64,
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      border: "1px solid var(--surface2)",
+                    }}
+                  >
+                    <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      style={{
+                        position: "absolute",
+                        top: 2,
+                        left: 2,
+                        background: "rgba(0,0,0,0.6)",
+                        border: "none",
+                        borderRadius: 6,
+                        width: 18,
+                        height: 18,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: "#fff",
+                      }}
+                    >
+                      <X size={11} />
+                    </button>
+                  </div>
+                ))}
+
+                <label
+                  style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 10,
+                    border: "1px dashed var(--surface2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    color: "var(--text-mut)",
+                  }}
+                >
+                  {uploadingImg ? (
+                    <Loader2 size={18} className="spin" />
+                  ) : (
+                    <UploadCloud size={18} />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => addImageFile(e.target.files?.[0])}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* رنگ‌ها */}
+            <div>
+              <label style={labelStyle}>رنگ‌های موجود</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {form.colors.map((c, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <input
+                      style={{ ...inputStyle, flex: 1 }}
+                      placeholder="نام رنگ"
+                      value={c.name}
+                      onChange={(e) => updateColor(idx, "name", e.target.value)}
+                    />
+                    <input
+                      type="color"
+                      value={c.hex || "#000000"}
+                      onChange={(e) => updateColor(idx, "hex", e.target.value)}
+                      style={{ width: 40, height: 38, border: "none", borderRadius: 8, background: "none", cursor: "pointer" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeColor(idx)}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addColor}
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "var(--surface2)",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 12,
+                    color: "var(--text-hi)",
+                    cursor: "pointer",
+                  }}
+                >
+                  + افزودن رنگ
+                </button>
+              </div>
+            </div>
+
+            {/* مشخصات فنی */}
+            <div>
+              <label style={labelStyle}>مشخصات فنی</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {form.specs.map((s, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <input
+                      style={{ ...inputStyle, flex: 1 }}
+                      placeholder="عنوان (مثلا: حجم مخزن)"
+                      value={s.label}
+                      onChange={(e) => updateSpec(idx, "label", e.target.value)}
+                    />
+                    <input
+                      style={{ ...inputStyle, flex: 1 }}
+                      placeholder="مقدار"
+                      value={s.value}
+                      onChange={(e) => updateSpec(idx, "value", e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSpec(idx)}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addSpec}
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "var(--surface2)",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 12,
+                    color: "var(--text-hi)",
+                    cursor: "pointer",
+                  }}
+                >
+                  + افزودن مشخصه
+                </button>
+              </div>
+            </div>
+
+            {saveError && (
+              <div
                 style={{
-                  background: "none",
-                  border: "none",
-                  paddingBottom: 12,
+                  background: "#ff3b3b18",
+                  color: "#ff6b6b",
+                  borderRadius: 10,
+                  padding: "10px 14px",
+                  fontSize: 13,
                   fontFamily: "Vazirmatn",
-                  fontWeight:
-                    tab === t.id
-                      ? 700
-                      : 500,
-                  fontSize: 13.5,
-                  color:
-                    tab === t.id
-                      ? "var(--text-hi)"
-                      : "var(--text-mut)",
-                  borderBottom:
-                    tab === t.id
-                      ? "2px solid #2F86FF"
-                      : "2px solid transparent",
+                }}
+              >
+                {saveError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={closeForm}
+                style={{
+                  background: "var(--surface2)",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "11px 20px",
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--text-hi)",
                   cursor: "pointer",
                 }}
               >
-                {t.label}
+                انصراف
               </button>
-            ))}
-          </div>
-
-          {tab === "desc" && (
-            <p
-              style={{
-                color: "var(--text-lo)",
-                fontSize: 14,
-                lineHeight: 2,
-              }}
-            >
-              {product.description}
-            </p>
-          )}
-
-          {tab === "specs" && (
-            <div>
-              {product.specs.map((s, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    padding: "10px 0",
-                    borderBottom:
-                      "1px solid var(--surface2)",
-                    fontSize: 13.5,
-                  }}
-                >
-                  <span
-                    style={{
-                      color:
-                        "var(--text-mut)",
-                    }}
-                  >
-                    {s.k}
-                  </span>
-
-                  <span
-                    style={{
-                      fontWeight: 700,
-                    }}
-                  >
-                    {s.v}
-                  </span>
-                </div>
-              ))}
-
-              {product.colors?.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    padding: "10px 0",
-                    borderBottom:
-                      "1px solid var(--surface2)",
-                    fontSize: 13.5,
-                  }}
-                >
-                  <span
-                    style={{
-                      color:
-                        "var(--text-mut)",
-                    }}
-                  >
-                    گزینه‌ی انتخاب‌شده
-                  </span>
-
-                  <span
-                    style={{
-                      fontWeight: 700,
-                    }}
-                  >
-                    {selectedColor?.name}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tab === "reviews" && (
-            <div>
-              <ReviewForm
-                onSubmit={addReview}
-              />
-
-              <div
+              <button
+                type="submit"
+                disabled={saving}
                 style={{
+                  background: "#2F86FF",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "11px 24px",
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "#fff",
+                  cursor: saving ? "default" : "pointer",
+                  opacity: saving ? 0.6 : 1,
                   display: "flex",
-                  flexDirection:
-                    "column",
-                  gap: 14,
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                {reviews.length === 0 && (
-                  <p
-                    style={{
-                      color:
-                        "var(--text-mut)",
-                      fontSize: 13,
-                    }}
-                  >
-                    هنوز نظری ثبت نشده. اولین نفر باش!
-                  </p>
-                )}
-
-                {reviews.map((r, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      background:
-                        "var(--surface)",
-                      borderRadius: 12,
-                      padding: 14,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent:
-                          "space-between",
-                        marginBottom: 6,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontWeight: 700,
-                          fontSize: 13.5,
-                        }}
-                      >
-                        {r.name}
-                      </span>
-
-                      <Stars
-                        rating={r.rating}
-                        size={12}
-                      />
-                    </div>
-
-                    <p
-                      style={{
-                        color:
-                          "var(--text-lo)",
-                        fontSize: 13,
-                      }}
-                    >
-                      {r.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                {saving && <Loader2 size={14} className="spin" />}
+                {form.id ? "ذخیره تغییرات" : "افزودن محصول"}
+              </button>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* =========================
-          Related Products
-      ========================= */}
-      {related.length > 0 && (
-        <div
-          style={{
-            marginTop: 60,
-          }}
-        >
-          <h2
-            style={{
-              fontFamily: "Vazirmatn",
-              fontWeight: 800,
-              fontSize: 20,
-              marginBottom: 20,
-            }}
-          >
-            محصولات مرتبط
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fill,minmax(190px,1fr))",
-              gap: 18,
-            }}
-          >
-            {related.map((p, i) => (
-              <Reveal
-                key={p.id}
-                delay={0.06 * i}
-              >
-                <ProductCard product={p} />
-              </Reveal>
-            ))}
-          </div>
+          </form>
         </div>
       )}
+
+      <style jsx>{`
+        .spin {
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
