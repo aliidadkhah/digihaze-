@@ -4,14 +4,14 @@ import { SITE_URL } from "@/lib/site";
 export default async function sitemap() {
   const products = await getProducts();
 
-  // =========================
-  // صفحات اصلی سایت
-  // =========================
+  // ============================================
+  // صفحات اصلی
+  // ============================================
 
   const staticPages = [
     {
       path: "",
-      priority: 1,
+      priority: 1.0,
       changeFrequency: "daily",
     },
     {
@@ -31,9 +31,9 @@ export default async function sitemap() {
     },
   ];
 
-  // =========================
+  // ============================================
   // صفحات دسته‌بندی
-  // =========================
+  // ============================================
 
   const categoryPages = [
     {
@@ -58,11 +58,11 @@ export default async function sitemap() {
     },
   ];
 
-  // =========================
-  // تبدیل صفحات ثابت به Sitemap
-  // =========================
+  // ============================================
+  // صفحات ثابت
+  // ============================================
 
-  const pages = [
+  const staticUrls = [
     ...staticPages,
     ...categoryPages,
   ].map((page) => ({
@@ -72,32 +72,38 @@ export default async function sitemap() {
     priority: page.priority,
   }));
 
-  // =========================
+  // ============================================
   // صفحات محصولات
-  // مستقیماً از Supabase
-  // =========================
+  // ============================================
 
-  const productPages = products
-    .filter((product) => product?.id)
+  const productUrls = products
+    .filter((product) => {
+      // فقط محصولاتی که ID معتبر دارند
+      if (!product?.id) return false;
+
+      // محصولات حذف‌شده وارد Sitemap نشوند
+      if (product.deleted === true) return false;
+
+      return true;
+    })
     .map((product) => ({
       url: `${SITE_URL}/product/${product.id}`,
 
-      // تاریخ آخرین ویرایش واقعی محصول
-      // از updated_at در Supabase
       lastModified: product.updated_at
         ? new Date(product.updated_at)
         : new Date(),
 
       changeFrequency: "weekly",
+
       priority: 0.8,
     }));
 
-  // =========================
+  // ============================================
   // Sitemap نهایی
-  // =========================
+  // ============================================
 
   return [
-    ...pages,
-    ...productPages,
+    ...staticUrls,
+    ...productUrls,
   ];
 }
