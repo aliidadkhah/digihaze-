@@ -52,6 +52,9 @@ function buildRow(body) {
     colors: Array.isArray(body.colors) ? body.colors : [],
     description: body.description?.trim() || "",
     specs: Array.isArray(body.specs) ? body.specs : [],
+    brand_description: body.brandDescription?.trim() || "",
+    brand_image: body.brandImage?.trim() || "",
+    qa: Array.isArray(body.qa) ? body.qa : [],
   };
 }
 
