@@ -348,7 +348,7 @@ export default function ProductContent({ product, related }) {
                   onClick={() =>
                     setImgIdx(
                       (i) =>
-                                                (i -
+                        (i -
                           1 +
                           product.images.length) %
                         product.images.length
@@ -697,7 +697,8 @@ export default function ProductContent({ product, related }) {
                 : "افزودن به سبد خرید"}
             </button>
           </div>
-                    {/* =========================
+
+          {/* =========================
               Tabs
           ========================= */}
           <div
@@ -776,7 +777,9 @@ export default function ProductContent({ product, related }) {
 
           {tab === "specs" && (
             <div>
-              {product.specs.map((s, i) => (
+              {product.specs
+                .filter((s) => (s.value || s.v || "").trim())
+                .map((s, i) => (
                 <div
                   key={i}
                   style={{
@@ -795,7 +798,7 @@ export default function ProductContent({ product, related }) {
                         "var(--text-mut)",
                     }}
                   >
-                    {s.k}
+                    {s.label || s.k}
                   </span>
 
                   <span
@@ -803,41 +806,11 @@ export default function ProductContent({ product, related }) {
                       fontWeight: 700,
                     }}
                   >
-                    {s.v}
+                    {s.value || s.v}
                   </span>
                 </div>
               ))}
 
-              {product.colors?.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    padding: "10px 0",
-                    borderBottom:
-                      "1px solid var(--surface2)",
-                    fontSize: 13.5,
-                  }}
-                >
-                  <span
-                    style={{
-                      color:
-                        "var(--text-mut)",
-                    }}
-                  >
-                    گزینه‌ی انتخاب‌شده
-                  </span>
-
-                  <span
-                    style={{
-                      fontWeight: 700,
-                    }}
-                  >
-                    {selectedColor?.name}
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
