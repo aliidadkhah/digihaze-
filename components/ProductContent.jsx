@@ -348,7 +348,7 @@ export default function ProductContent({ product, related }) {
                   onClick={() =>
                     setImgIdx(
                       (i) =>
-                        (i -
+                                                (i -
                           1 +
                           product.images.length) %
                         product.images.length
@@ -697,8 +697,7 @@ export default function ProductContent({ product, related }) {
                 : "افزودن به سبد خرید"}
             </button>
           </div>
-
-          {/* =========================
+                    {/* =========================
               Tabs
           ========================= */}
           <div
@@ -717,11 +716,19 @@ export default function ProductContent({ product, related }) {
               },
               {
                 id: "specs",
-                label: "مشخصات",
+                label: "توضیحات تکمیلی",
+              },
+              {
+                id: "brand",
+                label: "درباره برند",
               },
               {
                 id: "reviews",
                 label: `نظرات (${reviews.length})`,
+              },
+              {
+                id: "qa",
+                label: `سوال و جواب (${(product.qa || []).length})`,
               },
             ].map((t) => (
               <button
@@ -831,6 +838,104 @@ export default function ProductContent({ product, related }) {
                   </span>
                 </div>
               )}
+            </div>
+          )}
+
+          {tab === "brand" && (
+            <div>
+              {product.brandImage && (
+                <div
+                  style={{
+                    borderRadius: 14,
+                    overflow: "hidden",
+                    marginBottom: 16,
+                    maxWidth: 420,
+                  }}
+                >
+                  <img
+                    src={product.brandImage}
+                    alt={product.brand}
+                    style={{
+                      width: "100%",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              )}
+
+              {product.brandDescription ? (
+                <p
+                  style={{
+                    color: "var(--text-lo)",
+                    fontSize: 14,
+                    lineHeight: 2,
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {product.brandDescription}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    color: "var(--text-mut)",
+                    fontSize: 13,
+                  }}
+                >
+                  هنوز توضیحی درباره‌ی برند {product.brand} ثبت نشده.
+                </p>
+              )}
+            </div>
+          )}
+
+          {tab === "qa" && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+              }}
+            >
+              {(product.qa || []).length === 0 && (
+                <p
+                  style={{
+                    color: "var(--text-mut)",
+                    fontSize: 13,
+                  }}
+                >
+                  هنوز سوالی برای این محصول ثبت نشده.
+                </p>
+              )}
+
+              {(product.qa || []).map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: "var(--surface)",
+                    borderRadius: 12,
+                    padding: 14,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      fontSize: 13.5,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {item.question}
+                  </div>
+
+                  <p
+                    style={{
+                      color: "var(--text-lo)",
+                      fontSize: 13,
+                      lineHeight: 1.9,
+                    }}
+                  >
+                    {item.answer}
+                  </p>
+                </div>
+              ))}
             </div>
           )}
 
