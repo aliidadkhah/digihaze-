@@ -1,32 +1,41 @@
 import ShopContent from "@/components/ShopContent";
 import { CATEGORIES } from "@/lib/data";
 import { notFound } from "next/navigation";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
+
+// =====================================================
+// SEO دسته‌بندی‌ها
+// =====================================================
 
 const CATEGORY_SEO = {
   pod: {
     title: "خرید پاد ویپ | قیمت و مشخصات انواع پاد",
     description:
-      "خرید انواع پاد ویپ با بررسی مشخصات، قیمت و محصولات موجود در دیجی هیز. مشاهده و مقایسه پادهای مختلف.",
+      "خرید انواع پاد ویپ با بررسی مشخصات، قیمت و مدل‌های مختلف در دیجی هیز. مشاهده محصولات موجود و انتخاب پاد مناسب.",
   },
 
   salt: {
     title: "خرید سالت نیکوتین | قیمت انواع سالت ویپ",
     description:
-      "خرید سالت نیکوتین با تنوع طعم و برند. مشاهده قیمت، مشخصات و محصولات موجود سالت ویپ در دیجی هیز.",
+      "خرید سالت نیکوتین با تنوع طعم و برند. مشاهده قیمت، مشخصات و مدل‌های مختلف سالت ویپ در دیجی هیز.",
   },
 
   device: {
     title: "خرید دستگاه ویپ | قیمت و مشخصات دستگاه ویپ",
     description:
-      "خرید دستگاه ویپ با مشاهده مشخصات، قیمت و مدل‌های مختلف. انتخاب و مقایسه انواع دستگاه ویپ در دیجی هیز.",
+      "خرید دستگاه ویپ با مشاهده مشخصات، قیمت و مدل‌های مختلف. مقایسه و انتخاب دستگاه ویپ مناسب در دیجی هیز.",
   },
 
   cartridge: {
     title: "خرید کارتریج ویپ | قیمت و مشخصات کارتریج",
     description:
-      "خرید انواع کارتریج ویپ با مشاهده قیمت و مشخصات محصولات. بررسی مدل‌های مختلف کارتریج در دیجی هیز.",
+      "خرید انواع کارتریج ویپ با مشاهده قیمت، مشخصات و مدل‌های مختلف. بررسی و انتخاب کارتریج مناسب در دیجی هیز.",
   },
 };
+
+// =====================================================
+// Metadata
+// =====================================================
 
 export async function generateMetadata({ params }) {
   const { category } = await params;
@@ -35,34 +44,97 @@ export async function generateMetadata({ params }) {
 
   if (!seo) {
     return {
-      title: "فروشگاه | دیجی هیز",
+      title: `فروشگاه | ${SITE_NAME}`,
       description:
-        "فروشگاه دیجی هیز؛ مشاهده محصولات و دسته‌بندی‌های فروشگاه.",
+        "مشاهده محصولات و دسته‌بندی‌های فروشگاه دیجی هیز.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
+  const categoryUrl =
+    `${SITE_URL}/shop/${category}`;
+
   return {
     title: seo.title,
+
     description: seo.description,
 
+    keywords: [
+      seo.title,
+      `خرید ${category}`,
+      `قیمت ${category}`,
+      "دیجی هیز",
+      "فروشگاه ویپ",
+      "فروشگاه پاد",
+    ],
+
     alternates: {
-      canonical: `https://digihaze.ir/shop/${category}`,
+      canonical: categoryUrl,
     },
 
     openGraph: {
-      title: seo.title,
-      description: seo.description,
-      url: `https://digihaze.ir/shop/${category}`,
-      siteName: "دیجی هیز",
-      locale: "fa_IR",
       type: "website",
+
+      locale: "fa_IR",
+
+      url: categoryUrl,
+
+      siteName: SITE_NAME,
+
+      title: seo.title,
+
+      description: seo.description,
+
+      images: [
+        {
+          url: `${SITE_URL}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: seo.title,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+
+      title: seo.title,
+
+      description: seo.description,
+
+      images: [
+        `${SITE_URL}/og-image.jpg`,
+      ],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
   };
 }
 
-export default async function CategoryShopPage({ params }) {
+// =====================================================
+// Category Page
+// =====================================================
+
+export default async function CategoryShopPage({
+  params,
+}) {
   const { category } = await params;
 
+  // بررسی معتبر بودن دسته‌بندی
   const exists = CATEGORIES.some(
     (item) => item.id === category
   );
@@ -71,11 +143,78 @@ export default async function CategoryShopPage({ params }) {
     notFound();
   }
 
+  const seo = CATEGORY_SEO[category];
+
+  const categoryUrl =
+    `${SITE_URL}/shop/${category}`;
+
+  // ===================================================
+  // Breadcrumb Schema
+  // ===================================================
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+
+    "@type": "BreadcrumbList",
+
+    itemListElement: [
+      {
+        "@type": "ListItem",
+
+        position: 1,
+
+        name: "صفحه اصلی",
+
+        item: SITE_URL,
+      },
+
+      {
+        "@type": "ListItem",
+
+        position: 2,
+
+        name: "فروشگاه",
+
+        item: `${SITE_URL}/shop`,
+      },
+
+      {
+        "@type": "ListItem",
+
+        position: 3,
+
+        name: seo?.title || category,
+
+        item: categoryUrl,
+      },
+    ],
+  };
+
   return (
-    <ShopContent
-      initialCategory={category}
-      initialSearch=""
-      initialSub=""
-    />
+    <>
+      {/* =========================================
+          Breadcrumb Schema
+      ========================================== */}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html:
+            JSON.stringify(
+              breadcrumbSchema
+            ),
+        }}
+      />
+
+      {/* =========================================
+          محتوای فروشگاه
+      ========================================== */}
+
+      <ShopContent
+        initialCategory={category}
+        initialSearch=""
+        initialSub=""
+      />
+    </>
   );
 }
