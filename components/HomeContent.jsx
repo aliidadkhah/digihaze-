@@ -14,6 +14,7 @@ import {
 
 import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
+import FaqSection from "./FaqSection";
 import { CATEGORIES } from "@/lib/data";
 import { useProducts } from "./ProductsProvider";
 
@@ -585,6 +586,12 @@ export default function HomeContent() {
           ))}
         </div>
       </section>
+
+      {/* =========================
+          FAQ
+      ========================= */}
+
+      <FaqSection />
 
       {/* =========================
           RESPONSIVE
