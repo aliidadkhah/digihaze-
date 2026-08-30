@@ -9,27 +9,79 @@ import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 const CATEGORY_SEO = {
   pod: {
+    name: "پاد ویپ",
+
     title: "خرید پاد ویپ | قیمت و مشخصات انواع پاد",
+
     description:
-      "خرید انواع پاد ویپ با بررسی مشخصات، قیمت و مدل‌های مختلف در دیجی هیز. مشاهده محصولات موجود و انتخاب پاد مناسب.",
+      "خرید انواع پاد ویپ از دیجی هیز؛ مشاهده قیمت، مشخصات، برندها و مدل‌های مختلف پاد و انتخاب محصول مناسب.",
+
+    keywords: [
+      "خرید پاد ویپ",
+      "خرید پاد",
+      "قیمت پاد",
+      "قیمت پاد ویپ",
+      "انواع پاد ویپ",
+      "پاد ویپ",
+      "فروش پاد",
+    ],
   },
 
   salt: {
-    title: "خرید سالت نیکوتین | قیمت انواع سالت ویپ",
+    name: "سالت نیکوتین",
+
+    title: "خرید سالت نیکوتین | قیمت و انواع سالت ویپ",
+
     description:
-      "خرید سالت نیکوتین با تنوع طعم و برند. مشاهده قیمت، مشخصات و مدل‌های مختلف سالت ویپ در دیجی هیز.",
+      "خرید سالت نیکوتین از دیجی هیز؛ مشاهده انواع طعم، برند، نیکوتین، قیمت و مشخصات سالت ویپ و انتخاب محصول مناسب.",
+
+    keywords: [
+      "خرید سالت نیکوتین",
+      "خرید سالت ویپ",
+      "قیمت سالت نیکوتین",
+      "قیمت سالت",
+      "انواع سالت نیکوتین",
+      "سالت ویپ",
+      "فروش سالت نیکوتین",
+    ],
   },
 
   device: {
-    title: "خرید دستگاه ویپ | قیمت و مشخصات دستگاه ویپ",
+    name: "دستگاه ویپ",
+
+    title: "خرید دستگاه ویپ | قیمت و مشخصات انواع ویپ",
+
     description:
-      "خرید دستگاه ویپ با مشاهده مشخصات، قیمت و مدل‌های مختلف. مقایسه و انتخاب دستگاه ویپ مناسب در دیجی هیز.",
+      "خرید دستگاه ویپ از دیجی هیز؛ مشاهده مدل‌ها، مشخصات فنی، قیمت و محصولات موجود و مقایسه انواع دستگاه ویپ.",
+
+    keywords: [
+      "خرید دستگاه ویپ",
+      "خرید ویپ",
+      "قیمت دستگاه ویپ",
+      "قیمت ویپ",
+      "انواع دستگاه ویپ",
+      "دستگاه ویپ",
+      "فروش ویپ",
+    ],
   },
 
   cartridge: {
-    title: "خرید کارتریج ویپ | قیمت و مشخصات کارتریج",
+    name: "کارتریج ویپ",
+
+    title: "خرید کارتریج ویپ | قیمت و مشخصات انواع کارتریج",
+
     description:
-      "خرید انواع کارتریج ویپ با مشاهده قیمت، مشخصات و مدل‌های مختلف. بررسی و انتخاب کارتریج مناسب در دیجی هیز.",
+      "خرید انواع کارتریج ویپ از دیجی هیز؛ مشاهده قیمت، مشخصات، مدل‌های مختلف و کارتریج سازگار با دستگاه‌های مختلف.",
+
+    keywords: [
+      "خرید کارتریج ویپ",
+      "خرید کارتریج",
+      "قیمت کارتریج ویپ",
+      "قیمت کارتریج",
+      "انواع کارتریج ویپ",
+      "کارتریج پاد",
+      "فروش کارتریج",
+    ],
   },
 };
 
@@ -45,8 +97,10 @@ export async function generateMetadata({ params }) {
   if (!seo) {
     return {
       title: `فروشگاه | ${SITE_NAME}`,
+
       description:
         "مشاهده محصولات و دسته‌بندی‌های فروشگاه دیجی هیز.",
+
       robots: {
         index: false,
         follow: false,
@@ -62,14 +116,7 @@ export async function generateMetadata({ params }) {
 
     description: seo.description,
 
-    keywords: [
-      seo.title,
-      `خرید ${category}`,
-      `قیمت ${category}`,
-      "دیجی هیز",
-      "فروشگاه ویپ",
-      "فروشگاه پاد",
-    ],
+    keywords: seo.keywords,
 
     alternates: {
       canonical: categoryUrl,
@@ -112,6 +159,7 @@ export async function generateMetadata({ params }) {
 
     robots: {
       index: true,
+
       follow: true,
 
       googleBot: {
@@ -183,11 +231,45 @@ export default async function CategoryShopPage({
 
         position: 3,
 
-        name: seo?.title || category,
+        name: seo?.name || category,
 
         item: categoryUrl,
       },
     ],
+  };
+
+  // ===================================================
+  // CollectionPage Schema
+  // ===================================================
+
+  const collectionSchema = {
+    "@context": "https://schema.org",
+
+    "@type": "CollectionPage",
+
+    "@id": `${categoryUrl}#collection`,
+
+    name:
+      seo?.title ||
+      `خرید ${category}`,
+
+    description:
+      seo?.description ||
+      `مشاهده محصولات ${category} در ${SITE_NAME}.`,
+
+    url: categoryUrl,
+
+    isPartOf: {
+      "@type": "WebSite",
+
+      "@id": `${SITE_URL}/#website`,
+
+      name: SITE_NAME,
+
+      url: SITE_URL,
+    },
+
+    inLanguage: "fa-IR",
   };
 
   return (
@@ -207,14 +289,50 @@ export default async function CategoryShopPage({
       />
 
       {/* =========================================
-          محتوای فروشگاه
+          CollectionPage Schema
       ========================================== */}
 
-      <ShopContent
-        initialCategory={category}
-        initialSearch=""
-        initialSub=""
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html:
+            JSON.stringify(
+              collectionSchema
+            ),
+        }}
       />
+
+      {/* =========================================
+          Category Content
+      ========================================== */}
+
+      <main
+        dir="rtl"
+        aria-labelledby="category-page-title"
+      >
+        <h1
+          id="category-page-title"
+          style={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            padding: 0,
+            margin: "-1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        >
+          {seo?.title || `خرید ${category}`}
+        </h1>
+
+        <ShopContent
+          initialCategory={category}
+          initialSearch=""
+          initialSub=""
+        />
+      </main>
     </>
   );
 }
