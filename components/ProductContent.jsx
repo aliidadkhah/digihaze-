@@ -524,7 +524,7 @@ export default function ProductContent({ product, related }) {
                     fontSize: 14,
                   }}
                 >
-                  رنگ:
+                  گزینه:
                 </span>
 
                 <span
@@ -819,7 +819,7 @@ export default function ProductContent({ product, related }) {
                         "var(--text-mut)",
                     }}
                   >
-                    رنگ انتخاب‌شده
+                    گزینه‌ی انتخاب‌شده
                   </span>
 
                   <span
