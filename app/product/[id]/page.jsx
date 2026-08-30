@@ -13,23 +13,38 @@ import {
 export const dynamic = "force-dynamic";
 
 // =====================================================
-// ساخت URL تصویر
+// ساخت URL مطمئن برای تصاویر
 // =====================================================
 
 function getImageUrl(image) {
-  if (!image) return null;
-
-  if (image.startsWith("http://")) {
-    return image;
+  if (!image || typeof image !== "string") {
+    return null;
   }
 
-  if (image.startsWith("https://")) {
+  if (
+    image.startsWith("http://") ||
+    image.startsWith("https://")
+  ) {
     return image;
   }
 
   return `${SITE_URL}${
     image.startsWith("/") ? "" : "/"
   }${image}`;
+}
+
+// =====================================================
+// تبدیل متن به رشته امن
+// =====================================================
+
+function cleanText(value) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 // =====================================================
@@ -69,26 +84,24 @@ export async function generateMetadata({ params }) {
   const priceText = money(price);
 
   // ---------------------------------------------------
-  // عنوان
+  // عنوان صفحه
   // ---------------------------------------------------
 
   const pageTitle =
     `خرید ${product.name} | قیمت ${product.name}`;
 
   // ---------------------------------------------------
-  // توضیحات متا
+  // توضیحات Meta
   // ---------------------------------------------------
 
-  const description = (
+  const description = cleanText(
     `خرید ${product.name} از ${SITE_NAME} با قیمت مناسب. ` +
-    `مشاهده مشخصات، تصاویر، برند، قیمت و وضعیت موجودی ${product.name}. ` +
-    `قیمت فعلی: ${priceText}`
-  )
-    .replace(/\s+/g, " ")
-    .slice(0, 160);
+      `مشاهده مشخصات، تصاویر، برند، قیمت و وضعیت موجودی ${product.name}. ` +
+      `قیمت فعلی: ${priceText}`
+  ).slice(0, 160);
 
   // ---------------------------------------------------
-  // URL محصول
+  // URL
   // ---------------------------------------------------
 
   const productUrl =
@@ -98,14 +111,14 @@ export async function generateMetadata({ params }) {
   // تصویر اصلی
   // ---------------------------------------------------
 
-  const image =
+  const firstImage =
     Array.isArray(product.images) &&
     product.images.length > 0
       ? product.images[0]
       : "/og-image.jpg";
 
   const imageUrl =
-    getImageUrl(image);
+    getImageUrl(firstImage);
 
   // ---------------------------------------------------
   // Metadata
@@ -125,7 +138,9 @@ export async function generateMetadata({ params }) {
       "خرید ویپ",
       "خرید سالت نیکوتین",
       "خرید کارتریج",
-      "دیجی هیز",
+      "فروشگاه ویپ",
+      "فروشگاه پاد",
+      SITE_NAME,
     ].filter(Boolean),
 
     alternates: {
@@ -219,14 +234,24 @@ export default async function ProductPage({
     await getRelated(product);
 
   // ===================================================
-  // قیمت نهایی
+  // قیمت
   // ===================================================
 
   const finalPrice =
     Number(discountedPrice(product)) || 0;
 
-  // سایت با تومان کار می‌کند.
-  // Schema.org برای IRR به ریال نیاز دارد.
+  /*
+   * قیمت سایت بر اساس تومان است.
+   *
+   * Schema.org برای priceCurrency = IRR
+   * قیمت را بر اساس ریال انتظار دارد.
+   *
+   * بنابراین:
+   *
+   * 100000 تومان
+   * =
+   * 1000000 ریال
+   */
 
   const priceInRial =
     finalPrice * 10;
@@ -235,10 +260,13 @@ export default async function ProductPage({
   // موجودی
   // ===================================================
 
+  const isAvailable =
+    product.available !== false;
+
   const availability =
-    product.available === false
-      ? "https://schema.org/OutOfStock"
-      : "https://schema.org/InStock";
+    isAvailable
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
 
   // ===================================================
   // تصاویر
@@ -252,7 +280,6 @@ export default async function ProductPage({
           .filter(Boolean)
       : [];
 
-  // اگر تصویر نداشت
   if (imageUrls.length === 0) {
     imageUrls.push(
       `${SITE_URL}/og-image.jpg`
@@ -267,47 +294,206 @@ export default async function ProductPage({
     `${SITE_URL}/product/${product.id}`;
 
   // ===================================================
+  // توضیحات محصول
+  // ===================================================
+
+  const productDescription =
+    cleanText(
+      product.description ||
+        `خرید ${product.name} از ${SITE_NAME}.`
+    );
+
+  // ===================================================
+  // Review های معتبر
+  // ===================================================
+
+  const reviews =
+    Array.isArray(product.reviews)
+      ? product.reviews
+          .filter(Boolean)
+          .filter((review) => {
+            if (!review) return false;
+
+            const rating =
+              Number(
+                review.rating ??
+                  review.reviewRating ??
+                  review.score
+              );
+
+            const text =
+              cleanText(
+                review.text ??
+                  review.reviewBody ??
+                  review.comment
+              );
+
+            const name =
+              cleanText(
+                review.name ??
+                  review.author ??
+                  review.userName ??
+                  "کاربر"
+              );
+
+            return (
+              rating >= 1 &&
+              rating <= 5 &&
+              text &&
+              name
+            );
+          })
+      : [];
+
+  // ===================================================
+  // Review Schema
+  // ===================================================
+
+  const reviewSchema =
+    reviews.map((review) => {
+      const rating =
+        Number(
+          review.rating ??
+            review.reviewRating ??
+            review.score
+        );
+
+      const reviewBody =
+        cleanText(
+          review.text ??
+            review.reviewBody ??
+            review.comment
+        );
+
+      const authorName =
+        cleanText(
+          review.name ??
+            review.author ??
+            review.userName ??
+            "کاربر"
+        );
+
+      const datePublished =
+        review.datePublished ??
+        review.created_at ??
+        review.createdAt ??
+        null;
+
+      return {
+        "@type": "Review",
+
+        author: {
+          "@type": "Person",
+          name: authorName,
+        },
+
+        reviewRating: {
+          "@type": "Rating",
+
+          ratingValue: rating,
+
+          bestRating: 5,
+
+          worstRating: 1,
+        },
+
+        reviewBody,
+
+        ...(datePublished
+          ? {
+              datePublished:
+                String(datePublished).slice(
+                  0,
+                  10
+                ),
+            }
+          : {}),
+      };
+    });
+
+  // ===================================================
+  // Aggregate Rating
+  // ===================================================
+
+  /*
+   * فقط وقتی AggregateRating ایجاد می‌کنیم
+   * که واقعاً Review معتبر داشته باشیم.
+   *
+   * این کار از ایجاد Rating ساختگی
+   * برای محصول بدون نظر جلوگیری می‌کند.
+   */
+
+  const aggregateRating =
+    reviews.length > 0 &&
+    Number(product.rating) > 0
+      ? {
+          "@type":
+            "AggregateRating",
+
+          ratingValue:
+            Number(product.rating),
+
+          bestRating: 5,
+
+          worstRating: 1,
+
+          reviewCount:
+            reviews.length,
+        }
+      : null;
+
+  // ===================================================
   // Product Schema
   // ===================================================
 
   const productSchema = {
-    "@context": "https://schema.org",
+    "@context":
+      "https://schema.org",
 
-    "@type": "Product",
+    "@type":
+      "Product",
 
     "@id":
       `${productUrl}#product`,
 
-    name: product.name,
+    name:
+      product.name,
 
-    url: productUrl,
+    url:
+      productUrl,
 
-    image: imageUrls,
+    image:
+      imageUrls,
 
     description:
-      product.description || "",
+      productDescription,
 
     ...(product.brand
       ? {
           brand: {
             "@type": "Brand",
 
-            name: product.brand,
+            name:
+              product.brand,
           },
         }
       : {}),
 
     offers: {
-      "@type": "Offer",
+      "@type":
+        "Offer",
 
       "@id":
         `${productUrl}#offer`,
 
-      url: productUrl,
+      url:
+        productUrl,
 
-      priceCurrency: "IRR",
+      priceCurrency:
+        "IRR",
 
-      price: priceInRial,
+      price:
+        priceInRial,
 
       availability,
 
@@ -318,33 +504,24 @@ export default async function ProductPage({
         "@type":
           "Organization",
 
-        name: SITE_NAME,
+        name:
+          SITE_NAME,
 
-        url: SITE_URL,
+        url:
+          SITE_URL,
       },
     },
 
-    // =================================================
-    // امتیاز کلی محصول
-    // =================================================
-
-    ...(Number(product.reviewsCount) > 0 &&
-    Number(product.rating) > 0
+    ...(aggregateRating
       ? {
-          aggregateRating: {
-            "@type":
-              "AggregateRating",
+          aggregateRating,
+        }
+      : {}),
 
-            ratingValue:
-              Number(product.rating),
-
-            bestRating: 5,
-
-            worstRating: 1,
-
-            reviewCount:
-              Number(product.reviewsCount),
-          },
+    ...(reviewSchema.length > 0
+      ? {
+          review:
+            reviewSchema,
         }
       : {}),
   };
@@ -362,6 +539,9 @@ export default async function ProductPage({
       ? `/shop/${product.category}`
       : "/shop";
 
+  const categoryUrl =
+    `${SITE_URL}${categoryPath}`;
+
   const breadcrumbSchema = {
     "@context":
       "https://schema.org",
@@ -371,45 +551,55 @@ export default async function ProductPage({
 
     itemListElement: [
       {
-        "@type": "ListItem",
+        "@type":
+          "ListItem",
 
         position: 1,
 
-        name: "صفحه اصلی",
+        name:
+          "صفحه اصلی",
 
-        item: SITE_URL,
+        item:
+          SITE_URL,
       },
 
       {
-        "@type": "ListItem",
+        "@type":
+          "ListItem",
 
         position: 2,
 
-        name: "فروشگاه",
+        name:
+          "فروشگاه",
 
         item:
           `${SITE_URL}/shop`,
       },
 
       {
-        "@type": "ListItem",
+        "@type":
+          "ListItem",
 
         position: 3,
 
-        name: categoryName,
+        name:
+          categoryName,
 
         item:
-          `${SITE_URL}${categoryPath}`,
+          categoryUrl,
       },
 
       {
-        "@type": "ListItem",
+        "@type":
+          "ListItem",
 
         position: 4,
 
-        name: product.name,
+        name:
+          product.name,
 
-        item: productUrl,
+        item:
+          productUrl,
       },
     ],
   };
@@ -449,7 +639,7 @@ export default async function ProductPage({
       />
 
       {/* =========================================
-          محتوای صفحه محصول
+          Product Content
       ========================================== */}
 
       <ProductContent
