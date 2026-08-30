@@ -1,9 +1,6 @@
 import { getProducts } from "@/lib/products";
 import { SITE_URL } from "@/lib/site";
 
-// Sitemap همیشه اطلاعات فعلی محصولات Supabase را می‌گیرد
-export const dynamic = "force-dynamic";
-
 export default async function sitemap() {
   const PRODUCTS = await getProducts();
 
@@ -62,7 +59,7 @@ export default async function sitemap() {
   ];
 
   // =========================
-  // تبدیل صفحات ثابت به Sitemap
+  // ساخت صفحات ثابت
   // =========================
 
   const pages = [
@@ -79,15 +76,23 @@ export default async function sitemap() {
   // صفحات محصولات از Supabase
   // =========================
 
-  const productPages = PRODUCTS.map((product) => ({
-    url: `${SITE_URL}/product/${product.id}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  const productPages = PRODUCTS
+    .filter((product) => product?.id)
+    .map((product) => ({
+      url: `${SITE_URL}/product/${product.id}`,
+
+      // اگر updated_at داشته باشیم،
+      // تاریخ آخرین تغییر محصول را استفاده می‌کنیم.
+      lastModified: product.updated_at
+        ? new Date(product.updated_at)
+        : new Date(),
+
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
   // =========================
-  // خروجی نهایی Sitemap
+  // خروجی Sitemap
   // =========================
 
   return [
