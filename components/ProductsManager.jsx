@@ -15,6 +15,22 @@ import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage } from "@/lib/productImages";
 import { money } from "@/lib/data";
 
+const DEFAULT_SPEC_LABELS = [
+  "نوع دستگاه",
+  "برند",
+  "ابعاد",
+  "توان خروجی",
+  "باتری",
+  "نمایشگر",
+  "ظرفیت تانک",
+  "روش شارژ",
+  "کویل",
+  "نوع کارتریج",
+  "ضدآب",
+  "ضدضربه",
+  "رنگ",
+];
+
 const EMPTY_FORM = {
   id: null,
   name: "",
@@ -30,10 +46,19 @@ const EMPTY_FORM = {
   description: "",
   images: [],
   colors: [], // [{ name, hex }]
-  specs: [], // [{ label, value }]
+  specs: DEFAULT_SPEC_LABELS.map((label) => ({ label, value: "" })),
+  brandDescription: "",
+  brandImage: "",
+  qa: [], // [{ question, answer }]
 };
 
 function mapRowToForm(row) {
+  const existingSpecs = row.specs || [];
+  const existingLabels = existingSpecs.map((s) => s.label);
+  const missingPresets = DEFAULT_SPEC_LABELS.filter(
+    (label) => !existingLabels.includes(label)
+  ).map((label) => ({ label, value: "" }));
+
   return {
     id: row.id,
     name: row.name || "",
@@ -49,7 +74,10 @@ function mapRowToForm(row) {
     description: row.description || "",
     images: row.images || [],
     colors: row.colors || [],
-    specs: row.specs || [],
+    specs: [...existingSpecs, ...missingPresets],
+    brandDescription: row.brand_description || row.brandDescription || "",
+    brandImage: row.brand_image || row.brandImage || "",
+    qa: row.qa || [],
   };
 }
 
@@ -191,6 +219,38 @@ export default function ProductsManager() {
       form.specs.filter((_, i) => i !== idx)
     );
 
+  // ---------- عکس برند ----------
+  const [uploadingBrandImg, setUploadingBrandImg] = useState(false);
+
+  const setBrandImageFile = async (file) => {
+    if (!file) return;
+    setUploadingBrandImg(true);
+    try {
+      const url = await uploadProductImage(file);
+      if (url) update("brandImage", url);
+    } catch {
+      setSaveError("آپلود عکس برند ناموفق بود، دوباره امتحان کن");
+    } finally {
+      setUploadingBrandImg(false);
+    }
+  };
+
+  // ---------- سوال و جواب ----------
+  const addQa = () =>
+    update("qa", [...form.qa, { question: "", answer: "" }]);
+
+  const updateQa = (idx, key, value) =>
+    update(
+      "qa",
+      form.qa.map((q, i) => (i === idx ? { ...q, [key]: value } : q))
+    );
+
+  const removeQa = (idx) =>
+    update(
+      "qa",
+      form.qa.filter((_, i) => i !== idx)
+    );
+
   // ---------- ذخیره ----------
   const save = async (e) => {
     e.preventDefault();
@@ -288,7 +348,7 @@ export default function ProductsManager() {
         <div
           style={{
             background: "#ff3b3b18",
-            color: "#ff6b6b",
+                        color: "#ff6b6b",
             borderRadius: 10,
             padding: "12px 14px",
             fontSize: 13,
@@ -638,7 +698,7 @@ export default function ProductsManager() {
                   <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <input
                       style={{ ...inputStyle, flex: 1 }}
-                      placeholder="نام رنگ"
+                                            placeholder="نام رنگ"
                       value={c.name}
                       onChange={(e) => updateColor(idx, "name", e.target.value)}
                     />
@@ -681,29 +741,47 @@ export default function ProductsManager() {
             <div>
               <label style={labelStyle}>مشخصات فنی</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {form.specs.map((s, idx) => (
-                  <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input
-                      style={{ ...inputStyle, flex: 1 }}
-                      placeholder="عنوان (مثلا: حجم مخزن)"
-                      value={s.label}
-                      onChange={(e) => updateSpec(idx, "label", e.target.value)}
-                    />
-                    <input
-                      style={{ ...inputStyle, flex: 1 }}
-                      placeholder="مقدار"
-                      value={s.value}
-                      onChange={(e) => updateSpec(idx, "value", e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeSpec(idx)}
-                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
+                {form.specs.map((s, idx) => {
+                  const isPreset = DEFAULT_SPEC_LABELS.includes(s.label);
+                  return (
+                    <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      {isPreset ? (
+                        <div
+                          style={{
+                            ...inputStyle,
+                            flex: 1,
+                            background: "var(--surface2)",
+                            color: "var(--text-mut)",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          {s.label}
+                        </div>
+                      ) : (
+                        <input
+                          style={{ ...inputStyle, flex: 1 }}
+                          placeholder="عنوان (مثلا: حجم مخزن)"
+                          value={s.label}
+                          onChange={(e) => updateSpec(idx, "label", e.target.value)}
+                        />
+                      )}
+                      <input
+                        style={{ ...inputStyle, flex: 1 }}
+                        placeholder="مقدار"
+                        value={s.value}
+                        onChange={(e) => updateSpec(idx, "value", e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeSpec(idx)}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  );
+                })}
                 <button
                   type="button"
                   onClick={addSpec}
@@ -719,7 +797,151 @@ export default function ProductsManager() {
                     cursor: "pointer",
                   }}
                 >
-                  + افزودن مشخصه
+                  + افزودن مشخصه دلخواه
+                </button>
+              </div>
+            </div>
+
+            {/* درباره برند */}
+            <div>
+              <label style={labelStyle}>درباره برند</label>
+              <textarea
+                style={{ ...inputStyle, minHeight: 90, resize: "vertical", marginBottom: 10 }}
+                placeholder="متنی درباره برند این محصول بنویس..."
+                value={form.brandDescription}
+                onChange={(e) => update("brandDescription", e.target.value)}
+              />
+
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                {form.brandImage ? (
+                  <div
+                    style={{
+                      position: "relative",
+                      width: 64,
+                      height: 64,
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      border: "1px solid var(--surface2)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <img
+                      src={form.brandImage}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => update("brandImage", "")}
+                      style={{
+                        position: "absolute",
+                        top: 2,
+                        left: 2,
+                        background: "rgba(0,0,0,0.6)",
+                        border: "none",
+                        borderRadius: 6,
+                        width: 18,
+                        height: 18,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: "#fff",
+                      }}
+                    >
+                      <X size={11} />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 10,
+                      border: "1px dashed var(--surface2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "var(--text-mut)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {uploadingBrandImg ? (
+                      <Loader2 size={18} className="spin" />
+                    ) : (
+                      <UploadCloud size={18} />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => setBrandImageFile(e.target.files?.[0])}
+                    />
+                  </label>
+                )}
+                <span style={{ fontSize: 12, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                  عکسی که در تب «درباره برند» نمایش داده می‌شود
+                </span>
+              </div>
+            </div>
+
+            {/* سوال و جواب */}
+            <div>
+              <label style={labelStyle}>سوال و جواب</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {form.qa.map((q, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                      background: "var(--bg)",
+                      border: "1px solid var(--surface2)",
+                      borderRadius: 10,
+                      padding: 10,
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <input
+                        style={{ ...inputStyle, flex: 1 }}
+                        placeholder="سوال"
+                        value={q.question}
+                        onChange={(e) => updateQa(idx, "question", e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeQa(idx)}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                    <textarea
+                      style={{ ...inputStyle, minHeight: 56, resize: "vertical" }}
+                      placeholder="پاسخ"
+                      value={q.answer}
+                      onChange={(e) => updateQa(idx, "answer", e.target.value)}
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addQa}
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "var(--surface2)",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 12,
+                    color: "var(--text-hi)",
+                    cursor: "pointer",
+                  }}
+                >
+                  + افزودن سوال و جواب
                 </button>
               </div>
             </div>
