@@ -5,7 +5,7 @@ export default async function sitemap() {
   const products = await getProducts();
 
   // ============================================
-  // صفحات اصلی
+  // صفحات اصلی سایت
   // ============================================
 
   const staticPages = [
@@ -28,6 +28,21 @@ export default async function sitemap() {
       path: "/contact",
       priority: 0.6,
       changeFrequency: "monthly",
+    },
+    {
+      path: "/privacy",
+      priority: 0.4,
+      changeFrequency: "yearly",
+    },
+    {
+      path: "/terms",
+      priority: 0.4,
+      changeFrequency: "yearly",
+    },
+    {
+      path: "/return-policy",
+      priority: 0.4,
+      changeFrequency: "yearly",
     },
   ];
 
@@ -59,7 +74,7 @@ export default async function sitemap() {
   ];
 
   // ============================================
-  // صفحات ثابت
+  // URL صفحات ثابت
   // ============================================
 
   const staticUrls = [
@@ -73,16 +88,23 @@ export default async function sitemap() {
   }));
 
   // ============================================
-  // صفحات محصولات
+  // URL محصولات
   // ============================================
 
   const productUrls = products
     .filter((product) => {
-      // فقط محصولاتی که ID معتبر دارند
-      if (!product?.id) return false;
+      // محصول باید ID داشته باشد
+      if (!product?.id) {
+        return false;
+      }
 
-      // محصولات حذف‌شده وارد Sitemap نشوند
-      if (product.deleted === true) return false;
+      // محصول حذف‌شده وارد Sitemap نشود
+      if (product.deleted === true) {
+        return false;
+      }
+
+      // محصولات ناموجود هم فعلاً در Sitemap باقی می‌مانند
+      // چون صفحه محصول همچنان می‌تواند برای SEO ارزش داشته باشد
 
       return true;
     })
