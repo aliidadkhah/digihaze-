@@ -2,10 +2,10 @@ import ContactContent from "@/components/ContactContent";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 export const metadata = {
-  title: "تماس با دیجی هیز | ارتباط با فروشگاه",
+  title: "تماس با دیجی هیز | پشتیبانی و ارتباط با ما",
 
   description:
-    "راه‌های تماس با دیجی هیز شامل تلفن، ایمیل و فرم پیام. برای پرسش درباره محصولات، سفارش و خدمات فروشگاه با ما در ارتباط باشید.",
+    "راه‌های ارتباط با دیجی هیز؛ تماس با پشتیبانی، ارسال پیام و دریافت اطلاعات تماس فروشگاه پاد، ویپ، سالت نیکوتین و کارتریج.",
 
   alternates: {
     canonical: `${SITE_URL}/contact`,
@@ -13,18 +13,12 @@ export const metadata = {
 
   openGraph: {
     type: "website",
-
     locale: "fa_IR",
-
     url: `${SITE_URL}/contact`,
-
     siteName: SITE_NAME,
-
-    title: "تماس با دیجی هیز | ارتباط با فروشگاه",
-
+    title: "تماس با دیجی هیز | پشتیبانی و ارتباط با ما",
     description:
-      "راه‌های تماس با دیجی هیز شامل تلفن، ایمیل و فرم پیام.",
-
+      "راه‌های ارتباط با دیجی هیز و تماس با پشتیبانی فروشگاه.",
     images: [
       {
         url: `${SITE_URL}/og-image.jpg`,
@@ -37,15 +31,10 @@ export const metadata = {
 
   twitter: {
     card: "summary_large_image",
-
-    title: "تماس با دیجی هیز",
-
+    title: "تماس با دیجی هیز | پشتیبانی و ارتباط با ما",
     description:
-      "راه‌های ارتباط با فروشگاه دیجی هیز.",
-
-    images: [
-      `${SITE_URL}/og-image.jpg`,
-    ],
+      "راه‌های ارتباط با دیجی هیز و تماس با پشتیبانی فروشگاه.",
+    images: [`${SITE_URL}/og-image.jpg`],
   },
 
   robots: {
@@ -55,9 +44,6 @@ export const metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
     },
   },
 };
