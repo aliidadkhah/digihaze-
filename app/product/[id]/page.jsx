@@ -3,30 +3,79 @@ import ProductContent from "@/components/ProductContent";
 import { money, discountedPrice } from "@/lib/data";
 import { getProductById, getRelated } from "@/lib/products";
 
-// محصولات حالا توی Supabase هستن و از پنل ادمین قابل تغییرن،
-// پس دیگه لیست ثابتی از قبل (در زمان build) نمی‌سازیم؛ هر صفحه در لحظه‌ی درخواست رندر می‌شه.
 export const dynamic = "force-dynamic";
+
+const SITE_URL = "https://digihaze.ir";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
+
   const product = await getProductById(id);
 
-  if (!product) return { title: "محصول پیدا نشد" };
+  if (!product) {
+    return {
+      title: "محصول پیدا نشد | دیجی هیز",
+      description: "محصول موردنظر پیدا نشد.",
+    };
+  }
 
-  const priceText = money(discountedPrice(product));
-  const description = `${product.description} قیمت: ${priceText}`.slice(0, 160);
+  const price = discountedPrice(product);
+  const priceText = money(price);
+
+  const description =
+    `${product.name} | خرید ${product.name} با بهترین قیمت. ` +
+    `مشاهده مشخصات، قیمت و وضعیت موجودی محصول در دیجی هیز. ` +
+    `قیمت فعلی: ${priceText}`;
+
+  const cleanDescription = description.slice(0, 160);
+
+  const productUrl = `${SITE_URL}/product/${product.id}`;
+
+  const image =
+    Array.isArray(product.images) &&
+    product.images.length > 0
+      ? product.images[0]
+      : "/og-image.jpg";
+
+  const imageUrl = image.startsWith("http")
+    ? image
+    : `${SITE_URL}${image}`;
 
   return {
-    title: product.name,
-    description,
-    openGraph: {
-      title: product.name,
-      description,
-      images: [{ url: product.images[0] }],
-      type: "website",
-    },
+    title: `خرید ${product.name} | قیمت ${product.name}`,
+    description: cleanDescription,
+
     alternates: {
-      canonical: `/product/${product.id}`,
+      canonical: productUrl,
+    },
+
+    openGraph: {
+      title: `خرید ${product.name} | قیمت ${product.name}`,
+      description: cleanDescription,
+      url: productUrl,
+      siteName: "دیجی هیز",
+      locale: "fa_IR",
+      type: "website",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 1200,
+          alt: product.name,
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: `خرید ${product.name} | قیمت ${product.name}`,
+      description: cleanDescription,
+      images: [imageUrl],
+    },
+
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -36,33 +85,110 @@ export default async function ProductPage({ params }) {
 
   const product = await getProductById(id);
 
-  if (!product) notFound();
+  if (!product) {
+    notFound();
+  }
 
   const related = await getRelated(product);
+
+  /*
+   * قیمت‌ها در سایت بر اساس تومان هستند.
+   * Schema.org برای priceCurrency=IRR
+   * قیمت را به ریال می‌خواهد.
+   */
+  const finalPrice = discountedPrice(product);
+  const priceInRial = finalPrice * 10;
+
+  const originalPriceInRial =
+    product.price * 10;
+
+  const availability =
+    product.available === false
+      ? "https://schema.org/OutOfStock"
+      : "https://schema.org/InStock";
+
+  const imageUrls = Array.isArray(product.images)
+    ? product.images.map((image) =>
+        image.startsWith("http")
+          ? image
+          : `${SITE_URL}${image}`
+      )
+    : [];
+
+  const productUrl =
+    `${SITE_URL}/product/${product.id}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
+
+    "@id": `${productUrl}#product`,
+
     name: product.name,
-    image: product.images,
+
+    url: productUrl,
+
+    image: imageUrls,
+
     description: product.description,
+
     brand: {
       "@type": "Brand",
       name: product.brand,
     },
+
     offers: {
       "@type": "Offer",
+
+      url: productUrl,
+
       priceCurrency: "IRR",
-      price: discountedPrice(product),
-      availability: "https://schema.org/InStock",
+
+      price: priceInRial,
+
+      ...(product.discount > 0
+        ? {
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              priceCurrency: "IRR",
+              price: priceInRial,
+              referenceQuantity: {
+                "@type": "QuantitativeValue",
+                value: 1,
+              },
+            },
+          }
+        : {}),
+
+      ...(product.discount > 0
+        ? {
+            highPrice: originalPriceInRial,
+          }
+        : {}),
+
+      availability,
+
+      itemCondition:
+        "https://schema.org/NewCondition",
+
+      seller: {
+        "@type": "Organization",
+        name: "دیجی هیز",
+        url: SITE_URL,
+      },
     },
-    aggregateRating: product.reviewsCount
+
+    ...(product.reviewsCount > 0
       ? {
-          "@type": "AggregateRating",
-          ratingValue: product.rating,
-          reviewCount: product.reviewsCount,
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            bestRating: 5,
+            worstRating: 1,
+            reviewCount: product.reviewsCount,
+          },
         }
-      : undefined,
+      : {}),
   };
 
   return (
