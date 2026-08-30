@@ -1,8 +1,36 @@
 import { notFound } from "next/navigation";
 import ProductContent from "@/components/ProductContent";
 import { money, discountedPrice } from "@/lib/data";
-import { getProductById, getRelated } from "@/lib/products";
-import { SITE_URL, SITE_NAME } from "@/lib/site";
+import {
+  getProductById,
+  getRelated,
+} from "@/lib/products";
+import {
+  SITE_URL,
+  SITE_NAME,
+} from "@/lib/site";
+
+export const dynamic = "force-dynamic";
+
+// =====================================================
+// ساخت URL تصویر
+// =====================================================
+
+function getImageUrl(image) {
+  if (!image) return null;
+
+  if (image.startsWith("http://")) {
+    return image;
+  }
+
+  if (image.startsWith("https://")) {
+    return image;
+  }
+
+  return `${SITE_URL}${
+    image.startsWith("/") ? "" : "/"
+  }${image}`;
+}
 
 // =====================================================
 // SEO Metadata
@@ -13,7 +41,10 @@ export async function generateMetadata({ params }) {
 
   const product = await getProductById(id);
 
-  // محصول وجود ندارد
+  // ---------------------------------------------------
+  // محصول پیدا نشد
+  // ---------------------------------------------------
+
   if (!product) {
     return {
       title: `محصول پیدا نشد | ${SITE_NAME}`,
@@ -28,44 +59,44 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  // ===================================================
+  // ---------------------------------------------------
   // قیمت
-  // ===================================================
+  // ---------------------------------------------------
 
-  const finalPrice =
+  const price =
     Number(discountedPrice(product)) || 0;
 
-  const priceText = money(finalPrice);
+  const priceText = money(price);
 
-  // ===================================================
+  // ---------------------------------------------------
   // عنوان
-  // ===================================================
+  // ---------------------------------------------------
 
   const pageTitle =
     `خرید ${product.name} | قیمت ${product.name}`;
 
-  // ===================================================
-  // توضیحات SEO
-  // ===================================================
+  // ---------------------------------------------------
+  // توضیحات متا
+  // ---------------------------------------------------
 
   const description = (
-    `خرید ${product.name} از ${SITE_NAME} با بهترین قیمت. ` +
-    `مشاهده مشخصات، تصاویر، قیمت و وضعیت موجودی محصول. ` +
-    `قیمت فعلی ${priceText}.`
+    `خرید ${product.name} از ${SITE_NAME} با قیمت مناسب. ` +
+    `مشاهده مشخصات، تصاویر، برند، قیمت و وضعیت موجودی ${product.name}. ` +
+    `قیمت فعلی: ${priceText}`
   )
     .replace(/\s+/g, " ")
     .slice(0, 160);
 
-  // ===================================================
-  // URL
-  // ===================================================
+  // ---------------------------------------------------
+  // URL محصول
+  // ---------------------------------------------------
 
   const productUrl =
     `${SITE_URL}/product/${product.id}`;
 
-  // ===================================================
+  // ---------------------------------------------------
   // تصویر اصلی
-  // ===================================================
+  // ---------------------------------------------------
 
   const image =
     Array.isArray(product.images) &&
@@ -74,13 +105,11 @@ export async function generateMetadata({ params }) {
       : "/og-image.jpg";
 
   const imageUrl =
-    image.startsWith("http")
-      ? image
-      : `${SITE_URL}${image.startsWith("/") ? "" : "/"}${image}`;
+    getImageUrl(image);
 
-  // ===================================================
+  // ---------------------------------------------------
   // Metadata
-  // ===================================================
+  // ---------------------------------------------------
 
   return {
     title: pageTitle,
@@ -116,14 +145,16 @@ export async function generateMetadata({ params }) {
 
       description,
 
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 1200,
-          alt: product.name,
-        },
-      ],
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 1200,
+              alt: product.name,
+            },
+          ]
+        : [],
     },
 
     twitter: {
@@ -133,18 +164,27 @@ export async function generateMetadata({ params }) {
 
       description,
 
-      images: [imageUrl],
+      images: imageUrl
+        ? [imageUrl]
+        : [],
     },
 
     robots: {
-      index: product.available !== false,
+      index:
+        product.available !== false,
+
       follow: true,
 
       googleBot: {
-        index: product.available !== false,
+        index:
+          product.available !== false,
+
         follow: true,
+
         "max-image-preview": "large",
+
         "max-snippet": -1,
+
         "max-video-preview": -1,
       },
     },
@@ -155,24 +195,28 @@ export async function generateMetadata({ params }) {
 // Product Page
 // =====================================================
 
-export default async function ProductPage({ params }) {
+export default async function ProductPage({
+  params,
+}) {
   const { id } = await params;
 
-  // ===================================================
+  // ---------------------------------------------------
   // دریافت محصول
-  // ===================================================
+  // ---------------------------------------------------
 
-  const product = await getProductById(id);
+  const product =
+    await getProductById(id);
 
   if (!product) {
     notFound();
   }
 
-  // ===================================================
+  // ---------------------------------------------------
   // محصولات مرتبط
-  // ===================================================
+  // ---------------------------------------------------
 
-  const related = await getRelated(product);
+  const related =
+    await getRelated(product);
 
   // ===================================================
   // قیمت نهایی
@@ -183,6 +227,7 @@ export default async function ProductPage({ params }) {
 
   // سایت با تومان کار می‌کند.
   // Schema.org برای IRR به ریال نیاز دارد.
+
   const priceInRial =
     finalPrice * 10;
 
@@ -203,11 +248,8 @@ export default async function ProductPage({ params }) {
     Array.isArray(product.images)
       ? product.images
           .filter(Boolean)
-          .map((image) =>
-            image.startsWith("http")
-              ? image
-              : `${SITE_URL}${image.startsWith("/") ? "" : "/"}${image}`
-          )
+          .map(getImageUrl)
+          .filter(Boolean)
       : [];
 
   // اگر تصویر نداشت
@@ -233,7 +275,8 @@ export default async function ProductPage({ params }) {
 
     "@type": "Product",
 
-    "@id": `${productUrl}#product`,
+    "@id":
+      `${productUrl}#product`,
 
     name: product.name,
 
@@ -248,6 +291,7 @@ export default async function ProductPage({ params }) {
       ? {
           brand: {
             "@type": "Brand",
+
             name: product.brand,
           },
         }
@@ -256,7 +300,8 @@ export default async function ProductPage({ params }) {
     offers: {
       "@type": "Offer",
 
-      "@id": `${productUrl}#offer`,
+      "@id":
+        `${productUrl}#offer`,
 
       url: productUrl,
 
@@ -270,7 +315,8 @@ export default async function ProductPage({ params }) {
         "https://schema.org/NewCondition",
 
       seller: {
-        "@type": "Organization",
+        "@type":
+          "Organization",
 
         name: SITE_NAME,
 
@@ -282,11 +328,12 @@ export default async function ProductPage({ params }) {
     // امتیاز کلی محصول
     // =================================================
 
-    ...(Number(product.rating) > 0 &&
-    Number(product.reviewsCount) > 0
+    ...(Number(product.reviewsCount) > 0 &&
+    Number(product.rating) > 0
       ? {
           aggregateRating: {
-            "@type": "AggregateRating",
+            "@type":
+              "AggregateRating",
 
             ratingValue:
               Number(product.rating),
@@ -300,57 +347,15 @@ export default async function ProductPage({ params }) {
           },
         }
       : {}),
-
-    // =================================================
-    // Review Schema
-    //
-    // فقط وقتی review واقعی در دیتابیس وجود داشته باشد
-    // =================================================
-
-    ...(Array.isArray(product.reviews) &&
-    product.reviews.length > 0
-      ? {
-          review: product.reviews
-            .filter(
-              (review) =>
-                review &&
-                review.name &&
-                review.text &&
-                Number(review.rating) > 0
-            )
-            .slice(0, 10)
-            .map((review) => ({
-              "@type": "Review",
-
-              author: {
-                "@type": "Person",
-
-                name: review.name,
-              },
-
-              reviewRating: {
-                "@type": "Rating",
-
-                ratingValue:
-                  Number(review.rating),
-
-                bestRating: 5,
-
-                worstRating: 1,
-              },
-
-              reviewBody: review.text,
-            })),
-        }
-      : {}),
   };
 
   // ===================================================
-  // Breadcrumb Schema
+  // Breadcrumb
   // ===================================================
 
   const categoryName =
-    product.category || "محصولات";
+    product.category ||
+    "محصولات";
 
   const categoryPath =
     product.category
@@ -358,9 +363,11 @@ export default async function ProductPage({ params }) {
       : "/shop";
 
   const breadcrumbSchema = {
-    "@context": "https://schema.org",
+    "@context":
+      "https://schema.org",
 
-    "@type": "BreadcrumbList",
+    "@type":
+      "BreadcrumbList",
 
     itemListElement: [
       {
@@ -380,7 +387,8 @@ export default async function ProductPage({ params }) {
 
         name: "فروشگاه",
 
-        item: `${SITE_URL}/shop`,
+        item:
+          `${SITE_URL}/shop`,
       },
 
       {
@@ -407,7 +415,7 @@ export default async function ProductPage({ params }) {
   };
 
   // ===================================================
-  // خروجی صفحه
+  // خروجی
   // ===================================================
 
   return (
@@ -441,7 +449,7 @@ export default async function ProductPage({ params }) {
       />
 
       {/* =========================================
-          Product Content
+          محتوای صفحه محصول
       ========================================== */}
 
       <ProductContent
