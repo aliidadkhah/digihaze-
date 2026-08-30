@@ -1,10 +1,16 @@
 import { getProducts } from "@/lib/products";
 import { SITE_URL } from "@/lib/site";
 
+// Sitemap همیشه اطلاعات فعلی محصولات Supabase را می‌گیرد
+export const dynamic = "force-dynamic";
+
 export default async function sitemap() {
   const PRODUCTS = await getProducts();
 
+  // =========================
   // صفحات اصلی سایت
+  // =========================
+
   const staticPages = [
     {
       path: "",
@@ -28,7 +34,10 @@ export default async function sitemap() {
     },
   ];
 
-  // صفحات دسته‌بندی اصلی
+  // =========================
+  // صفحات دسته‌بندی
+  // =========================
+
   const categoryPages = [
     {
       path: "/shop/pod",
@@ -52,6 +61,10 @@ export default async function sitemap() {
     },
   ];
 
+  // =========================
+  // تبدیل صفحات ثابت به Sitemap
+  // =========================
+
   const pages = [
     ...staticPages,
     ...categoryPages,
@@ -62,13 +75,20 @@ export default async function sitemap() {
     priority: page.priority,
   }));
 
-  // صفحات محصولات
+  // =========================
+  // صفحات محصولات از Supabase
+  // =========================
+
   const productPages = PRODUCTS.map((product) => ({
     url: `${SITE_URL}/product/${product.id}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.8,
   }));
+
+  // =========================
+  // خروجی نهایی Sitemap
+  // =========================
 
   return [
     ...pages,
