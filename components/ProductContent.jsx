@@ -27,6 +27,13 @@ import ProductCard from "./ProductCard";
 import { money, discountedPrice } from "@/lib/data";
 import { useCart, useUser } from "./Providers";
 
+// متن ساده‌ی قدیمی (بدون تگ HTML) رو هم درست نشون می‌دهد
+function toDisplayHtml(text) {
+  if (!text) return "";
+  if (text.includes("<")) return text;
+  return text.replace(/\n/g, "<br>");
+}
+
 function ReviewForm({ onSubmit }) {
   const { user } = useUser();
 
@@ -764,15 +771,17 @@ export default function ProductContent({ product, related }) {
           </div>
 
           {tab === "desc" && (
-            <p
+            <div
+              className="rich-content"
               style={{
                 color: "var(--text-lo)",
                 fontSize: 14,
                 lineHeight: 2,
               }}
-            >
-              {product.description}
-            </p>
+              dangerouslySetInnerHTML={{
+                __html: toDisplayHtml(product.description),
+              }}
+            />
           )}
 
           {tab === "specs" && (
@@ -837,16 +846,17 @@ export default function ProductContent({ product, related }) {
               )}
 
               {product.brandDescription ? (
-                <p
+                <div
+                  className="rich-content"
                   style={{
                     color: "var(--text-lo)",
                     fontSize: 14,
                     lineHeight: 2,
-                    whiteSpace: "pre-line",
                   }}
-                >
-                  {product.brandDescription}
-                </p>
+                  dangerouslySetInnerHTML={{
+                    __html: toDisplayHtml(product.brandDescription),
+                  }}
+                />
               ) : (
                 <p
                   style={{
@@ -987,6 +997,37 @@ export default function ProductContent({ product, related }) {
           )}
         </div>
       </div>
+
+      <style jsx global>{`
+        .rich-content img {
+          max-width: 100%;
+          border-radius: 14px;
+          margin: 14px 0;
+          display: block;
+        }
+        .rich-content h1,
+        .rich-content h2,
+        .rich-content h3 {
+          font-family: Vazirmatn;
+          font-weight: 800;
+          color: var(--text-hi);
+          margin: 18px 0 10px;
+        }
+        .rich-content h3 {
+          font-size: 16px;
+        }
+        .rich-content ul,
+        .rich-content ol {
+          padding-inline-start: 22px;
+          margin: 8px 0;
+        }
+        .rich-content li {
+          margin: 4px 0;
+        }
+        .rich-content p {
+          margin: 0 0 10px;
+        }
+      `}</style>
 
       {/* =========================
           Related Products
