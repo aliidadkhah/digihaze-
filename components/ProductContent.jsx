@@ -773,10 +773,12 @@ export default function ProductContent({ product, related }) {
           {tab === "desc" && (
             <div
               className="rich-content"
+              dir="rtl"
               style={{
                 color: "var(--text-lo)",
                 fontSize: 14,
                 lineHeight: 2,
+                textAlign: "right",
               }}
               dangerouslySetInnerHTML={{
                 __html: toDisplayHtml(product.description),
@@ -848,10 +850,12 @@ export default function ProductContent({ product, related }) {
               {product.brandDescription ? (
                 <div
                   className="rich-content"
+                  dir="rtl"
                   style={{
                     color: "var(--text-lo)",
                     fontSize: 14,
                     lineHeight: 2,
+                    textAlign: "right",
                   }}
                   dangerouslySetInnerHTML={{
                     __html: toDisplayHtml(product.brandDescription),
@@ -999,6 +1003,10 @@ export default function ProductContent({ product, related }) {
       </div>
 
       <style jsx global>{`
+        .rich-content {
+          direction: rtl;
+          text-align: right;
+        }
         .rich-content img {
           max-width: 100%;
           border-radius: 14px;
