@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Bold, Heading2, List, ImagePlus } from "lucide-react";
+import { Bold, Heading2, List, ImagePlus, Highlighter } from "lucide-react";
 import { uploadProductImage } from "@/lib/productImages";
 
 const btnStyle = {
@@ -21,6 +21,7 @@ const btnStyle = {
 export default function RichTextEditor({ value, onChange, placeholder }) {
   const ref = useRef(null);
   const loadedOnce = useRef(false);
+  const savedRange = useRef(null);
 
   useEffect(() => {
     if (!loadedOnce.current && ref.current) {
@@ -30,24 +31,78 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // موقعیت فعلی مکان‌نما رو ذخیره می‌کند تا بعد از یک عملیات async (مثل آپلود عکس) بشه برش گردوند
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0 && ref.current?.contains(sel.anchorNode)) {
+      savedRange.current = sel.getRangeAt(0).cloneRange();
+    }
+  };
+
+  const restoreSelection = () => {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    if (savedRange.current) {
+      sel.addRange(savedRange.current);
+    } else if (ref.current) {
+      const range = document.createRange();
+      range.selectNodeContents(ref.current);
+      range.collapse(false);
+      sel.addRange(range);
+    }
+  };
+
   const exec = (cmd, arg) => {
     ref.current?.focus();
+    restoreSelection();
     document.execCommand(cmd, false, arg);
+    saveSelection();
     onChange(ref.current.innerHTML);
   };
 
   const insertImage = async (file) => {
     if (!file) return;
+    saveSelection(); // قبل از باز شدن دیالوگ انتخاب فایل، مکان‌نما رو ذخیره کن
     try {
       const url = await uploadProductImage(file);
-      if (url) exec("insertImage", url);
+      if (url) {
+        ref.current?.focus();
+        restoreSelection();
+        document.execCommand("insertImage", false, url);
+        saveSelection();
+        onChange(ref.current.innerHTML);
+      }
     } catch {
       // آپلود ناموفق - بی‌صدا رد می‌شه، کاربر می‌تونه دوباره امتحان کنه
     }
   };
 
+  // پس‌زمینه (کادر) پشت متنِ انتخاب‌شده اضافه می‌کند
+  const highlightSelection = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    if (!ref.current?.contains(range.commonAncestorContainer)) return;
+
+    const span = document.createElement("span");
+    span.style.background = "#2F86FF2E";
+    span.style.borderRadius = "6px";
+    span.style.padding = "1px 6px";
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+
+    sel.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.setStartAfter(span);
+    newRange.collapse(true);
+    sel.addRange(newRange);
+
+    saveSelection();
+    onChange(ref.current.innerHTML);
+  };
+
   return (
-    <div>
+    <div dir="rtl">
       <div style={{ display: "flex", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
         <button
           type="button"
@@ -76,7 +131,16 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         >
           <List size={14} />
         </button>
-        <label style={{ ...btnStyle, cursor: "pointer" }} title="افزودن عکس">
+        <button
+          type="button"
+          title="کادر پس‌زمینه پشت متن انتخاب‌شده (اول متن رو انتخاب کن)"
+          style={btnStyle}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={highlightSelection}
+        >
+          <Highlighter size={14} />
+        </button>
+        <label style={{ ...btnStyle, cursor: "pointer" }} title="افزودن عکس در محل مکان‌نما">
           <ImagePlus size={14} />
           <input
             type="file"
@@ -91,7 +155,10 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         ref={ref}
         contentEditable
         suppressContentEditableWarning
+        dir="rtl"
         onInput={(e) => onChange(e.currentTarget.innerHTML)}
+        onMouseUp={saveSelection}
+        onKeyUp={saveSelection}
         data-placeholder={placeholder}
         className="rte-editable"
         style={{
@@ -107,6 +174,8 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           lineHeight: 1.9,
           overflowY: "auto",
           maxHeight: 280,
+          textAlign: "right",
+          direction: "rtl",
         }}
       />
 
