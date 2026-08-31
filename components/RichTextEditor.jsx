@@ -189,7 +189,10 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         .rte-editable :global(h3) {
           font-size: 15px;
           font-weight: 800;
-          margin: 10px 0 6px;
+          margin: 14px 0 8px;
+          padding-bottom: 6px;
+          border-bottom: 2px solid #2F86FF;
+          display: inline-block;
         }
         .rte-editable :global(ul) {
           padding-inline-start: 20px;
