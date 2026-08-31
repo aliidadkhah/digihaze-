@@ -14,6 +14,14 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage } from "@/lib/productImages";
 import { money } from "@/lib/data";
+import RichTextEditor from "./RichTextEditor";
+
+// متن ساده‌ی قدیمی (بدون تگ HTML) رو به HTML قابل‌نمایش توی ادیتور تبدیل می‌کند
+function toEditableHtml(text) {
+  if (!text) return "";
+  if (text.includes("<")) return text; // از قبل HTML است
+  return text.replace(/\n/g, "<br>");
+}
 
 const DEFAULT_SPEC_LABELS = [
   "نوع دستگاه",
@@ -74,11 +82,11 @@ function mapRowToForm(row) {
     color: row.color || "",
     badge: row.badge || "",
     available: row.available !== false,
-    description: row.description || "",
+    description: toEditableHtml(row.description || ""),
     images: row.images || [],
     colors: row.colors || [],
     specs: [...existingSpecs, ...missingPresets],
-    brandDescription: row.brand_description || row.brandDescription || "",
+    brandDescription: toEditableHtml(row.brand_description || row.brandDescription || ""),
     brandImage: row.brand_image || row.brandImage || "",
     qa: row.qa || [],
   };
@@ -617,10 +625,10 @@ export default function ProductsManager() {
             </label>
 
             <Field label="توضیحات محصول">
-              <textarea
-                style={{ ...inputStyle, minHeight: 90, resize: "vertical" }}
+              <RichTextEditor
                 value={form.description}
-                onChange={(e) => update("description", e.target.value)}
+                onChange={(html) => update("description", html)}
+                placeholder="توضیحات محصول را بنویس..."
               />
             </Field>
 
@@ -808,12 +816,13 @@ export default function ProductsManager() {
             {/* درباره برند */}
             <div>
               <label style={labelStyle}>درباره برند</label>
-              <textarea
-                style={{ ...inputStyle, minHeight: 90, resize: "vertical", marginBottom: 10 }}
-                placeholder="متنی درباره برند این محصول بنویس..."
-                value={form.brandDescription}
-                onChange={(e) => update("brandDescription", e.target.value)}
-              />
+              <div style={{ marginBottom: 10 }}>
+                <RichTextEditor
+                  value={form.brandDescription}
+                  onChange={(html) => update("brandDescription", html)}
+                  placeholder="متنی درباره برند این محصول بنویس..."
+                />
+              </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 {form.brandImage ? (
