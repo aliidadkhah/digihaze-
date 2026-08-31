@@ -705,6 +705,10 @@ export default function ProductContent({ product, related }) {
             </button>
           </div>
 
+        </div>
+      </div>
+
+      <div style={{ marginTop: 40 }}>
           {/* =========================
               Tabs
           ========================= */}
@@ -999,7 +1003,6 @@ export default function ProductContent({ product, related }) {
               </div>
             </div>
           )}
-        </div>
       </div>
 
       <style jsx global>{`
@@ -1019,7 +1022,10 @@ export default function ProductContent({ product, related }) {
           font-family: Vazirmatn;
           font-weight: 800;
           color: var(--text-hi);
-          margin: 18px 0 10px;
+          margin: 22px 0 12px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #2F86FF;
+          display: inline-block;
         }
         .rich-content h3 {
           font-size: 16px;
