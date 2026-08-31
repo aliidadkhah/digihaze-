@@ -1,8 +1,10 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import ProductContent from "@/components/ProductContent";
-import { money, discountedPrice } from "@/lib/data";
 import {
-  getProductById,
+  money,
+  discountedPrice,
+} from "@/lib/data";
+import {
   getProductBySlug,
   getRelated,
 } from "@/lib/products";
@@ -12,7 +14,7 @@ import {
 } from "@/lib/site";
 
 // =====================================================
-// Dynamic rendering
+// صفحه محصول Dynamic
 // =====================================================
 
 export const dynamic = "force-dynamic";
@@ -22,7 +24,10 @@ export const dynamic = "force-dynamic";
 // =====================================================
 
 function getImageUrl(image) {
-  if (!image || typeof image !== "string") {
+  if (
+    !image ||
+    typeof image !== "string"
+  ) {
     return null;
   }
 
@@ -34,7 +39,9 @@ function getImageUrl(image) {
   }
 
   return `${SITE_URL}${
-    image.startsWith("/") ? "" : "/"
+    image.startsWith("/")
+      ? ""
+      : "/"
   }${image}`;
 }
 
@@ -56,55 +63,6 @@ function cleanText(value) {
 }
 
 // =====================================================
-// دریافت محصول
-//
-// اگر slug واقعی باشد:
-// /product/argus-0-7-3ml
-//
-// اگر ID قدیمی باشد:
-// /product/p2
-//
-// در حالت دوم محصول پیدا می‌شود و به slug جدید
-// Redirect می‌کنیم.
-// =====================================================
-
-async function getProduct(slug) {
-  if (!slug) {
-    return null;
-  }
-
-  // -----------------------------------------------
-  // اول تلاش برای پیدا کردن با slug
-  // -----------------------------------------------
-
-  const productBySlug =
-    await getProductBySlug(slug);
-
-  if (productBySlug) {
-    return {
-      product: productBySlug,
-      isLegacy: false,
-    };
-  }
-
-  // -----------------------------------------------
-  // اگر با slug پیدا نشد، بررسی ID قدیمی
-  // -----------------------------------------------
-
-  const productById =
-    await getProductById(slug);
-
-  if (productById) {
-    return {
-      product: productById,
-      isLegacy: true,
-    };
-  }
-
-  return null;
-}
-
-// =====================================================
 // SEO Metadata
 // =====================================================
 
@@ -113,14 +71,14 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
 
-  const result =
-    await getProduct(slug);
+  const product =
+    await getProductBySlug(slug);
 
   // ---------------------------------------------------
   // محصول پیدا نشد
   // ---------------------------------------------------
 
-  if (!result) {
+  if (!product) {
     return {
       title:
         `محصول پیدا نشد | ${SITE_NAME}`,
@@ -134,8 +92,6 @@ export async function generateMetadata({
       },
     };
   }
-
-  const { product } = result;
 
   // ---------------------------------------------------
   // قیمت
@@ -168,11 +124,21 @@ export async function generateMetadata({
     ).slice(0, 160);
 
   // ---------------------------------------------------
-  // URL جدید
+  // URL واقعی محصول
+  //
+  // اگر slug داشته باشد:
+  // /product/caliburn-tenet-koko
+  //
+  // اگر slug نداشته باشد:
+  // /product/p3
+  //
   // ---------------------------------------------------
 
+  const productSlug =
+    product.slug || product.id;
+
   const productUrl =
-    `${SITE_URL}/product/${product.slug}`;
+    `${SITE_URL}/product/${productSlug}`;
 
   // ---------------------------------------------------
   // تصویر اصلی
@@ -221,7 +187,8 @@ export async function generateMetadata({
     ].filter(Boolean),
 
     alternates: {
-      canonical: productUrl,
+      canonical:
+        productUrl,
     },
 
     openGraph: {
@@ -229,39 +196,50 @@ export async function generateMetadata({
 
       locale: "fa_IR",
 
-      url: productUrl,
+      url:
+        productUrl,
 
-      siteName: SITE_NAME,
+      siteName:
+        SITE_NAME,
 
-      title: pageTitle,
+      title:
+        pageTitle,
 
       description,
 
-      images: imageUrl
-        ? [
-            {
-              url: imageUrl,
+      images:
+        imageUrl
+          ? [
+              {
+                url:
+                  imageUrl,
 
-              width: 1200,
+                width:
+                  1200,
 
-              height: 1200,
+                height:
+                  1200,
 
-              alt: product.name,
-            },
-          ]
-        : [],
+                alt:
+                  product.name,
+              },
+            ]
+          : [],
     },
 
     twitter: {
-      card: "summary_large_image",
+      card:
+        "summary_large_image",
 
-      title: pageTitle,
+      title:
+        pageTitle,
 
       description,
 
-      images: imageUrl
-        ? [imageUrl]
-        : [],
+      images:
+        imageUrl
+          ? [imageUrl]
+          : [],
     },
 
     robots: {
@@ -279,9 +257,11 @@ export async function generateMetadata({
         "max-image-preview":
           "large",
 
-        "max-snippet": -1,
+        "max-snippet":
+          -1,
 
-        "max-video-preview": -1,
+        "max-video-preview":
+          -1,
       },
     },
   };
@@ -297,43 +277,18 @@ export default async function ProductPage({
   const { slug } = await params;
 
   // ---------------------------------------------------
-  // دریافت محصول
+  // دریافت محصول با slug
   // ---------------------------------------------------
 
-  const result =
-    await getProduct(slug);
+  const product =
+    await getProductBySlug(slug);
 
   // ---------------------------------------------------
   // محصول وجود ندارد
   // ---------------------------------------------------
 
-  if (!result) {
+  if (!product) {
     notFound();
-  }
-
-  const {
-    product,
-    isLegacy,
-  } = result;
-
-  // ---------------------------------------------------
-  // Redirect از URL قدیمی
-  //
-  // /product/p2
-  //        ↓
-  // /product/argus-0-7-3ml
-  //
-  // permanent redirect = 308
-  // ---------------------------------------------------
-
-  if (
-    isLegacy &&
-    product.slug &&
-    product.slug !== slug
-  ) {
-    redirect(
-      `/product/${product.slug}`
-    );
   }
 
   // ---------------------------------------------------
@@ -352,16 +307,16 @@ export default async function ProductPage({
       discountedPrice(product)
     ) || 0;
 
-  /*
-   * قیمت سایت بر اساس تومان است.
-   *
-   * Schema.org:
-   *
-   * priceCurrency = IRR
-   *
-   * بنابراین قیمت تومان × 10
-   * به ریال تبدیل می‌شود.
-   */
+  // ===================================================
+  // تبدیل تومان به ریال
+  //
+  // مثال:
+  //
+  // 100000 تومان
+  // =
+  // 1000000 ریال
+  //
+  // ===================================================
 
   const priceInRial =
     finalPrice * 10;
@@ -377,6 +332,16 @@ export default async function ProductPage({
     isAvailable
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
+
+  // ===================================================
+  // URL واقعی محصول
+  // ===================================================
+
+  const productSlug =
+    product.slug || product.id;
+
+  const productUrl =
+    `${SITE_URL}/product/${productSlug}`;
 
   // ===================================================
   // تصاویر
@@ -397,13 +362,6 @@ export default async function ProductPage({
       `${SITE_URL}/og-image.jpg`
     );
   }
-
-  // ===================================================
-  // URL اصلی محصول
-  // ===================================================
-
-  const productUrl =
-    `${SITE_URL}/product/${product.slug}`;
 
   // ===================================================
   // توضیحات محصول
@@ -464,73 +422,78 @@ export default async function ProductPage({
   // ===================================================
 
   const reviewSchema =
-    reviews.map((review) => {
-      const rating =
-        Number(
-          review.rating ??
-            review.reviewRating ??
-            review.score
-        );
+    reviews.map(
+      (review) => {
+        const rating =
+          Number(
+            review.rating ??
+              review.reviewRating ??
+              review.score
+          );
 
-      const reviewBody =
-        cleanText(
-          review.text ??
-            review.reviewBody ??
-            review.comment
-        );
+        const reviewBody =
+          cleanText(
+            review.text ??
+              review.reviewBody ??
+              review.comment
+          );
 
-      const authorName =
-        cleanText(
-          review.name ??
-            review.author ??
-            review.userName ??
-            "کاربر"
-        );
+        const authorName =
+          cleanText(
+            review.name ??
+              review.author ??
+              review.userName ??
+              "کاربر"
+          );
 
-      const datePublished =
-        review.datePublished ??
-        review.created_at ??
-        review.createdAt ??
-        null;
+        const datePublished =
+          review.datePublished ??
+          review.created_at ??
+          review.createdAt ??
+          null;
 
-      return {
-        "@type":
-          "Review",
-
-        author: {
+        return {
           "@type":
-            "Person",
+            "Review",
 
-          name:
-            authorName,
-        },
+          author: {
+            "@type":
+              "Person",
 
-        reviewRating: {
-          "@type":
-            "Rating",
+            name:
+              authorName,
+          },
 
-          ratingValue:
-            rating,
+          reviewRating: {
+            "@type":
+              "Rating",
 
-          bestRating:
-            5,
+            ratingValue:
+              rating,
 
-          worstRating:
-            1,
-        },
+            bestRating:
+              5,
 
-        reviewBody,
+            worstRating:
+              1,
+          },
 
-        ...(datePublished
-          ? {
-              datePublished:
-                String(
-                  datePublished
-                ).slice(0, 10),
-            }
-          : {}),
-      };
-    });
+          reviewBody,
+
+          ...(datePublished
+            ? {
+                datePublished:
+                  String(
+                    datePublished
+                  ).slice(
+                    0,
+                    10
+                  ),
+              }
+            : {}),
+        };
+      }
+    );
 
   // ===================================================
   // Aggregate Rating
