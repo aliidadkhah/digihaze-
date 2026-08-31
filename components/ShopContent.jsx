@@ -8,7 +8,6 @@ import {
   CATEGORIES,
   discountedPrice,
 } from "@/lib/data";
-import { useProducts } from "./ProductsProvider";
 
 /* =========================================
    نرمال‌سازی متن فارسی
@@ -58,7 +57,7 @@ function getSearchText(product) {
 }
 
 /* =========================================
-   تطبیق هوشمند سرچ
+   جستجو
 ========================================= */
 
 function matchesSearch(product, query) {
@@ -68,24 +67,10 @@ function matchesSearch(product, query) {
 
   const productText = getSearchText(product);
 
-  /*
-   اگر عبارت کامل داخل اطلاعات محصول باشد
-   نتیجه معتبر است.
-  */
   if (productText.includes(q)) {
     return true;
   }
 
-  /*
-   اگر کاربر چند کلمه وارد کرد،
-   همه کلمات باید در محصول وجود داشته باشند.
-   
-   مثال:
-   "پاد کالیبرن"
-   
-   فقط محصولی که هر دو عبارت را داشته باشد
-   نمایش داده می‌شود.
-  */
   const words = q
     .split(" ")
     .map((word) => word.trim())
@@ -101,12 +86,11 @@ function matchesSearch(product, query) {
 }
 
 export default function ShopContent({
+  products = [],
   initialCategory,
   initialSearch,
   initialSub,
 }) {
-  const { products } = useProducts();
-
   const [active, setActive] = useState(
     initialCategory || "all"
   );
@@ -142,10 +126,6 @@ export default function ShopContent({
     ...CATEGORIES,
   ];
 
-  /* =========================================
-     فیلتر محصولات
-  ========================================= */
-
   const list = useMemo(() => {
     let arr =
       active === "all"
@@ -155,14 +135,17 @@ export default function ShopContent({
           );
 
     /*
-     * فیلتر زیردسته (بر اساس برند)
+     * فیلتر زیردسته
      */
     if (activeSub) {
-      const cat = CATEGORIES.find((c) => c.id === active);
+      const cat = CATEGORIES.find(
+        (c) => c.id === active
+      );
 
-      const subLabel = cat?.subcategories?.find(
-        (s) => s.id === activeSub
-      )?.label;
+      const subLabel =
+        cat?.subcategories?.find(
+          (s) => s.id === activeSub
+        )?.label;
 
       if (subLabel) {
         arr = arr.filter(
@@ -174,7 +157,7 @@ export default function ShopContent({
     }
 
     /*
-     * سرچ دقیق
+     * جستجو
      */
     if (search.trim()) {
       arr = arr.filter((product) =>
@@ -183,12 +166,13 @@ export default function ShopContent({
     }
 
     /*
-     * جلوگیری از تغییر مستقیم PRODUCTS
+     * کپی آرایه
      */
     arr = [...arr];
 
-    /* مرتب‌سازی */
-
+    /*
+     * مرتب‌سازی قیمت
+     */
     if (sort === "price-asc") {
       arr.sort(
         (a, b) =>
@@ -205,24 +189,38 @@ export default function ShopContent({
       );
     }
 
+    /*
+     * مرتب‌سازی امتیاز
+     */
     if (sort === "rating") {
       arr.sort(
-        (a, b) => b.rating - a.rating
+        (a, b) =>
+          Number(b.rating || 0) -
+          Number(a.rating || 0)
       );
     }
 
     /*
-     * محصولات ناموجود همیشه ته لیست باشن
-     * (بدون به‌هم‌ریختن ترتیب مرتب‌سازی بالا، چون Array.sort پایدار است)
+     * محصولات ناموجود انتهای لیست
      */
     arr.sort((a, b) => {
-      const aOut = a.available === false ? 1 : 0;
-      const bOut = b.available === false ? 1 : 0;
+      const aOut =
+        a.available === false ? 1 : 0;
+
+      const bOut =
+        b.available === false ? 1 : 0;
+
       return aOut - bOut;
     });
 
     return arr;
-  }, [products, active, activeSub, sort, search]);
+  }, [
+    products,
+    active,
+    activeSub,
+    sort,
+    search,
+  ]);
 
   return (
     <div
@@ -230,24 +228,9 @@ export default function ShopContent({
       style={{
         maxWidth: 1180,
         margin: "0 auto",
-        padding: "40px 20px 70px",
+        padding: "20px 20px 70px",
       }}
     >
-      {/* =====================================
-          عنوان
-      ===================================== */}
-
-      <h1
-        style={{
-          fontFamily: "Vazirmatn",
-          fontWeight: 800,
-          fontSize: 28,
-          marginBottom: 6,
-        }}
-      >
-        فروشگاه
-      </h1>
-
       <p
         style={{
           color: "var(--text-lo)",
@@ -262,23 +245,18 @@ export default function ShopContent({
         {list.length} محصول
       </p>
 
-      {/* =====================================
-          فیلترها
-      ===================================== */}
+      {/* فیلترها */}
 
       <div
         style={{
           display: "flex",
-          justifyContent:
-            "space-between",
+          justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
           gap: 14,
           marginBottom: 26,
         }}
       >
-        {/* دسته‌بندی‌ها */}
-
         <div
           style={{
             display: "flex",
@@ -293,6 +271,7 @@ export default function ShopContent({
             return (
               <button
                 key={c.id}
+                type="button"
                 onClick={() => {
                   setActive(c.id);
                   setActiveSub("");
@@ -310,10 +289,8 @@ export default function ShopContent({
                     ? c.color
                     : "var(--text-lo)",
                   borderRadius: 999,
-                  padding:
-                    "8px 18px",
-                  fontFamily:
-                    "Vazirmatn",
+                  padding: "8px 18px",
+                  fontFamily: "Vazirmatn",
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: "pointer",
@@ -324,8 +301,6 @@ export default function ShopContent({
             );
           })}
         </div>
-
-        {/* مرتب‌سازی */}
 
         <div
           style={{
@@ -344,18 +319,15 @@ export default function ShopContent({
             onChange={(e) =>
               setSort(e.target.value)
             }
+            aria-label="مرتب‌سازی محصولات"
             style={{
-              background:
-                "var(--surface)",
-              color:
-                "var(--text-hi)",
+              background: "var(--surface)",
+              color: "var(--text-hi)",
               border:
                 "1px solid var(--surface2)",
               borderRadius: 10,
-              padding:
-                "8px 12px",
-              fontFamily:
-                "Vazirmatn",
+              padding: "8px 12px",
+              fontFamily: "Vazirmatn",
               fontSize: 13,
               outline: "none",
             }}
@@ -379,19 +351,15 @@ export default function ShopContent({
         </div>
       </div>
 
-      {/* =====================================
-          نتیجه جستجو
-      ===================================== */}
+      {/* محصولات */}
 
       {list.length === 0 ? (
         <div
           style={{
             textAlign: "center",
             padding: "60px 20px",
-            color:
-              "var(--text-mut)",
-            fontFamily:
-              "Vazirmatn",
+            color: "var(--text-mut)",
+            fontFamily: "Vazirmatn",
           }}
         >
           <div
@@ -427,13 +395,9 @@ export default function ShopContent({
           {list.map((p, i) => (
             <Reveal
               key={p.id}
-              delay={
-                0.05 * (i % 4)
-              }
+              delay={0.05 * (i % 4)}
             >
-              <ProductCard
-                product={p}
-              />
+              <ProductCard product={p} />
             </Reveal>
           ))}
         </div>
