@@ -96,10 +96,11 @@ export default function CategoryBar() {
               style={{ position: "relative", flexShrink: 0 }}
             >
               <div
+                className="category-bar-item-row"
                 style={{
-                  display: "flex",
+                  display: "inline-flex",
                   alignItems: "center",
-                  gap: 2,
+                  width: "max-content",
                 }}
               >
                 <Link
@@ -116,8 +117,8 @@ export default function CategoryBar() {
                       ? "#22E5C9"
                       : "var(--text-lo)",
                     textDecoration: "none",
-                    padding: "13px 2px",
-                    display: "flex",
+                    padding: "13px 0 13px 2px",
+                    display: "inline-flex",
                     alignItems: "center",
                     gap: 4,
                   }}
@@ -163,8 +164,9 @@ export default function CategoryBar() {
                       background: "none",
                       border: "none",
                       cursor: "pointer",
+                      margin: 0,
                       padding: "13px 2px 13px 0",
-                      display: "flex",
+                      display: "inline-flex",
                       alignItems: "center",
                       color: active
                         ? "#22E5C9"
@@ -251,6 +253,18 @@ export default function CategoryBar() {
 
         .category-bar-sub-item:hover {
           background: var(--surface2);
+        }
+
+        .category-bar-item-row {
+          gap: 0 !important;
+        }
+
+        .category-bar-item-row > * {
+          margin: 0 !important;
+        }
+
+        .category-bar-chevron {
+          margin-inline-start: 0 !important;
         }
 
         @media (max-width: 760px) {
