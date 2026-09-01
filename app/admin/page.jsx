@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
 import AnnouncementManager from "@/components/AnnouncementManager";
+import PostsManager from "@/components/PostsManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -187,6 +188,8 @@ export default function AdminPage() {
             ? "مدیریت عکس‌ها"
             : tab === "products"
             ? "مدیریت محصولات"
+            : tab === "posts"
+            ? "بلاگ و راهنمای خرید"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -221,6 +224,12 @@ export default function AdminPage() {
           <Tag size={14} /> محصولات
         </button>
         <button
+          onClick={() => setTab("posts")}
+          style={tabBtnStyle(tab === "posts")}
+        >
+          <Newspaper size={14} /> بلاگ و راهنما
+        </button>
+        <button
           onClick={() => setTab("announcement")}
           style={tabBtnStyle(tab === "announcement")}
         >
@@ -231,6 +240,8 @@ export default function AdminPage() {
       {tab === "images" && <ImagesManager />}
 
       {tab === "products" && <ProductsManager />}
+
+      {tab === "posts" && <PostsManager />}
 
       {tab === "announcement" && <AnnouncementManager />}
 

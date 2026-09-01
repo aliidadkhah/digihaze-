@@ -8,7 +8,7 @@ import { SITE_URL, SITE_NAME } from "@/lib/site";
 // =====================================================
 
 const CATEGORY_SEO = {
-  pod: {
+  "pod-system": {
     name: "پاد ویپ",
 
     title: "خرید پاد ویپ | قیمت و مشخصات انواع پاد",
@@ -27,7 +27,7 @@ const CATEGORY_SEO = {
     ],
   },
 
-  salt: {
+  "salt-nicotine": {
     name: "سالت نیکوتین",
 
     title: "خرید سالت نیکوتین | قیمت و انواع سالت ویپ",
@@ -46,7 +46,7 @@ const CATEGORY_SEO = {
     ],
   },
 
-  device: {
+  "disposable-pod": {
     name: "دستگاه ویپ",
 
     title: "خرید دستگاه ویپ | قیمت و مشخصات انواع ویپ",

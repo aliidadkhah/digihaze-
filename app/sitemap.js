@@ -1,8 +1,11 @@
 import { getProducts } from "@/lib/products";
+import { getPosts } from "@/lib/posts";
 import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap() {
   const products = await getProducts();
+  const blogPosts = await getPosts({ type: "blog" });
+  const guidePosts = await getPosts({ type: "guide" });
 
   // ============================================
   // صفحات اصلی سایت
@@ -30,6 +33,16 @@ export default async function sitemap() {
       changeFrequency: "monthly",
     },
     {
+      path: "/blog",
+      priority: 0.7,
+      changeFrequency: "daily",
+    },
+    {
+      path: "/buying-guide",
+      priority: 0.7,
+      changeFrequency: "weekly",
+    },
+    {
       path: "/privacy",
       priority: 0.4,
       changeFrequency: "yearly",
@@ -52,17 +65,17 @@ export default async function sitemap() {
 
   const categoryPages = [
     {
-      path: "/shop/pod",
+      path: "/shop/pod-system",
       priority: 0.9,
       changeFrequency: "daily",
     },
     {
-      path: "/shop/salt",
+      path: "/shop/salt-nicotine",
       priority: 0.9,
       changeFrequency: "daily",
     },
     {
-      path: "/shop/device",
+      path: "/shop/disposable-pod",
       priority: 0.9,
       changeFrequency: "daily",
     },
@@ -109,7 +122,7 @@ export default async function sitemap() {
       return true;
     })
     .map((product) => ({
-      url: `${SITE_URL}/product/${product.id}`,
+      url: `${SITE_URL}/product/${product.category || "shop"}/${product.slug || product.id}`,
 
       lastModified: product.updated_at
         ? new Date(product.updated_at)
@@ -121,11 +134,31 @@ export default async function sitemap() {
     }));
 
   // ============================================
+  // URL پست‌های بلاگ و راهنمای خرید
+  // ============================================
+
+  const blogUrls = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  const guideUrls = guidePosts.map((post) => ({
+    url: `${SITE_URL}/buying-guide/${post.slug}`,
+    lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  // ============================================
   // Sitemap نهایی
   // ============================================
 
   return [
     ...staticUrls,
     ...productUrls,
+    ...blogUrls,
+    ...guideUrls,
   ];
 }
