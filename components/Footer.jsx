@@ -49,6 +49,8 @@ export default function Footer() {
           {[
             { href: "/", label: "خانه" },
             { href: "/shop", label: "فروشگاه" },
+            { href: "/blog", label: "بلاگ" },
+            { href: "/buying-guide", label: "راهنمای خرید" },
             { href: "/about", label: "درباره ما" },
             { href: "/contact", label: "تماس با ما" },
             { href: "/terms", label: "قوانین و مقررات" },

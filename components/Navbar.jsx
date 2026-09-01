@@ -26,6 +26,8 @@ import {
 const LINKS = [
   { href: "/", label: "خانه" },
   { href: "/shop", label: "فروشگاه", dropdown: true },
+  { href: "/blog", label: "بلاگ" },
+  { href: "/buying-guide", label: "راهنمای خرید" },
   { href: "/about", label: "درباره ما" },
   { href: "/contact", label: "تماس با ما" },
 ];
