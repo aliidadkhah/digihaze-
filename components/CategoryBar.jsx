@@ -196,40 +196,86 @@ export default function CategoryBar() {
                     marginTop: 6,
                     background: "var(--surface)",
                     border: "1px solid var(--surface2)",
-                    borderRadius: 12,
+                    borderRadius: 14,
                     boxShadow: "0 14px 30px rgba(0,0,0,.24)",
-                    padding: 8,
-                    minWidth: 170,
+                    padding: "16px 18px",
+                    minWidth: 340,
                     zIndex: 60,
                   }}
                 >
-                  {it.subcategories.map((s) => {
-                    const subActive =
-                      active && activeSub === s.id;
+                  <div
+                    style={{
+                      fontFamily: "Vazirmatn, sans-serif",
+                      fontSize: 12.5,
+                      fontWeight: 700,
+                      color: "var(--text-lo)",
+                      marginBottom: 10,
+                    }}
+                  >
+                    بر اساس برند {it.label}
+                  </div>
 
-                    return (
-                      <Link
-                        key={s.id}
-                        href={`/shop?category=${it.id}&sub=${s.id}`}
-                        onClick={() => setOpenId(null)}
-                        style={{
-                          display: "block",
-                          padding: "8px 10px",
-                          borderRadius: 8,
-                          fontFamily: "Vazirmatn, sans-serif",
-                          fontSize: 13.5,
-                          fontWeight: subActive ? 700 : 500,
-                          color: subActive
-                            ? "#22E5C9"
-                            : "var(--text-hi)",
-                          textDecoration: "none",
-                        }}
-                        className="category-bar-sub-item"
-                      >
-                        {s.label}
-                      </Link>
-                    );
-                  })}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "4px 18px",
+                    }}
+                  >
+                    {it.subcategories.map((s) => {
+                      const subActive =
+                        active && activeSub === s.id;
+
+                      return (
+                        <Link
+                          key={s.id}
+                          href={`/shop?category=${it.id}&sub=${s.id}`}
+                          onClick={() => setOpenId(null)}
+                          style={{
+                            display: "block",
+                            padding: "8px 10px",
+                            borderRadius: 8,
+                            fontFamily: "Vazirmatn, sans-serif",
+                            fontSize: 13.5,
+                            fontWeight: subActive ? 700 : 500,
+                            color: subActive
+                              ? "#22E5C9"
+                              : "var(--text-hi)",
+                            textDecoration: "none",
+                          }}
+                          className="category-bar-sub-item"
+                        >
+                          {s.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <div
+                    style={{
+                      borderTop: "1px solid var(--surface2)",
+                      marginTop: 10,
+                      paddingTop: 10,
+                    }}
+                  >
+                    <Link
+                      href={`/shop?category=${it.id}`}
+                      onClick={() => setOpenId(null)}
+                      style={{
+                        display: "block",
+                        padding: "6px 10px",
+                        borderRadius: 8,
+                        fontFamily: "Vazirmatn, sans-serif",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#22E5C9",
+                        textDecoration: "none",
+                      }}
+                      className="category-bar-sub-item"
+                    >
+                      مشاهده همه {it.label}
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
