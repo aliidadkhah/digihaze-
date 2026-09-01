@@ -106,7 +106,7 @@ marginBottom: 25,
           }}
         >
           <Link
-            href={`/product/${product.id}`}
+            href={`/product/${product.category}/${product.slug || product.id}`}
             style={{
               flexShrink: 0,
               textDecoration: "none",

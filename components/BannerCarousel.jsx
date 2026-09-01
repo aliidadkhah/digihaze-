@@ -8,7 +8,7 @@ const BANNER_SLIDES = [
   {
     id: "b1",
     color: "#2F86FF",
-    href: "/shop/salt",
+    href: "/shop/salt-nicotine",
     img: "/slider.jpg",
   },
   {

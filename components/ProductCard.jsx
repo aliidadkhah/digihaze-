@@ -71,7 +71,7 @@ export default function ProductCard({ product }) {
       >
         {/* PRODUCT LINK */}
         <Link
-          href={`/product/${product.id}`}
+          href={`/product/${product.category}/${product.slug || product.id}`}
           style={{
             display: "flex",
             flexDirection: "column",
