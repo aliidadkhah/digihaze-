@@ -44,8 +44,9 @@ const EMPTY_FORM = {
   name: "",
   category: "",
   brand: "",
-  price: "",
-  discount: "",
+  price: "", // قیمت اصلی (قبل از تخفیف)
+  finalPrice: "", // قیمت نهایی (بعد از تخفیف) - فقط برای محاسبه‌ی درصد استفاده می‌شود
+  discount: "", // درصد تخفیف، به‌صورت خودکار محاسبه می‌شود
   rating: "",
   reviewsCount: "",
   color: "",
@@ -55,10 +56,20 @@ const EMPTY_FORM = {
   images: [],
   colors: [], // [{ name, hex }]
   specs: DEFAULT_SPEC_LABELS.map((label) => ({ label, value: "" })),
+  features: [], // ["ویژگی مهم اول", ...]
+  tags: "", // رشته‌ی جدا شده با کاما، هنگام ذخیره به آرایه تبدیل می‌شود
   brandDescription: "",
   brandImage: "",
   qa: [], // [{ question, answer }]
 };
+
+// محاسبه‌ی درصد تخفیف از روی قیمت اصلی و قیمت نهایی (بدون اعشار)
+function calcDiscountPercent(price, finalPrice) {
+  const p = Number(price) || 0;
+  const f = Number(finalPrice) || 0;
+  if (p <= 0 || f <= 0 || f >= p) return 0;
+  return Math.round(((p - f) / p) * 100);
+}
 
 function mapRowToForm(row) {
   const existingSpecs = (row.specs || []).map((s) => ({
@@ -70,12 +81,19 @@ function mapRowToForm(row) {
     (label) => !existingLabels.includes(label)
   ).map((label) => ({ label, value: "" }));
 
+  const price = Number(row.price) || 0;
+  const discount = Number(row.discount) || 0;
+  const finalPrice = price
+    ? Math.round(price * (1 - discount / 100))
+    : "";
+
   return {
     id: row.id,
     name: row.name || "",
     category: row.category || "",
     brand: row.brand || "",
     price: row.price ?? "",
+    finalPrice: finalPrice || "",
     discount: row.discount ?? "",
     rating: row.rating ?? "",
     reviewsCount: row.reviews_count ?? row.reviewsCount ?? "",
@@ -86,6 +104,8 @@ function mapRowToForm(row) {
     images: row.images || [],
     colors: row.colors || [],
     specs: [...existingSpecs, ...missingPresets],
+    features: Array.isArray(row.features) ? row.features : [],
+    tags: Array.isArray(row.tags) ? row.tags.join("، ") : "",
     brandDescription: toEditableHtml(row.brand_description || row.brandDescription || ""),
     brandImage: row.brand_image || row.brandImage || "",
     qa: row.qa || [],
@@ -178,6 +198,14 @@ export default function ProductsManager() {
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
+  // ---------- قیمت اصلی / قیمت نهایی -> محاسبه‌ی خودکار درصد تخفیف ----------
+  const updatePrice = (key, value) =>
+    setForm((f) => {
+      const next = { ...f, [key]: value };
+      next.discount = calcDiscountPercent(next.price, next.finalPrice);
+      return next;
+    });
+
   // ---------- تصاویر ----------
   const addImageFile = async (file) => {
     if (!file) return;
@@ -230,6 +258,21 @@ export default function ProductsManager() {
       form.specs.filter((_, i) => i !== idx)
     );
 
+  // ---------- ویژگی‌های مهم ----------
+  const addFeature = () => update("features", [...form.features, ""]);
+
+  const updateFeature = (idx, value) =>
+    update(
+      "features",
+      form.features.map((f, i) => (i === idx ? value : f))
+    );
+
+  const removeFeature = (idx) =>
+    update(
+      "features",
+      form.features.filter((_, i) => i !== idx)
+    );
+
   // ---------- عکس برند ----------
   const [uploadingBrandImg, setUploadingBrandImg] = useState(false);
 
@@ -273,13 +316,23 @@ export default function ProductsManager() {
     setSaveError("");
     try {
       const token = await getToken();
+
+      const payload = {
+        ...form,
+        features: form.features.map((f) => f.trim()).filter(Boolean),
+        tags: form.tags
+          .split(/[،,]/)
+          .map((t) => t.trim())
+          .filter(Boolean),
+      };
+
       const res = await fetch("/api/admin/products", {
         method: form.id ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "ذخیره ناموفق بود");
@@ -570,20 +623,43 @@ export default function ProductsManager() {
                   onChange={(e) => update("badge", e.target.value)}
                 />
               </Field>
-              <Field label="قیمت (تومان)">
+              <Field label="قیمت اصلی (تومان، قبل تخفیف)">
                 <input
                   type="number"
                   style={inputStyle}
                   value={form.price}
-                  onChange={(e) => update("price", e.target.value)}
+                  onChange={(e) => updatePrice("price", e.target.value)}
                 />
               </Field>
-              <Field label="درصد تخفیف">
+              <Field label="قیمت با تخفیف (تومان، نهایی)">
                 <input
                   type="number"
                   style={inputStyle}
-                  value={form.discount}
-                  onChange={(e) => update("discount", e.target.value)}
+                  value={form.finalPrice}
+                  placeholder="اگر تخفیف نداره، خالی بذار"
+                  onChange={(e) => updatePrice("finalPrice", e.target.value)}
+                />
+              </Field>
+              <Field label="درصد تخفیف (خودکار محاسبه می‌شود)">
+                <div
+                  style={{
+                    ...inputStyle,
+                    display: "flex",
+                    alignItems: "center",
+                    color: form.discount > 0 ? "#22E5C9" : "var(--text-mut)",
+                    fontWeight: 700,
+                    background: "var(--surface2)",
+                  }}
+                >
+                  {form.discount > 0 ? `${form.discount}٪ تخفیف` : "بدون تخفیف"}
+                </div>
+              </Field>
+              <Field label="برچسب‌ها (تگ) — با کاما جدا کن">
+                <input
+                  style={inputStyle}
+                  placeholder="مثلا: پرفروش، ارسال رایگان، جدید"
+                  value={form.tags}
+                  onChange={(e) => update("tags", e.target.value)}
                 />
               </Field>
               <Field label="امتیاز (از ۵)">
@@ -809,6 +885,50 @@ export default function ProductsManager() {
                   }}
                 >
                   + افزودن مشخصه دلخواه
+                </button>
+              </div>
+            </div>
+
+            {/* ویژگی‌های مهم */}
+            <div>
+              <label style={labelStyle}>ویژگی‌های مهم محصول</label>
+              <p style={{ color: "var(--text-mut)", fontSize: 11.5, fontFamily: "Vazirmatn", marginTop: -2, marginBottom: 8 }}>
+                این‌ها به صورت خلاصه، زیر دکمه «افزودن به سبد خرید» نمایش داده می‌شوند (مثلا: «۱۸ ماه گارانتی»، «ارسال رایگان»)
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {form.features.map((f, idx) => (
+                  <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <input
+                      style={{ ...inputStyle, flex: 1 }}
+                      placeholder="مثلا: تضمین اصالت کالا"
+                      value={f}
+                      onChange={(e) => updateFeature(idx, e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFeature(idx)}
+                      style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-mut)" }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addFeature}
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "var(--surface2)",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 12,
+                    color: "var(--text-hi)",
+                    cursor: "pointer",
+                  }}
+                >
+                  + افزودن ویژگی
                 </button>
               </div>
             </div>

@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Plus, Minus } from "lucide-react";
 import { Badge, Reveal } from "./ui";
+
+// چند گروه اول به‌صورت پیش‌فرض نمایش داده می‌شوند تا لندینگ خیلی طولانی نشه
+const VISIBLE_GROUPS_DEFAULT = 3;
 
 const FAQ_GROUPS = [
   {
@@ -202,9 +205,16 @@ function FaqItem({ q, a, open, onToggle }) {
 
 export default function FaqSection() {
   const [openKey, setOpenKey] = useState(null);
+  const [showAllGroups, setShowAllGroups] = useState(false);
 
   const toggle = (key) =>
     setOpenKey((prev) => (prev === key ? null : key));
+
+  const visibleGroups = showAllGroups
+    ? FAQ_GROUPS
+    : FAQ_GROUPS.slice(0, VISIBLE_GROUPS_DEFAULT);
+
+  const hiddenCount = FAQ_GROUPS.length - VISIBLE_GROUPS_DEFAULT;
 
   return (
     <section
@@ -241,10 +251,19 @@ export default function FaqSection() {
         </div>
       </Reveal>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
-        {FAQ_GROUPS.map((group, gi) => (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {visibleGroups.map((group, gi) => (
           <Reveal key={group.title} delay={0.05 * gi}>
-            <div>
+            <div
+              style={{
+                paddingTop: gi === 0 ? 0 : 28,
+                marginTop: gi === 0 ? 0 : 28,
+                borderTop:
+                  gi === 0
+                    ? "none"
+                    : "1px solid var(--surface2)",
+              }}
+            >
               <h3
                 style={{
                   fontFamily: "Vazirmatn",
@@ -287,6 +306,39 @@ export default function FaqSection() {
           </Reveal>
         ))}
       </div>
+
+      {hiddenCount > 0 && (
+        <div style={{ textAlign: "center", marginTop: 30 }}>
+          <button
+            type="button"
+            onClick={() => setShowAllGroups((v) => !v)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              background: "var(--surface)",
+              border: "1px solid var(--surface2)",
+              borderRadius: 999,
+              padding: "11px 22px",
+              fontFamily: "Vazirmatn",
+              fontWeight: 700,
+              fontSize: 13,
+              color: "#2F86FF",
+              cursor: "pointer",
+            }}
+          >
+            {showAllGroups ? (
+              <>
+                <Minus size={15} /> نمایش کمتر
+              </>
+            ) : (
+              <>
+                <Plus size={15} /> نمایش {hiddenCount} دسته سوال بیشتر
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </section>
   );
 }

@@ -2,6 +2,7 @@ import "./globals.css";
 
 import Providers from "@/components/Providers";
 import ProductsProvider from "@/components/ProductsProvider";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
@@ -198,6 +199,8 @@ export default function RootLayout({
           <ProductsProvider>
 
             <ScrollMorphBackground />
+
+            <AnnouncementBar />
 
             <Navbar />
 

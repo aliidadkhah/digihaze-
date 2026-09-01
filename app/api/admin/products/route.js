@@ -52,6 +52,12 @@ function buildRow(body) {
     colors: Array.isArray(body.colors) ? body.colors : [],
     description: body.description?.trim() || "",
     specs: Array.isArray(body.specs) ? body.specs : [],
+    features: Array.isArray(body.features)
+      ? body.features.map((f) => String(f).trim()).filter(Boolean)
+      : [],
+    tags: Array.isArray(body.tags)
+      ? body.tags.map((t) => String(t).trim()).filter(Boolean)
+      : [],
     brand_description: body.brandDescription?.trim() || "",
     brand_image: body.brandImage?.trim() || "",
     qa: Array.isArray(body.qa) ? body.qa : [],

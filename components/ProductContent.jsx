@@ -12,6 +12,9 @@ import {
   Check,
   Percent,
   Star,
+  ShieldCheck,
+  ChevronDown,
+  Tag,
 } from "lucide-react";
 
 import {
@@ -24,8 +27,23 @@ import {
 
 import { FlavorCloud } from "./visuals";
 import ProductCard from "./ProductCard";
-import { money, discountedPrice } from "@/lib/data";
+import { money, discountedPrice, CATEGORIES } from "@/lib/data";
 import { useCart, useUser } from "./Providers";
+
+// حذف تگ‌های HTML برای تخمین طول متن (برای تصمیم «نمایش بیشتر»)
+function stripHtml(html) {
+  if (!html) return "";
+  return String(html)
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// اطلاعات دسته‌بندی محصول (عنوان و رنگ) برای بردکرامب و چیپ دسته
+function getCategoryInfo(categoryId) {
+  const found = CATEGORIES.find((c) => c.id === categoryId);
+  return found || { id: categoryId, label: categoryId || "محصولات", color: "#2F86FF" };
+}
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو هم درست نشون می‌دهد
 function toDisplayHtml(text) {
@@ -188,6 +206,22 @@ export default function ProductContent({ product, related }) {
     product.reviews || []
   );
 
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const categoryInfo = getCategoryInfo(product.category);
+
+  // ویژگی‌های مهم: اگر ادمین جداگانه ثبت کرده، همون‌ها؛ وگرنه از روی مشخصات فنی می‌سازیم
+  const keyFeatures =
+    product.features?.length > 0
+      ? product.features
+      : (product.specs || [])
+          .filter((s) => (s.value || s.v || "").trim())
+          .slice(0, 4)
+          .map((s) => `${s.label || s.k}: ${s.value || s.v}`);
+
+  const descriptionIsLong =
+    stripHtml(product.description).length > 320;
+
   /*
    * رنگ انتخاب‌شده
    *
@@ -207,6 +241,7 @@ export default function ProductContent({ product, related }) {
     setQty(1);
     setTab("desc");
     setReviews(product.reviews || []);
+    setDescExpanded(false);
 
     setSelectedColor(
       product.colors?.length > 0
@@ -264,19 +299,52 @@ export default function ProductContent({ product, related }) {
         padding: "30px 20px 70px",
       }}
     >
-      <Link
-        href="/shop"
+      {/* =========================
+          Breadcrumb
+      ========================= */}
+      <div
         style={{
-          color: "var(--text-lo)",
-          fontSize: 13,
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 6,
           marginBottom: 20,
-          display: "inline-block",
-          textDecoration: "none",
           fontFamily: "Vazirmatn",
+          fontSize: 12.5,
+          color: "var(--text-mut)",
         }}
       >
-        ← بازگشت به فروشگاه
-      </Link>
+        <Link
+          href="/"
+          style={{ color: "var(--text-mut)", textDecoration: "none" }}
+        >
+          خانه
+        </Link>
+
+        <span style={{ opacity: 0.6 }}>/</span>
+
+        <Link
+          href={`/shop/${product.category}`}
+          style={{ color: "var(--text-mut)", textDecoration: "none" }}
+        >
+          {categoryInfo.label}
+        </Link>
+
+        <span style={{ opacity: 0.6 }}>/</span>
+
+        <span
+          style={{
+            color: "var(--text-hi)",
+            fontWeight: 700,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: 240,
+          }}
+        >
+          {product.name}
+        </span>
+      </div>
 
       {product.discount > 0 && (
         <div
@@ -705,6 +773,166 @@ export default function ProductContent({ product, related }) {
             </button>
           </div>
 
+          {/* =========================
+              ویژگی‌های مهم
+          ========================= */}
+          {keyFeatures.length > 0 && (
+            <div
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--surface2)",
+                borderRadius: 14,
+                padding: "14px 16px",
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  marginBottom: 10,
+                  color: "var(--text-hi)",
+                }}
+              >
+                ویژگی‌های مهم
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                  gap: 8,
+                }}
+              >
+                {keyFeatures.map((feat, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 7,
+                      fontSize: 12.5,
+                      color: "var(--text-lo)",
+                      fontFamily: "Vazirmatn",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    <Check
+                      size={14}
+                      color={product.color || "#2F86FF"}
+                      style={{ flexShrink: 0, marginTop: 2 }}
+                    />
+                    <span>{feat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* =========================
+              ضمانت اصالت کالا
+          ========================= */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              background: "#22E5C90f",
+              border: "1px solid #22E5C955",
+              borderRadius: 14,
+              padding: "13px 16px",
+              marginBottom: 14,
+            }}
+          >
+            <ShieldCheck
+              size={20}
+              color="#22E5C9"
+              style={{ flexShrink: 0, marginTop: 1 }}
+            />
+
+            <div>
+              <div
+                style={{
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--text-hi)",
+                  marginBottom: 3,
+                }}
+              >
+                ضمانت اصالت کالا
+              </div>
+              <p
+                style={{
+                  margin: 0,
+                  fontFamily: "Vazirmatn",
+                  fontSize: 12,
+                  color: "var(--text-mut)",
+                  lineHeight: 1.8,
+                }}
+              >
+                تمام محصولات دیجی‌هیز اورجینال و تأمین‌شده از منابع معتبر هستند و با ضمانت اصالت کالا برای شما ارسال می‌شوند.
+              </p>
+            </div>
+          </div>
+
+          {/* =========================
+              دسته‌بندی و برچسب‌ها
+          ========================= */}
+          {(product.category || product.tags?.length > 0) && (
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              {product.category && (
+                <Link
+                  href={`/shop/${product.category}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    textDecoration: "none",
+                    background: `${categoryInfo.color}18`,
+                    color: categoryInfo.color,
+                    border: `1px solid ${categoryInfo.color}55`,
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                  }}
+                >
+                  <Tag size={11} />
+                  {categoryInfo.label}
+                </Link>
+              )}
+
+              {(product.tags || []).map((tag, i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-block",
+                    background: "var(--surface)",
+                    color: "var(--text-mut)",
+                    border: "1px solid var(--surface2)",
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    fontFamily: "Vazirmatn",
+                    fontSize: 11.5,
+                    fontWeight: 500,
+                  }}
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -775,23 +1003,89 @@ export default function ProductContent({ product, related }) {
           </div>
 
           {tab === "desc" && (
-            <div
-              className="rich-content"
-              dir="rtl"
-              style={{
-                color: "var(--text-lo)",
-                fontSize: 14,
-                lineHeight: 2,
-                textAlign: "right",
-              }}
-              dangerouslySetInnerHTML={{
-                __html: toDisplayHtml(product.description),
-              }}
-            />
+            <div>
+              <div
+                style={{
+                  position: "relative",
+                  maxHeight:
+                    descExpanded || !descriptionIsLong
+                      ? "none"
+                      : 220,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  className="rich-content"
+                  dir="rtl"
+                  style={{
+                    color: "var(--text-lo)",
+                    fontSize: 14,
+                    lineHeight: 2,
+                    textAlign: "center",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: toDisplayHtml(product.description),
+                  }}
+                />
+
+                {!descExpanded && descriptionIsLong && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      right: 0,
+                      left: 0,
+                      height: 70,
+                      background:
+                        "linear-gradient(to bottom, transparent, var(--bg))",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </div>
+
+              {descriptionIsLong && (
+                <button
+                  type="button"
+                  onClick={() => setDescExpanded((v) => !v)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    margin: "12px auto 0",
+                    background: "var(--surface)",
+                    border: "1px solid var(--surface2)",
+                    borderRadius: 999,
+                    padding: "8px 18px",
+                    fontFamily: "Vazirmatn",
+                    fontWeight: 700,
+                    fontSize: 12.5,
+                    color: "#2F86FF",
+                    cursor: "pointer",
+                  }}
+                >
+                  {descExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
+                  <ChevronDown
+                    size={14}
+                    style={{
+                      transition: "transform 0.25s ease",
+                      transform: descExpanded
+                        ? "rotate(180deg)"
+                        : "rotate(0deg)",
+                    }}
+                  />
+                </button>
+              )}
+            </div>
           )}
 
           {tab === "specs" && (
-            <div>
+            <div
+              style={{
+                maxWidth: 560,
+                margin: "0 auto",
+              }}
+            >
               {product.specs
                 .filter((s) => (s.value || s.v || "").trim())
                 .map((s, i) => (
@@ -799,18 +1093,21 @@ export default function ProductContent({ product, related }) {
                   key={i}
                   style={{
                     display: "flex",
-                    justifyContent:
-                      "space-between",
+                    justifyContent: "center",
+                    alignItems: "baseline",
+                    gap: 28,
                     padding: "10px 0",
                     borderBottom:
                       "1px solid var(--surface2)",
                     fontSize: 13.5,
+                    textAlign: "center",
                   }}
                 >
                   <span
                     style={{
                       color:
                         "var(--text-mut)",
+                      minWidth: 130,
                     }}
                   >
                     {s.label || s.k}
@@ -819,6 +1116,7 @@ export default function ProductContent({ product, related }) {
                   <span
                     style={{
                       fontWeight: 700,
+                      minWidth: 130,
                     }}
                   >
                     {s.value || s.v}
@@ -838,6 +1136,7 @@ export default function ProductContent({ product, related }) {
                     overflow: "hidden",
                     marginBottom: 16,
                     maxWidth: 420,
+                    margin: "0 auto 16px",
                   }}
                 >
                   <img
@@ -859,7 +1158,7 @@ export default function ProductContent({ product, related }) {
                     color: "var(--text-lo)",
                     fontSize: 14,
                     lineHeight: 2,
-                    textAlign: "right",
+                    textAlign: "center",
                   }}
                   dangerouslySetInnerHTML={{
                     __html: toDisplayHtml(product.brandDescription),
@@ -1008,12 +1307,12 @@ export default function ProductContent({ product, related }) {
       <style jsx global>{`
         .rich-content {
           direction: rtl;
-          text-align: right;
+          text-align: center;
         }
         .rich-content img {
           max-width: 100%;
           border-radius: 14px;
-          margin: 14px 0;
+          margin: 14px auto;
           display: block;
         }
         .rich-content h1,
@@ -1022,7 +1321,7 @@ export default function ProductContent({ product, related }) {
           font-family: Vazirmatn;
           font-weight: 800;
           color: var(--text-hi);
-          margin: 22px 0 12px;
+          margin: 22px auto 12px;
           padding-bottom: 8px;
           border-bottom: 2px solid #2F86FF;
           display: inline-block;

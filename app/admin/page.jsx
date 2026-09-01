@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
+import AnnouncementManager from "@/components/AnnouncementManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -21,7 +22,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
-  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products"
+  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products" | "announcement"
   const [resetSending, setResetSending] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
@@ -184,7 +185,9 @@ export default function AdminPage() {
             ? `سفارش‌ها (${orders.length})`
             : tab === "images"
             ? "مدیریت عکس‌ها"
-            : "مدیریت محصولات"}
+            : tab === "products"
+            ? "مدیریت محصولات"
+            : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
           {tab === "orders" && (
@@ -217,11 +220,19 @@ export default function AdminPage() {
         >
           <Tag size={14} /> محصولات
         </button>
+        <button
+          onClick={() => setTab("announcement")}
+          style={tabBtnStyle(tab === "announcement")}
+        >
+          <Megaphone size={14} /> اطلاعیه
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
 
       {tab === "products" && <ProductsManager />}
+
+      {tab === "announcement" && <AnnouncementManager />}
 
       {tab === "orders" && (
         <>
