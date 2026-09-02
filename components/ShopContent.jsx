@@ -331,7 +331,7 @@ export default function ShopContent({
                 border:
                   "1px solid var(--surface2)",
                 borderRadius: 10,
-                padding: "8px 30px 8px 12px",
+                padding: "8px 30px 8px 28px",
                 fontFamily: "Vazirmatn",
                 fontSize: 13,
                 outline: "none",
@@ -360,7 +360,7 @@ export default function ShopContent({
               color="var(--text-lo)"
               style={{
                 position: "absolute",
-                left: 10,
+                left: 8,
                 top: "50%",
                 transform: "translateY(-50%)",
                 pointerEvents: "none",
