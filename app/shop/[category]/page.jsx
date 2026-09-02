@@ -1,5 +1,5 @@
 import ShopContent from "@/components/ShopContent";
-import { CATEGORIES } from "@/lib/data";
+import { CATEGORIES, LEGACY_CATEGORY_MAP } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
@@ -90,7 +90,8 @@ const CATEGORY_SEO = {
 // =====================================================
 
 export async function generateMetadata({ params }) {
-  const { category } = await params;
+  const { category: rawCategory } = await params;
+  const category = LEGACY_CATEGORY_MAP[rawCategory] || rawCategory;
 
   const seo = CATEGORY_SEO[category];
 
@@ -180,7 +181,12 @@ export async function generateMetadata({ params }) {
 export default async function CategoryShopPage({
   params,
 }) {
-  const { category } = await params;
+  const { category: rawCategory } = await params;
+
+  // اگر شناسه‌ی قدیمی بود (pod/device/salt)، بدون ریدایرکت HTTP
+  // (که روی Cloudflare می‌تونست باعث گیرکردن/لوپ بشه)،
+  // مستقیم محتوای دسته‌بندی جدید رو رندر می‌کنیم.
+  const category = LEGACY_CATEGORY_MAP[rawCategory] || rawCategory;
 
   // بررسی معتبر بودن دسته‌بندی
   const exists = CATEGORIES.some(
