@@ -10,9 +10,10 @@ import { ChevronDown } from "lucide-react";
    نوار دسته‌بندی زیر ناوبری اصلی
    (مشابه ردیف دسته‌بندی سایت‌های مرجع)
 
-   همیشه نمایان است (نه با هاور)، و اگر دسته‌ای
-   زیردسته داشته باشد با کلیک روی فلش کنارش،
-   یک پنل کوچک زیرش باز/بسته می‌شود.
+   اگر دسته‌ای زیردسته داشته باشد، با هاور کردن
+   روی آیتم (ماوس‌اوور) پنل زیردسته‌ها باز می‌شود
+   و با خارج شدن ماوس بسته می‌شود. روی موبایل/لمسی
+   که هاور معنی ندارد، کلیک روی فلش همچنان کار می‌کند.
 ========================================= */
 
 export default function CategoryBar() {
@@ -22,6 +23,26 @@ export default function CategoryBar() {
   const [openId, setOpenId] = useState(null);
 
   const wrapRef = useRef(null);
+  const closeTimerRef = useRef(null);
+
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const openNow = (id) => {
+    clearCloseTimer();
+    setOpenId(id);
+  };
+
+  const closeWithDelay = () => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setOpenId(null);
+    }, 150);
+  };
 
   const activeCategory =
     pathname === "/shop"
@@ -55,11 +76,13 @@ export default function CategoryBar() {
 
     document.addEventListener("mousedown", onClickOutside);
 
-    return () =>
+    return () => {
       document.removeEventListener(
         "mousedown",
         onClickOutside
       );
+      clearCloseTimer();
+    };
   }, []);
 
   return (
@@ -94,6 +117,12 @@ export default function CategoryBar() {
             <div
               key={it.href}
               style={{ position: "relative", flexShrink: 0 }}
+              onMouseEnter={
+                hasSubs ? () => openNow(it.id) : undefined
+              }
+              onMouseLeave={
+                hasSubs ? closeWithDelay : undefined
+              }
             >
               <div
                 className="category-bar-item-row"
@@ -157,7 +186,7 @@ export default function CategoryBar() {
                     type="button"
                     aria-label={`زیردسته‌های ${it.label}`}
                     onClick={() =>
-                      setOpenId(panelOpen ? null : it.id)
+                      panelOpen ? closeWithDelay() : openNow(it.id)
                     }
                     className="category-bar-chevron"
                     style={{
