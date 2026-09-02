@@ -1,8 +1,9 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import ProductContent from "@/components/ProductContent";
 import {
   money,
   discountedPrice,
+  resolveCategoryId,
 } from "@/lib/data";
 import {
   getProductBySlug,
@@ -138,7 +139,7 @@ export async function generateMetadata({
     product.slug || product.id;
 
   const categorySlug =
-    product.category || category;
+    resolveCategoryId(product.category || category);
 
   const productUrl =
     `${SITE_URL}/product/${categorySlug}/${productSlug}`;
@@ -295,16 +296,14 @@ export default async function ProductPage({
   }
 
   // ---------------------------------------------------
-  // اگر دسته‌بندی توی آدرس با دسته‌بندی واقعی محصول
-  // فرق داشته باشه، به آدرس درست (canonical) ریدایرکت
-  // می‌کنیم تا از محتوای تکراری در سئو جلوگیری بشه.
+  // اگر دسته‌بندی توی آدرس با دسته‌بندی واقعی محصول فرق
+  // داشته باشه، دیگه ریدایرکت واقعی HTTP انجام نمی‌دیم
+  // (روی Cloudflare با کش لبه تداخل/لوپ ایجاد می‌کرد).
+  // به‌جاش فقط از تگ canonical برای سئو استفاده می‌کنیم
+  // که پایین‌تر (در generateMetadata) ست شده.
   // ---------------------------------------------------
 
-  const realCategory = product.category || category;
-
-  if (realCategory && realCategory !== category) {
-    redirect(`/product/${realCategory}/${product.slug || product.id}`);
-  }
+  const realCategory = resolveCategoryId(product.category || category);
 
   // ---------------------------------------------------
   // محصولات مرتبط
@@ -623,12 +622,12 @@ export default async function ProductPage({
   // ===================================================
 
   const categoryName =
-    product.category ||
+    realCategory ||
     "محصولات";
 
   const categoryPath =
-    product.category
-      ? `/shop/${product.category}`
+    realCategory
+      ? `/shop/${realCategory}`
       : "/shop";
 
   const categoryUrl =
