@@ -52,6 +52,7 @@ export default async function ShopPage({
   const category = params?.category || "all";
   const search = params?.search || "";
   const sub = params?.sub || "";
+  const discountOnly = params?.discount === "1";
 
   /*
    * مهم:
@@ -84,6 +85,7 @@ export default async function ShopPage({
         initialCategory={category}
         initialSearch={search}
         initialSub={sub}
+        initialDiscountOnly={discountOnly}
       />
     </main>
   );
