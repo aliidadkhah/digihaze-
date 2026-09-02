@@ -354,3 +354,308 @@ export default function SupportWidget() {
               <div
                 style={{
                   fontFamily: "Vazirmatn",
+                  fontSize: 12.5,
+                  color: "rgba(36,29,8,0.75)",
+                  marginTop: 4,
+                }}
+              >
+                سلام! چطور می‌تونم کمکتون کنم؟
+              </div>
+            </div>
+          </div>
+
+          {/* بدنه */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: "auto",
+              padding: "14px 13px",
+              background: "var(--bg)",
+            }}
+          >
+            {/* اگر گفتگو شروع نشده: منوی سوالات متداول */}
+            {!hasConversationStarted && !showForm && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 9,
+                }}
+              >
+                {FAQ_CATEGORIES.map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => handleCategoryClick(label)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      border: "none",
+                      borderRadius: 14,
+                      padding: "13px 16px",
+                      background: `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
+                      color: INK,
+                      fontFamily: "Vazirmatn",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: "pointer",
+                      boxShadow: "0 6px 16px rgba(240,168,0,0.25)",
+                    }}
+                  >
+                    <ChevronLeft size={16} />
+                    {label}
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setShowForm(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    border: `1.5px solid ${GOLD_DARK}`,
+                    borderRadius: 14,
+                    padding: "13px 16px",
+                    background: "transparent",
+                    color: "var(--text-hi)",
+                    fontFamily: "Vazirmatn",
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    marginTop: 4,
+                  }}
+                >
+                  <ChevronLeft size={16} />
+                  ارتباط با پشتیبان
+                </button>
+              </div>
+            )}
+
+            {/* پیام اطلاع از پایان ساعت کاری + فرم، پیش از شروع گفتگو */}
+            {!hasConversationStarted && showForm && (
+              <div
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-soft)",
+                  borderRadius: 16,
+                  padding: "16px 14px",
+                  textAlign: "center",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "Vazirmatn",
+                    fontSize: 12.5,
+                    color: "var(--text-lo)",
+                    lineHeight: 2,
+                  }}
+                >
+                  ساعت کاری ما به پایان رسیده است،
+                  <br />
+                  لطفاً مشخصات و پیام خود را ارسال کنید تا
+                  در بازدید بعدی، پاسخگوی شما باشیم
+                </div>
+              </div>
+            )}
+
+            {/* گفتگوی فعال: تاریخچه پیام‌ها */}
+            {hasConversationStarted &&
+              messages.map((item) => {
+                const isCustomer = item.sender === "customer";
+
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: isCustomer
+                        ? "flex-start"
+                        : "flex-end",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        maxWidth: "82%",
+                        padding: "10px 13px",
+                        borderRadius: isCustomer
+                          ? "15px 15px 4px 15px"
+                          : "15px 15px 15px 4px",
+                        background: isCustomer
+                          ? `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`
+                          : "var(--surface)",
+                        color: isCustomer
+                          ? INK
+                          : "var(--text-hi)",
+                        border: isCustomer
+                          ? "none"
+                          : "1px solid var(--border-soft)",
+                        fontFamily: "Vazirmatn",
+                        fontSize: 13,
+                        lineHeight: 1.9,
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {item.message}
+
+                      <div
+                        style={{
+                          fontSize: 9,
+                          opacity: 0.65,
+                          marginTop: 3,
+                          textAlign: "left",
+                          direction: "ltr",
+                        }}
+                      >
+                        {item.created_at
+                          ? new Date(item.created_at).toLocaleTimeString(
+                              "fa-IR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )
+                          : ""}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* فرم ارسال */}
+          {(showForm || hasConversationStarted) && (
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                padding: 12,
+                background: "var(--surface)",
+                borderTop: "1px solid var(--border-soft)",
+                flexShrink: 0,
+              }}
+            >
+              {/* اطلاعات مشتری فقط قبل از شروع گفتگو */}
+              {!conversationId && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="نام خود را وارد کنید"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      background: "transparent",
+                      color: "var(--text-hi)",
+                      border: "none",
+                      borderBottom: "1.5px solid var(--border-soft)",
+                      borderRadius: 0,
+                      padding: "8px 2px",
+                      fontFamily: "Vazirmatn",
+                      fontSize: 12.5,
+                      outline: "none",
+                    }}
+                  />
+
+                  <input
+                    type="tel"
+                    placeholder="شماره تماس"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{
+                      width: "100%",
+                      boxSizing: "border-box",
+                      background: "transparent",
+                      color: "var(--text-hi)",
+                      border: "none",
+                      borderBottom: "1.5px solid var(--border-soft)",
+                      borderRadius: 0,
+                      padding: "8px 2px",
+                      fontFamily: "Vazirmatn",
+                      fontSize: 12.5,
+                      outline: "none",
+                    }}
+                  />
+                </div>
+              )}
+
+              <textarea
+                ref={messageInputRef}
+                placeholder="پیام خود را بنویسید..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={2}
+                required
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  background: "var(--bg)",
+                  color: "var(--text-hi)",
+                  border: "1px solid var(--border-soft)",
+                  borderRadius: 13,
+                  padding: "10px 12px",
+                  fontFamily: "Vazirmatn",
+                  fontSize: 12,
+                  outline: "none",
+                  resize: "none",
+                }}
+              />
+
+              <button
+                type="submit"
+                disabled={sending || !message.trim()}
+                style={{
+                  width: "100%",
+                  marginTop: 10,
+                  border: "none",
+                  borderRadius: 999,
+                  padding: "11px 0",
+                  background:
+                    sending || !message.trim()
+                      ? "var(--border-soft)"
+                      : `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
+                  color: INK,
+                  fontFamily: "Vazirmatn",
+                  fontWeight: 800,
+                  fontSize: 13,
+                  cursor:
+                    sending || !message.trim()
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+              >
+                ارسال
+              </button>
+
+              <div
+                style={{
+                  textAlign: "center",
+                  fontFamily: "Vazirmatn",
+                  fontSize: 9,
+                  color: "var(--text-lo)",
+                  marginTop: 8,
+                }}
+              >
+                پاسخ پشتیبانی در همین چت نمایش داده می‌شود.
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
