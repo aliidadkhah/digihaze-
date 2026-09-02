@@ -576,7 +576,7 @@ export default function Navbar() {
           gap: 8px;
           font-family: Vazirmatn, sans-serif;
           font-size: 14.5px;
-          color: var(--text-hi);
+          color: rgba(255, 255, 255, 0.8);
           text-decoration: none !important;
         }
 
