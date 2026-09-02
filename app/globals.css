@@ -33,6 +33,16 @@ GLOBAL
   box-sizing: border-box;
 }
 
+/* حذف قطعی خط زیر تمام لینک‌های سایت (منو، دسته‌بندی‌ها و ...) */
+a,
+a:link,
+a:visited,
+a:hover,
+a:active,
+a:focus {
+  text-decoration: none !important;
+}
+
 html,
 body {
   width: 100%;
