@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter, ChevronDown } from "lucide-react";
 import { Reveal } from "./ui";
 import ProductCard from "./ProductCard";
 import {
   CATEGORIES,
   discountedPrice,
+  resolveCategoryId,
 } from "@/lib/data";
 
 /* =========================================
@@ -34,7 +35,7 @@ function normalizeText(value) {
 
 function getSearchText(product) {
   const category = CATEGORIES.find(
-    (c) => c.id === product.category
+    (c) => c.id === resolveCategoryId(product.category)
   );
 
   const categoryLabel = category?.label || "";
@@ -131,7 +132,7 @@ export default function ShopContent({
       active === "all"
         ? products
         : products.filter(
-            (p) => p.category === active
+            (p) => resolveCategoryId(p.category) === active
           );
 
     /*
@@ -314,40 +315,58 @@ export default function ShopContent({
             color="var(--text-lo)"
           />
 
-          <select
-            value={sort}
-            onChange={(e) =>
-              setSort(e.target.value)
-            }
-            aria-label="مرتب‌سازی محصولات"
-            style={{
-              background: "var(--surface)",
-              color: "var(--text-hi)",
-              border:
-                "1px solid var(--surface2)",
-              borderRadius: 10,
-              padding: "8px 12px",
-              fontFamily: "Vazirmatn",
-              fontSize: 13,
-              outline: "none",
-            }}
-          >
-            <option value="default">
-              مرتب‌سازی
-            </option>
+          <div style={{ position: "relative", display: "inline-flex" }}>
+            <select
+              value={sort}
+              onChange={(e) =>
+                setSort(e.target.value)
+              }
+              aria-label="مرتب‌سازی محصولات"
+              style={{
+                appearance: "none",
+                WebkitAppearance: "none",
+                MozAppearance: "none",
+                background: "var(--surface)",
+                color: "var(--text-hi)",
+                border:
+                  "1px solid var(--surface2)",
+                borderRadius: 10,
+                padding: "8px 30px 8px 12px",
+                fontFamily: "Vazirmatn",
+                fontSize: 13,
+                outline: "none",
+                width: "auto",
+              }}
+            >
+              <option value="default">
+                مرتب‌سازی
+              </option>
 
-            <option value="price-asc">
-              ارزان‌ترین
-            </option>
+              <option value="price-asc">
+                ارزان‌ترین
+              </option>
 
-            <option value="price-desc">
-              گران‌ترین
-            </option>
+              <option value="price-desc">
+                گران‌ترین
+              </option>
 
-            <option value="rating">
-              محبوب‌ترین
-            </option>
-          </select>
+              <option value="rating">
+                محبوب‌ترین
+              </option>
+            </select>
+
+            <ChevronDown
+              size={14}
+              color="var(--text-lo)"
+              style={{
+                position: "absolute",
+                left: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         </div>
       </div>
 
