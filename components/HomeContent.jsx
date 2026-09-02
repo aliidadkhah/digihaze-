@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { Flame } from "lucide-react";
 
-import { Badge, Reveal, Countdown } from "./ui";
+import { Badge, Reveal } from "./ui";
 import {
   FlavorCloud,
   VaporParticles,
@@ -14,6 +13,7 @@ import {
 import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
 import FaqSection from "./FaqSection";
+import SiteImage from "./SiteImage";
 import { CATEGORIES } from "@/lib/data";
 import { useProducts } from "./ProductsProvider";
 
@@ -26,11 +26,6 @@ export default function HomeContent() {
 
   const saleItems = products.filter(
     (p) => p.discount > 0
-  );
-
-  const weekEnd = useMemo(
-    () => Date.now() + 1000 * 60 * 60 * 52,
-    []
   );
 
   const [heroColor, setHeroColor] =
@@ -342,6 +337,7 @@ export default function HomeContent() {
                     )
                   }
                   aria-label={`مشاهده ${c.label}`}
+                  className="category-card-link"
                   style={{
                     display: "block",
                     width: "100%",
@@ -350,12 +346,9 @@ export default function HomeContent() {
                     border:
                       "1px solid var(--surface2)",
                     borderRadius: 16,
-                    padding:
-                      "22px 14px",
+                    overflow: "hidden",
                     cursor:
                       "pointer",
-                    textAlign:
-                      "center",
                     transition:
                       "border-color 0.25s ease, transform 0.25s ease",
                     textDecoration:
@@ -384,26 +377,22 @@ export default function HomeContent() {
                 >
                   <div
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 12,
+                      position: "relative",
+                      width: "100%",
+                      aspectRatio: "1 / 1",
                       background:
-                        `${c.color}22`,
-                      margin:
-                        "0 auto 12px",
-                      display:
-                        "flex",
-                      alignItems:
-                        "center",
-                      justifyContent:
-                        "center",
+                        `${c.color}14`,
                     }}
                   >
-                    <Flame
-                      size={20}
-                      color={
-                        c.color
-                      }
+                    <SiteImage
+                      src={c.image}
+                      alt={c.label}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                      }}
                     />
                   </div>
 
@@ -415,6 +404,10 @@ export default function HomeContent() {
                       fontSize: 14,
                       color:
                         "var(--text-hi)",
+                      textAlign:
+                        "center",
+                      padding:
+                        "12px 10px",
                     }}
                   >
                     {c.label}
@@ -439,108 +432,35 @@ export default function HomeContent() {
         }}
       >
         <Reveal>
-          <div
+          <Link
+            href="/shop?discount=1"
+            aria-label="مشاهده محصولات تخفیف‌دار"
+            className="discount-banner-link"
             style={{
+              display: "block",
               position:
                 "relative",
               overflow:
                 "hidden",
               borderRadius: 24,
-              background:
-                "linear-gradient(120deg,#3a1440,var(--bg) 70%)",
               border:
                 "1px solid var(--border-soft)",
-              padding:
-                "42px 30px",
-              display:
-                "flex",
-              alignItems:
-                "center",
-              justifyContent:
-                "space-between",
-              flexWrap:
-                "wrap",
-              gap: 20,
+              width: "100%",
+              aspectRatio: "1400 / 500",
+              textDecoration: "none",
             }}
           >
-            <FlavorCloud
-              color="#C6FF3D"
-              size={380}
+            <SiteImage
+              src="/discount-banner.jpg"
+              alt="تا ۲۰٪ تخفیف روی مایع‌های یخی - مشاهده محصولات تخفیف‌دار"
               style={{
-                bottom: -140,
-                left: -80,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
               }}
             />
-
-            <div
-              style={{
-                position:
-                  "relative",
-                zIndex: 2,
-              }}
-            >
-              <Badge bg="#C6FF3D">
-                پیشنهاد شگفت‌انگیز هفته
-              </Badge>
-
-              <h2
-                style={{
-                  fontFamily:
-                    "Vazirmatn",
-                  fontWeight: 800,
-                  fontSize: 26,
-                  margin:
-                    "14px 0 8px",
-                }}
-              >
-                تا ۲۰٪ تخفیف روی
-                مایع‌های یخی
-              </h2>
-
-              <p
-                style={{
-                  color:
-                    "var(--text-lo)",
-                  fontSize: 14,
-                  marginBottom:
-                    14,
-                }}
-              >
-                فقط تا پایان این
-                هفته، موجودی محدود
-              </p>
-
-              <Countdown
-                target={weekEnd}
-                color="#C6FF3D"
-              />
-            </div>
-
-            <Link
-              href="/shop"
-              style={{
-                position:
-                  "relative",
-                zIndex: 2,
-                background:
-                  "#C6FF3D",
-                color:
-                  "var(--ink)",
-                border: "none",
-                borderRadius: 14,
-                padding:
-                  "14px 26px",
-                fontFamily:
-                  "Vazirmatn",
-                fontWeight: 800,
-                fontSize: 14,
-                textDecoration:
-                  "none",
-              }}
-            >
-              مشاهده تخفیف‌ها
-            </Link>
-          </div>
+          </Link>
         </Reveal>
       </section>
 
@@ -760,6 +680,19 @@ export default function HomeContent() {
       ========================= */}
 
       <style jsx>{`
+        .category-card-link {
+          transform: translateZ(0);
+        }
+
+        .discount-banner-link {
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .discount-banner-link:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+        }
+
         @media (max-width: 600px) {
           .featured-grid {
             grid-template-columns: repeat(

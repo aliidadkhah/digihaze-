@@ -476,7 +476,7 @@ export default function Navbar() {
           position: relative;
           padding-bottom: 4px;
           white-space: nowrap;
-          text-decoration: none;
+          text-decoration: none !important;
           font-family: Vazirmatn, sans-serif;
           font-size: 15px;
         }
@@ -546,7 +546,7 @@ export default function Navbar() {
         .mobile-nav-link {
           font-family: Vazirmatn, sans-serif;
           font-size: 16px;
-          text-decoration: none;
+          text-decoration: none !important;
         }
 
         .mobile-shop-button {
@@ -560,6 +560,7 @@ export default function Navbar() {
           font-family: Vazirmatn, sans-serif;
           font-size: 16px;
           cursor: pointer;
+          text-decoration: none !important;
         }
 
         .mobile-submenu {
@@ -575,8 +576,8 @@ export default function Navbar() {
           gap: 8px;
           font-family: Vazirmatn, sans-serif;
           font-size: 14.5px;
-          color: var(--text-mut);
-          text-decoration: none;
+          color: var(--text-hi);
+          text-decoration: none !important;
         }
 
         @media (max-width: 760px) {

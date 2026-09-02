@@ -326,6 +326,14 @@ export default function CategoryBar() {
           color: var(--text-hi);
         }
 
+        .category-bar-link {
+          text-decoration: none !important;
+        }
+
+        .category-bar-sub-item {
+          text-decoration: none !important;
+        }
+
         .category-bar-sub-item:hover {
           background: var(--surface2);
         }

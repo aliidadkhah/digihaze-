@@ -91,6 +91,7 @@ export default function ShopContent({
   initialCategory,
   initialSearch,
   initialSub,
+  initialDiscountOnly,
 }) {
   const [active, setActive] = useState(
     initialCategory || "all"
@@ -106,6 +107,10 @@ export default function ShopContent({
     initialSearch || ""
   );
 
+  const [discountOnly, setDiscountOnly] = useState(
+    Boolean(initialDiscountOnly)
+  );
+
   useEffect(() => {
     setActive(initialCategory || "all");
   }, [initialCategory]);
@@ -117,6 +122,10 @@ export default function ShopContent({
   useEffect(() => {
     setSearch(initialSearch || "");
   }, [initialSearch]);
+
+  useEffect(() => {
+    setDiscountOnly(Boolean(initialDiscountOnly));
+  }, [initialDiscountOnly]);
 
   const chips = [
     {
@@ -163,6 +172,15 @@ export default function ShopContent({
     if (search.trim()) {
       arr = arr.filter((product) =>
         matchesSearch(product, search)
+      );
+    }
+
+    /*
+     * فقط محصولات تخفیف‌دار
+     */
+    if (discountOnly) {
+      arr = arr.filter(
+        (p) => Number(p.discount || 0) > 0
       );
     }
 
@@ -221,6 +239,7 @@ export default function ShopContent({
     activeSub,
     sort,
     search,
+    discountOnly,
   ]);
 
   return (

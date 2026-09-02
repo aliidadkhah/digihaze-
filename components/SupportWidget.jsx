@@ -145,36 +145,63 @@ export default function SupportWidget() {
   return (
     <>
       {/* دکمه شناور پشتیبانی */}
-      <button
-        onClick={() => setOpen(!open)}
-        aria-label="پشتیبانی"
+      <div
         style={{
           position: "fixed",
           left: 22,
           bottom: 22,
-          width: 60,
-          height: 60,
-          borderRadius: "50%",
-          border: "none",
-          background: "linear-gradient(135deg, #22E5C9, #2F86FF)",
-          color: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
           zIndex: 9999,
-          boxShadow: "0 8px 30px rgba(47,134,255,0.4)",
-          transition: "transform 0.25s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.08)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
         }}
       >
-        {open ? <X size={26} /> : <MessageCircle size={28} />}
-      </button>
+        {!open && (
+          <span
+            style={{
+              fontFamily: "Vazirmatn",
+              fontWeight: 700,
+              fontSize: 12,
+              color: "#fff",
+              background: "linear-gradient(135deg, #22E5C9, #2F86FF)",
+              padding: "4px 12px",
+              borderRadius: 999,
+              boxShadow: "0 6px 18px rgba(47,134,255,0.35)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            پشتیبانی
+          </span>
+        )}
+
+        <button
+          onClick={() => setOpen(!open)}
+          aria-label="پشتیبانی"
+          style={{
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            border: "none",
+            background: "linear-gradient(135deg, #22E5C9, #2F86FF)",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 8px 30px rgba(47,134,255,0.4)",
+            transition: "transform 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.08)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          {open ? <X size={26} /> : <MessageCircle size={28} />}
+        </button>
+      </div>
 
       {/* پنجره چت */}
       {open && (
