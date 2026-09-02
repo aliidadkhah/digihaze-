@@ -1,5 +1,6 @@
 import ShopContent from "@/components/ShopContent";
 import { CATEGORIES, LEGACY_CATEGORY_MAP } from "@/lib/data";
+import { getProducts } from "@/lib/products";
 import { notFound } from "next/navigation";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
@@ -199,6 +200,8 @@ export default async function CategoryShopPage({
 
   const seo = CATEGORY_SEO[category];
 
+  const products = await getProducts();
+
   const categoryUrl =
     `${SITE_URL}/shop/${category}`;
 
@@ -334,6 +337,7 @@ export default async function CategoryShopPage({
         </h1>
 
         <ShopContent
+          products={products}
           initialCategory={category}
           initialSearch=""
           initialSub=""
