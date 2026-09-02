@@ -1,7 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MessageCircle, X, Send, Headphones } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Headphones,
+  ChevronLeft,
+} from "lucide-react";
+
+// رنگ‌های اصلی ویجت پشتیبانی (طلایی/زرد مطابق طرح)
+const GOLD = "#FFC531";
+const GOLD_DARK = "#F0A800";
+const INK = "#241D08";
+
+const FAQ_CATEGORIES = [
+  "سوالات عمومی",
+  "سوالات مربوط به ضمانت کالا",
+  "سوالات مربوط به دستگاه",
+  "سوالات مربوط به جویس و سالت",
+  "سوالات مربوط به کویل",
+];
 
 export default function SupportWidget() {
   const [open, setOpen] = useState(false);
@@ -15,7 +33,11 @@ export default function SupportWidget() {
   const [sending, setSending] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
 
+  // نمایش مستقیم فرم پیام (رد شدن از منوی سوالات متداول)
+  const [showForm, setShowForm] = useState(false);
+
   const messagesEndRef = useRef(null);
+  const messageInputRef = useRef(null);
 
   // بازیابی گفتگو از مرورگر
   useEffect(() => {
@@ -86,6 +108,27 @@ export default function SupportWidget() {
     });
   }, [messages]);
 
+  // وقتی گفتگویی شروع شده، همیشه حالت فرم/چت نمایش داده شود
+  useEffect(() => {
+    if (conversationId) {
+      setShowForm(true);
+    }
+  }, [conversationId]);
+
+  const handleCategoryClick = (label) => {
+    setMessage((prev) =>
+      prev
+        ? prev
+        : `سلام، سوال من درباره «${label}» است:\n`
+    );
+
+    setShowForm(true);
+
+    setTimeout(() => {
+      messageInputRef.current?.focus();
+    }, 50);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -142,6 +185,9 @@ export default function SupportWidget() {
     }
   };
 
+  const hasConversationStarted =
+    messages.length > 0 || !!conversationId;
+
   return (
     <>
       {/* دکمه شناور پشتیبانی */}
@@ -163,11 +209,11 @@ export default function SupportWidget() {
               fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 12,
-              color: "#fff",
-              background: "linear-gradient(135deg, #22E5C9, #2F86FF)",
+              color: INK,
+              background: `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
               padding: "4px 12px",
               borderRadius: 999,
-              boxShadow: "0 6px 18px rgba(47,134,255,0.35)",
+              boxShadow: "0 6px 18px rgba(240,168,0,0.35)",
               whiteSpace: "nowrap",
             }}
           >
@@ -183,13 +229,13 @@ export default function SupportWidget() {
             height: 60,
             borderRadius: "50%",
             border: "none",
-            background: "linear-gradient(135deg, #22E5C9, #2F86FF)",
-            color: "#fff",
+            background: `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
+            color: INK,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
-            boxShadow: "0 8px 30px rgba(47,134,255,0.4)",
+            boxShadow: "0 8px 30px rgba(240,168,0,0.45)",
             transition: "transform 0.25s ease",
           }}
           onMouseEnter={(e) => {
@@ -225,315 +271,86 @@ export default function SupportWidget() {
             overflow: "hidden",
           }}
         >
-          {/* هدر */}
+          {/* هدر زرد */}
           <div
             style={{
-              padding: "17px 18px",
-              background:
-                "linear-gradient(135deg, rgba(34,229,201,0.16), rgba(47,134,255,0.16))",
-              borderBottom: "1px solid var(--border-soft)",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
+              padding: "16px 16px 20px",
+              background: `linear-gradient(135deg, ${GOLD}, ${GOLD_DARK})`,
               flexShrink: 0,
+              position: "relative",
             }}
           >
             <div
               style={{
-                width: 43,
-                height: 43,
-                borderRadius: "50%",
-                background:
-                  "linear-gradient(135deg, #22E5C9, #2F86FF)",
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#fff",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 8,
               }}
             >
-              <Headphones size={21} />
+              {/* آواتار پشتیبان‌ها (راست) */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row-reverse",
+                }}
+              >
+                {[0, 1].map((i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      background: "rgba(36,29,8,0.15)",
+                      border: "2px solid rgba(255,255,255,0.85)",
+                      marginRight: i === 0 ? 0 : -12,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: INK,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Headphones size={15} />
+                  </div>
+                ))}
+              </div>
+
+              {/* دکمه بستن (چپ) */}
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="بستن پشتیبانی"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  border: "none",
+                  background: "rgba(36,29,8,0.12)",
+                  color: INK,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                <X size={16} />
+              </button>
             </div>
 
-            <div style={{ flex: 1 }}>
+            <div style={{ marginTop: 10, textAlign: "right" }}>
               <div
                 style={{
                   fontFamily: "Vazirmatn",
                   fontWeight: 800,
-                  fontSize: 15,
-                  color: "var(--text-hi)",
+                  fontSize: 17,
+                  color: INK,
                 }}
               >
-                پشتیبانی DigiHaze
+                پشتیبانی سایت
               </div>
 
               <div
                 style={{
                   fontFamily: "Vazirmatn",
-                  fontSize: 11,
-                  color: "#22E5C9",
-                  marginTop: 3,
-                }}
-              >
-                ● آنلاین
-              </div>
-            </div>
-          </div>
-
-          {/* پیام‌ها */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: "auto",
-              padding: "16px 13px",
-              background: "var(--bg)",
-            }}
-          >
-            {/* پیام خوش‌آمدگویی */}
-            {messages.length === 0 && !loadingMessages && (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "25px 15px",
-                }}
-              >
-                <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    margin: "0 auto 12px",
-                    borderRadius: "50%",
-                    background:
-                      "linear-gradient(135deg, #22E5C9, #2F86FF)",
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <MessageCircle size={25} />
-                </div>
-
-                <div
-                  style={{
-                    fontFamily: "Vazirmatn",
-                    fontWeight: 800,
-                    color: "var(--text-hi)",
-                    marginBottom: 7,
-                  }}
-                >
-                  سلام 👋
-                </div>
-
-                <div
-                  style={{
-                    fontFamily: "Vazirmatn",
-                    fontSize: 12,
-                    color: "var(--text-lo)",
-                    lineHeight: 2,
-                  }}
-                >
-                  پیام خود را بفرستید.
-                  <br />
-                  پشتیبانی در همین چت پاسخ شما را خواهد داد.
-                </div>
-              </div>
-            )}
-
-            {messages.map((item) => {
-              const isCustomer = item.sender === "customer";
-
-              return (
-                <div
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: isCustomer
-                      ? "flex-start"
-                      : "flex-end",
-                    marginBottom: 10,
-                  }}
-                >
-                  <div
-                    style={{
-                      maxWidth: "82%",
-                      padding: "10px 13px",
-                      borderRadius: isCustomer
-                        ? "15px 15px 4px 15px"
-                        : "15px 15px 15px 4px",
-                      background: isCustomer
-                        ? "linear-gradient(135deg, #22E5C9, #2F86FF)"
-                        : "var(--surface)",
-                      color: isCustomer
-                        ? "#fff"
-                        : "var(--text-hi)",
-                      border: isCustomer
-                        ? "none"
-                        : "1px solid var(--border-soft)",
-                      fontFamily: "Vazirmatn",
-                      fontSize: 13,
-                      lineHeight: 1.9,
-                      whiteSpace: "pre-wrap",
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {item.message}
-
-                    <div
-                      style={{
-                        fontSize: 9,
-                        opacity: 0.65,
-                        marginTop: 3,
-                        textAlign: "left",
-                        direction: "ltr",
-                      }}
-                    >
-                      {item.created_at
-                        ? new Date(item.created_at).toLocaleTimeString(
-                            "fa-IR",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )
-                        : ""}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* فرم ارسال */}
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              padding: 12,
-              background: "var(--surface)",
-              borderTop: "1px solid var(--border-soft)",
-              flexShrink: 0,
-            }}
-          >
-            {/* اطلاعات مشتری فقط قبل از شروع گفتگو */}
-            {!conversationId && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 7,
-                  marginBottom: 8,
-                }}
-              >
-                <input
-                  type="text"
-                  placeholder="نام"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  style={{
-                    width: "50%",
-                    boxSizing: "border-box",
-                    background: "var(--bg)",
-                    color: "var(--text-hi)",
-                    border: "1px solid var(--border-soft)",
-                    borderRadius: 10,
-                    padding: "9px 10px",
-                    fontFamily: "Vazirmatn",
-                    fontSize: 11,
-                    outline: "none",
-                  }}
-                />
-
-                <input
-                  type="tel"
-                  placeholder="شماره تماس"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{
-                    width: "50%",
-                    boxSizing: "border-box",
-                    background: "var(--bg)",
-                    color: "var(--text-hi)",
-                    border: "1px solid var(--border-soft)",
-                    borderRadius: 10,
-                    padding: "9px 10px",
-                    fontFamily: "Vazirmatn",
-                    fontSize: 11,
-                    outline: "none",
-                  }}
-                />
-              </div>
-            )}
-
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: 8,
-              }}
-            >
-              <textarea
-                placeholder="پیام خود را بنویسید..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={2}
-                required
-                style={{
-                  flex: 1,
-                  boxSizing: "border-box",
-                  background: "var(--bg)",
-                  color: "var(--text-hi)",
-                  border: "1px solid var(--border-soft)",
-                  borderRadius: 13,
-                  padding: "10px 12px",
-                  fontFamily: "Vazirmatn",
-                  fontSize: 12,
-                  outline: "none",
-                  resize: "none",
-                }}
-              />
-
-              <button
-                type="submit"
-                disabled={sending || !message.trim()}
-                aria-label="ارسال پیام"
-                style={{
-                  width: 43,
-                  height: 43,
-                  flexShrink: 0,
-                  border: "none",
-                  borderRadius: 13,
-                  background:
-                    sending || !message.trim()
-                      ? "var(--border-soft)"
-                      : "linear-gradient(135deg, #22E5C9, #2F86FF)",
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor:
-                    sending || !message.trim()
-                      ? "not-allowed"
-                      : "pointer",
-                }}
-              >
-                <Send size={17} />
-              </button>
-            </div>
-
-            <div
-              style={{
-                textAlign: "center",
-                fontFamily: "Vazirmatn",
-                fontSize: 9,
-                color: "var(--text-lo)",
-                marginTop: 7,
-              }}
-            >
-              پاسخ پشتیبانی در همین چت نمایش داده می‌شود.
-            </div>
-          </form>
-        </div>
-      )}
-    </>
-  );
-}
