@@ -362,8 +362,8 @@ export default function CategoryBar() {
 
         .category-bar-sub-item:hover {
           background: var(--surface2);
-          font-weight: 700;
-          font-size: 14.5px;
+          font-weight: 700 !important;
+          font-size: 14.5px !important;
         }
 
         .category-bar-item-row {
