@@ -138,9 +138,15 @@ export default function ShopContent({
   ];
 
   // دسته‌بندی فعال (برای نمایش بنر عریض مخصوص همون دسته)
-  const activeCategoryData = CATEGORIES.find(
-    (c) => c.id === active
-  );
+  // برای تب "همه محصولات" یه بنر مجزا و مستقل تعریف شده که از پنل ادمین قابل تغییره
+  const activeCategoryData =
+    active === "all"
+      ? {
+          id: "all",
+          label: "همه محصولات",
+          banner: "/category-banner-all.jpg",
+        }
+      : CATEGORIES.find((c) => c.id === active);
 
   const list = useMemo(() => {
     let arr =
@@ -472,7 +478,7 @@ export default function ShopContent({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @media (max-width: 600px) {
           .product-grid {
             grid-template-columns: repeat(
