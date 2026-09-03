@@ -392,7 +392,7 @@ export default function Navbar() {
                       onClick={() =>
                         setMenuOpen(false)
                       }
-                      style={{ color: "var(--text-hi)" }}
+                      style={{ color: "var(--text-lo)", fontSize: 13 }}
                     >
                       همه محصولات
                     </Link>
@@ -404,7 +404,7 @@ export default function Navbar() {
                         onClick={() =>
                           setMenuOpen(false)
                         }
-                        style={{ color: "var(--text-hi)" }}
+                        style={{ color: "var(--text-lo)", fontSize: 13 }}
                       >
                         <span
                           style={{
@@ -577,8 +577,9 @@ export default function Navbar() {
           align-items: center;
           gap: 8px;
           font-family: Vazirmatn, sans-serif;
-          font-size: 14.5px;
-          color: rgba(255, 255, 255, 0.8);
+          font-size: 13px;
+          font-weight: 400;
+          color: var(--text-lo);
           text-decoration: none !important;
         }
 
