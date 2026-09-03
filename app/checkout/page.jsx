@@ -427,7 +427,7 @@ export default function CheckoutPage() {
           بازگشت به فروشگاه
         </button>
 
-        <style jsx>{`
+        <style>{`
 
           .empty-checkout {
             width: 100%;
@@ -1030,7 +1030,7 @@ export default function CheckoutPage() {
       {/* CSS */}
       {/* ========================= */}
 
-      <style jsx>{`
+      <style>{`
 
         * {
           box-sizing: border-box;
