@@ -392,6 +392,7 @@ export default function Navbar() {
                       onClick={() =>
                         setMenuOpen(false)
                       }
+                      style={{ color: "var(--text-hi)" }}
                     >
                       همه محصولات
                     </Link>
@@ -403,6 +404,7 @@ export default function Navbar() {
                         onClick={() =>
                           setMenuOpen(false)
                         }
+                        style={{ color: "var(--text-hi)" }}
                       >
                         <span
                           style={{
