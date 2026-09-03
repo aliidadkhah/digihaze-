@@ -338,7 +338,7 @@ export default function CategoryBar() {
         })}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .category-bar-inner {
           scrollbar-width: none;
           -ms-overflow-style: none;
