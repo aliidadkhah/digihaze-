@@ -157,7 +157,7 @@ export default function BannerCarousel() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @media (max-width: 768px) {
           .banner-slider {
             aspect-ratio: 16 / 5 !important;
