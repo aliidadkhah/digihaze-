@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Filter, ChevronDown } from "lucide-react";
 import { Reveal } from "./ui";
 import ProductCard from "./ProductCard";
+import SiteImage from "./SiteImage";
 import {
   CATEGORIES,
   discountedPrice,
@@ -136,6 +137,11 @@ export default function ShopContent({
     ...CATEGORIES,
   ];
 
+  // دسته‌بندی فعال (برای نمایش بنر عریض مخصوص همون دسته)
+  const activeCategoryData = CATEGORIES.find(
+    (c) => c.id === active
+  );
+
   const list = useMemo(() => {
     let arr =
       active === "all"
@@ -243,27 +249,52 @@ export default function ShopContent({
   ]);
 
   return (
-    <div
-      dir="rtl"
-      style={{
-        maxWidth: 1180,
-        margin: "0 auto",
-        padding: "20px 20px 70px",
-      }}
-    >
-      <p
+    <>
+      {/* بنر عریض مخصوص دسته‌بندی فعال (مثل بنر صفحه اصلی، با همون نسبت ابعاد) */}
+      {activeCategoryData?.banner && (
+        <div
+          className="category-hero-banner"
+          style={{
+            width: "100%",
+            overflow: "hidden",
+            aspectRatio: "21 / 3",
+            boxSizing: "border-box",
+          }}
+        >
+          <SiteImage
+            src={activeCategoryData.banner}
+            alt={activeCategoryData.label}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+        </div>
+      )}
+
+      <div
+        dir="rtl"
         style={{
-          color: "var(--text-lo)",
-          fontSize: 14,
-          marginBottom: 26,
-          fontFamily: "Vazirmatn",
+          maxWidth: 1180,
+          margin: "0 auto",
+          padding: "20px 20px 70px",
         }}
       >
-        {search
-          ? `نتایج جستجو برای «${search}» — `
-          : ""}
-        {list.length} محصول
-      </p>
+        <p
+          style={{
+            color: "var(--text-lo)",
+            fontSize: 14,
+            marginBottom: 26,
+            fontFamily: "Vazirmatn",
+          }}
+        >
+          {search
+            ? `نتایج جستجو برای «${search}» — `
+            : ""}
+          {list.length} محصول
+        </p>
 
       {/* فیلترها */}
 
@@ -440,6 +471,38 @@ export default function ShopContent({
           ))}
         </div>
       )}
-    </div>
+
+      <style jsx>{`
+        @media (max-width: 600px) {
+          .product-grid {
+            grid-template-columns: repeat(
+              2,
+              minmax(0, 1fr)
+            ) !important;
+
+            gap: 10px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .product-grid {
+            gap: 8px !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .category-hero-banner {
+            aspect-ratio: 16 / 5 !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .category-hero-banner {
+            aspect-ratio: 16 / 6 !important;
+          }
+        }
+      `}</style>
+      </div>
+    </>
   );
 }
