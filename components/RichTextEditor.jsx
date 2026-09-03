@@ -179,7 +179,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         }}
       />
 
-      <style jsx>{`
+      <style>{`
         .rte-editable :global(img) {
           max-width: 100%;
           border-radius: 10px;
