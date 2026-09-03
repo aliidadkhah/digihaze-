@@ -679,7 +679,7 @@ export default function HomeContent() {
           RESPONSIVE
       ========================= */}
 
-      <style jsx>{`
+      <style>{`
         .category-card-link {
           transform: translateZ(0);
         }
