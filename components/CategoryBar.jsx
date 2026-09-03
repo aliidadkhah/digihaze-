@@ -273,7 +273,7 @@ export default function CategoryBar() {
                     style={{
                       display: "grid",
                       gridTemplateColumns: "1fr 1fr",
-                      gap: "4px 18px",
+                      gap: "0px 18px",
                     }}
                   >
                     {it.subcategories.map((s) => {
@@ -287,7 +287,8 @@ export default function CategoryBar() {
                           onClick={() => setOpenId(null)}
                           style={{
                             display: "block",
-                            padding: "8px 10px",
+                            padding: "5px 10px",
+                            lineHeight: 1.4,
                             borderRadius: 8,
                             fontFamily: "Vazirmatn, sans-serif",
                             fontSize: 13.5,
