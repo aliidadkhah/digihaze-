@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, X, Send, Headphones, ChevronLeft } from "lucide-react";
+import { useUser } from "./Providers";
 
 // دکمه‌های آماده سوالات متداول که داخل چت نمایش داده می‌شوند
 const FAQ_CATEGORIES = [
@@ -13,6 +14,7 @@ const FAQ_CATEGORIES = [
 ];
 
 export default function SupportWidget() {
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
 
   const [conversationId, setConversationId] = useState(null);
@@ -27,27 +29,37 @@ export default function SupportWidget() {
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
 
-  // بازیابی گفتگو از مرورگر
+  // آیا کاربر لاگین کرده؟
+  const isLoggedIn = !!(user && user.contact);
+
+  // کلید ذخیره‌سازی گفتگو مخصوص همین کاربره؛ اگه کاربر لاگین کرده باشه
+  // بر اساس شماره‌ی همون کاربر جدا می‌شه، تا با عوض شدن کاربر لاگین‌شده
+  // روی همون مرورگر، گفتگوی قبلی (مال کاربر دیگه) نمایش داده نشه
+  const storageKey = isLoggedIn
+    ? `digihaze_support_conversation_${user.contact}`
+    : "digihaze_support_conversation_guest";
+
+  // بازیابی گفتگوی مخصوص همین کاربر از مرورگر
   useEffect(() => {
-    const savedConversation = localStorage.getItem(
-      "digihaze_support_conversation"
-    );
+    const savedConversation = localStorage.getItem(storageKey);
 
-    const savedName = localStorage.getItem("digihaze_support_name");
-    const savedPhone = localStorage.getItem("digihaze_support_phone");
+    setConversationId(savedConversation || null);
+    setMessages([]);
 
-    if (savedConversation) {
-      setConversationId(savedConversation);
+    if (isLoggedIn) {
+      // برای کاربر لاگین‌شده، اسم و شماره مستقیم از پروفایلش میاد
+      // و نیازی به نگه‌داشتن نسخه‌ی جدا توی localStorage نیست
+      setName(user.name || "");
+      setPhone(user.contact || "");
+    } else {
+      const savedName = localStorage.getItem("digihaze_support_name");
+      const savedPhone = localStorage.getItem("digihaze_support_phone");
+
+      setName(savedName || "");
+      setPhone(savedPhone || "");
     }
-
-    if (savedName) {
-      setName(savedName);
-    }
-
-    if (savedPhone) {
-      setPhone(savedPhone);
-    }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
 
   // گرفتن پیام‌های گفتگو
   const loadMessages = async () => {
@@ -112,6 +124,10 @@ export default function SupportWidget() {
 
     if (!message.trim() || sending) return;
 
+    // برای کاربر لاگین‌شده همیشه اسم/شماره‌ی خود پروفایلش استفاده می‌شه
+    const customerName = isLoggedIn ? user.name : name;
+    const customerPhone = isLoggedIn ? user.contact : phone;
+
     try {
       setSending(true);
 
@@ -122,8 +138,8 @@ export default function SupportWidget() {
         },
         body: JSON.stringify({
           conversationId,
-          name,
-          phone,
+          name: customerName,
+          phone: customerPhone,
           message: message.trim(),
         }),
       });
@@ -134,18 +150,17 @@ export default function SupportWidget() {
         throw new Error(data.error || "خطا در ارسال پیام");
       }
 
-      // ذخیره اطلاعات گفتگو در مرورگر
+      // ذخیره اطلاعات گفتگو در مرورگر، مخصوص همین کاربر
       if (data.conversationId) {
         setConversationId(data.conversationId);
-
-        localStorage.setItem(
-          "digihaze_support_conversation",
-          data.conversationId
-        );
+        localStorage.setItem(storageKey, data.conversationId);
       }
 
-      localStorage.setItem("digihaze_support_name", name);
-      localStorage.setItem("digihaze_support_phone", phone);
+      // فقط برای مهمان (کاربر لاگین‌نشده) اسم/شماره رو ذخیره می‌کنیم
+      if (!isLoggedIn) {
+        localStorage.setItem("digihaze_support_name", name);
+        localStorage.setItem("digihaze_support_phone", phone);
+      }
 
       setMessage("");
 
@@ -495,8 +510,8 @@ export default function SupportWidget() {
               flexShrink: 0,
             }}
           >
-            {/* اطلاعات مشتری فقط قبل از شروع گفتگو */}
-            {!conversationId && (
+            {/* اطلاعات مشتری فقط قبل از شروع گفتگو، و فقط برای مهمان (کاربر لاگین‌نشده) */}
+            {!conversationId && !isLoggedIn && (
               <div
                 style={{
                   display: "flex",
