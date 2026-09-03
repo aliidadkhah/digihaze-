@@ -21,9 +21,11 @@ export default function CategoryBar() {
   const searchParams = useSearchParams();
 
   const [openId, setOpenId] = useState(null);
+  const [panelPos, setPanelPos] = useState(null); // { top, right }
 
   const wrapRef = useRef(null);
   const closeTimerRef = useRef(null);
+  const itemRefs = useRef({});
 
   const clearCloseTimer = () => {
     if (closeTimerRef.current) {
@@ -32,8 +34,27 @@ export default function CategoryBar() {
     }
   };
 
+  // محاسبه‌ی موقعیت پنل نسبت به viewport (نه نسبت به والد اسکرول‌شونده)
+  // چون .category-bar-inner برای اسکرول افقی overflow-x:auto داره،
+  // طبق رفتار استاندارد CSS این باعث می‌شه overflow-y هم "auto" حساب بشه
+  // و هر چیزی که با position:absolute بیرون از باکس بیفته (مثل این پنل) قطع/مخفی بشه.
+  // با position:fixed و محاسبه‌ی مختصات از روی getBoundingClientRect،
+  // پنل از این کلیپ شدن فرار می‌کنه و همیشه درست نمایش داده می‌شه.
+  const computePanelPos = (id) => {
+    const el = itemRefs.current[id];
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+
+    setPanelPos({
+      top: rect.bottom + 6,
+      right: window.innerWidth - rect.right,
+    });
+  };
+
   const openNow = (id) => {
     clearCloseTimer();
+    computePanelPos(id);
     setOpenId(id);
   };
 
@@ -116,6 +137,9 @@ export default function CategoryBar() {
           return (
             <div
               key={it.href}
+              ref={(el) => {
+                itemRefs.current[it.id] = el;
+              }}
               style={{ position: "relative", flexShrink: 0 }}
               onMouseEnter={
                 hasSubs ? () => openNow(it.id) : undefined
@@ -215,14 +239,15 @@ export default function CategoryBar() {
                 )}
               </div>
 
-              {hasSubs && panelOpen && (
+              {hasSubs && panelOpen && panelPos && (
                 <div
                   className="category-bar-panel"
+                  onMouseEnter={() => openNow(it.id)}
+                  onMouseLeave={closeWithDelay}
                   style={{
-                    position: "absolute",
-                    top: "100%",
-                    right: 0,
-                    marginTop: 6,
+                    position: "fixed",
+                    top: panelPos.top,
+                    right: panelPos.right,
                     background: "var(--surface)",
                     border: "1px solid var(--surface2)",
                     borderRadius: 14,
