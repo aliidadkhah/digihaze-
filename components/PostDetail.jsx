@@ -160,7 +160,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         .post-content {
           font-family: "Vazirmatn", sans-serif;
           font-size: 15px;
