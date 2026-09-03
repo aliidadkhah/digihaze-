@@ -94,6 +94,10 @@ function mapProduct(row) {
     discount:
       Number(row.discount) || 0,
 
+    // قیمت نهایی دقیقی که ادمین ثبت کرده (منبع اصلی قیمت با تخفیف)
+    finalPrice:
+      Number(row.final_price) || 0,
+
     // ================================
     // امتیاز
     // ================================
