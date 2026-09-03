@@ -129,7 +129,7 @@ export default function PostCard({ post, basePath }) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .post-card:hover {
           transform: translateY(-4px);
           box-shadow: 0 16px 32px -14px rgba(47, 134, 255, 0.25);
