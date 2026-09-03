@@ -307,7 +307,7 @@ export default function CheckoutPage() {
           بازگشت به فروشگاه
         </button>
 
-        <style jsx>{`
+        <style>{`
           .empty-checkout {
             width: 100%;
             max-width: 600px;
@@ -865,7 +865,7 @@ export default function CheckoutPage() {
           CSS
       ===================================== */}
 
-      <style jsx>{`
+      <style>{`
 
         .checkout-page {
           width: 100%;
