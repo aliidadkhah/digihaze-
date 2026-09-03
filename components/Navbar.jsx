@@ -451,7 +451,7 @@ export default function Navbar() {
       {/* CSS */}
       {/* ============================= */}
 
-      <style jsx>{`
+      <style>{`
 
         .navbar-logo-link {
           display: flex;
