@@ -238,7 +238,7 @@ export default function ShippingPaymentManager() {
         {saved ? "ذخیره شد" : "ذخیره تنظیمات"}
       </button>
 
-      <style jsx>{`
+      <style>{`
         .spin {
           animation: spin 0.8s linear infinite;
         }
