@@ -37,11 +37,22 @@ export async function GET(request) {
 }
 
 function buildRow(body) {
+  const price = Number(body.price) || 0;
+
+  // قیمت نهایی: همون چیزیه که ادمین توی فیلد "قیمت نهایی" نوشته.
+  // اگه چیزی وارد نکرده یا صفره، یعنی تخفیفی نیست و قیمت نهایی = قیمت اصلی.
+  const finalPriceInput = Number(body.finalPrice) || 0;
+  const finalPrice =
+    finalPriceInput > 0 && finalPriceInput < price
+      ? finalPriceInput
+      : price;
+
   return {
     name: body.name?.trim() || "",
     category: body.category?.trim() || "",
     brand: body.brand?.trim() || "",
-    price: Number(body.price) || 0,
+    price,
+    final_price: finalPrice,
     discount: Number(body.discount) || 0,
     rating: Number(body.rating) || 0,
     reviews_count: Number(body.reviewsCount) || 0,
