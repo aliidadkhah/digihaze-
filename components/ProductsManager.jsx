@@ -1145,7 +1145,7 @@ export default function ProductsManager() {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .spin {
           animation: spin 0.8s linear infinite;
         }
