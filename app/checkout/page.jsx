@@ -56,6 +56,71 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] =
     useState("card_to_card");
 
+  /* ========================= */
+  /* روش‌های ارسال/پرداخت فعال (از پنل ادمین) */
+  /* ========================= */
+
+  const [enabledShipping, setEnabledShipping] = useState({
+    tipax: true,
+    post: true,
+    chapar: true,
+  });
+
+  const [enabledPayment, setEnabledPayment] = useState({
+    card_to_card: true,
+    gateway: true,
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.shipping_methods_enabled) {
+          setEnabledShipping((prev) => ({
+            ...prev,
+            ...data.shipping_methods_enabled,
+          }));
+        }
+        if (data?.payment_methods_enabled) {
+          setEnabledPayment((prev) => ({
+            ...prev,
+            ...data.payment_methods_enabled,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const visibleShippingMethods = SHIPPING_METHODS.filter(
+    (m) => enabledShipping[m.id] !== false
+  );
+
+  /* اگه روش انتخاب‌شده غیرفعال شده باشه، اولین روش فعال جایگزینش می‌شه */
+  useEffect(() => {
+    if (
+      visibleShippingMethods.length > 0 &&
+      !visibleShippingMethods.some((m) => m.id === shippingMethod)
+    ) {
+      setShippingMethod(visibleShippingMethods[0].id);
+    }
+  }, [enabledShipping]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (
+      paymentMethod === "card_to_card" &&
+      enabledPayment.card_to_card === false &&
+      enabledPayment.gateway !== false
+    ) {
+      setPaymentMethod("gateway");
+    } else if (
+      paymentMethod === "gateway" &&
+      enabledPayment.gateway === false &&
+      enabledPayment.card_to_card !== false
+    ) {
+      setPaymentMethod("card_to_card");
+    }
+  }, [enabledPayment]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [trackingCode, setTrackingCode] =
     useState("");
 
@@ -514,7 +579,7 @@ export default function CheckoutPage() {
 
               <div className="option-list">
 
-                {SHIPPING_METHODS.map(
+                {visibleShippingMethods.map(
                   (m) => (
                     <label
                       key={m.id}
@@ -597,98 +662,102 @@ export default function CheckoutPage() {
 
                 {/* کارت به کارت */}
 
-                <label
-                  className={`option-item ${
-                    paymentMethod ===
-                    "card_to_card"
-                      ? "selected"
-                      : ""
-                  }`}
-                >
-
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={
+                {enabledPayment.card_to_card !== false && (
+                  <label
+                    className={`option-item ${
                       paymentMethod ===
                       "card_to_card"
-                    }
-                    onChange={() =>
-                      setPaymentMethod(
+                        ? "selected"
+                        : ""
+                    }`}
+                  >
+
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={
+                        paymentMethod ===
                         "card_to_card"
-                      )
-                    }
-                  />
+                      }
+                      onChange={() =>
+                        setPaymentMethod(
+                          "card_to_card"
+                        )
+                      }
+                    />
 
-                  <div className="option-text">
+                    <div className="option-text">
 
-                    <div className="option-title">
-                      کارت به کارت
+                      <div className="option-title">
+                        کارت به کارت
+                      </div>
+
+                      <div className="option-desc">
+                        واریز مستقیم و ثبت کد
+                        پیگیری — بعد از تایید
+                        ادمین سفارش نهایی می‌شود
+                      </div>
+
                     </div>
 
-                    <div className="option-desc">
-                      واریز مستقیم و ثبت کد
-                      پیگیری — بعد از تایید
-                      ادمین سفارش نهایی می‌شود
-                    </div>
-
-                  </div>
-
-                </label>
+                  </label>
+                )}
 
                 {/* درگاه */}
 
-                <label
-                  className={`option-item ${
-                    paymentMethod ===
-                    "gateway"
-                      ? "selected"
-                      : ""
-                  }`}
-                >
-
-                  <input
-                    type="radio"
-                    name="payment"
-                    checked={
+                {enabledPayment.gateway !== false && (
+                  <label
+                    className={`option-item ${
                       paymentMethod ===
                       "gateway"
-                    }
-                    onChange={() =>
-                      setPaymentMethod(
+                        ? "selected"
+                        : ""
+                    }`}
+                  >
+
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={
+                        paymentMethod ===
                         "gateway"
-                      )
-                    }
-                  />
+                      }
+                      onChange={() =>
+                        setPaymentMethod(
+                          "gateway"
+                        )
+                      }
+                    />
 
-                  <div className="option-text">
+                    <div className="option-text">
 
-                    <div className="option-title">
+                      <div className="option-title">
 
-                      <span>
-                        <Landmark
-                          size={14}
-                          style={{
-                            verticalAlign:
-                              "-2px",
-                            marginLeft: 4,
-                          }}
-                        />
+                        <span>
+                          <Landmark
+                            size={14}
+                            style={{
+                              verticalAlign:
+                                "-2px",
+                              marginLeft: 4,
+                            }}
+                          />
 
-                        پرداخت با درگاه
-                        شاپرک
-                      </span>
+                          پرداخت با درگاه
+                          شاپرک
+                        </span>
+
+                      </div>
+
+                      <div className="option-desc">
+                        پرداخت آنلاین و امن —
+                        تایید فوری سفارش
+                      </div>
 
                     </div>
 
-                    <div className="option-desc">
-                      پرداخت آنلاین و امن —
-                      تایید فوری سفارش
-                    </div>
-
-                  </div>
-
-                </label>
+                  </label>
+                )}
 
               </div>
 

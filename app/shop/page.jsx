@@ -66,15 +66,19 @@ export default async function ShopPage({
       dir="rtl"
       aria-labelledby="shop-page-title"
     >
+      {/* عنوان فقط برای سئو/اسکرین‌ریدر؛ روی صفحه نمایش داده نمی‌شود */}
       <h1
         id="shop-page-title"
         style={{
-          fontFamily: "Vazirmatn",
-          fontWeight: 800,
-          fontSize: 28,
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "40px 20px 0",
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
         }}
       >
         فروشگاه

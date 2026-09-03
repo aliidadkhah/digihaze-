@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
 import AnnouncementManager from "@/components/AnnouncementManager";
 import PostsManager from "@/components/PostsManager";
+import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -23,7 +24,7 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
-  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products" | "announcement"
+  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products" | "posts" | "announcement" | "shipping-payment"
   const [resetSending, setResetSending] = useState(false);
   const [resetSent, setResetSent] = useState(false);
 
@@ -190,6 +191,8 @@ export default function AdminPage() {
             ? "مدیریت محصولات"
             : tab === "posts"
             ? "بلاگ و راهنمای خرید"
+            : tab === "shipping-payment"
+            ? "روش‌های ارسال و پرداخت"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -235,6 +238,12 @@ export default function AdminPage() {
         >
           <Megaphone size={14} /> اطلاعیه
         </button>
+        <button
+          onClick={() => setTab("shipping-payment")}
+          style={tabBtnStyle(tab === "shipping-payment")}
+        >
+          <Truck size={14} /> ارسال و پرداخت
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
@@ -244,6 +253,8 @@ export default function AdminPage() {
       {tab === "posts" && <PostsManager />}
 
       {tab === "announcement" && <AnnouncementManager />}
+
+      {tab === "shipping-payment" && <ShippingPaymentManager />}
 
       {tab === "orders" && (
         <>
