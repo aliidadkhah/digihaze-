@@ -83,9 +83,16 @@ function mapRowToForm(row) {
 
   const price = Number(row.price) || 0;
   const discount = Number(row.discount) || 0;
-  const finalPrice = price
-    ? Math.round(price * (1 - discount / 100))
-    : "";
+
+  // قیمت نهایی رو مستقیم از دیتابیس می‌خونیم (نه از روی درصد تخفیف دوباره حساب کنیم)
+  // چون خود قیمت نهایی، چیزیه که ادمین دقیقاً وارد کرده و باید همون بمونه.
+  const storedFinalPrice = Number(row.final_price) || 0;
+  const finalPrice =
+    storedFinalPrice > 0
+      ? storedFinalPrice
+      : price
+      ? Math.round(price * (1 - discount / 100))
+      : "";
 
   return {
     id: row.id,
