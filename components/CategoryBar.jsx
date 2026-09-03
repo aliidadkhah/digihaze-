@@ -358,12 +358,14 @@ export default function CategoryBar() {
 
         .category-bar-sub-item {
           text-decoration: none !important;
+          transition: transform 0.15s ease, background 0.15s ease;
+          transform-origin: right center;
         }
 
         .category-bar-sub-item:hover {
-          background: var(--surface2);
-          font-weight: 700 !important;
-          font-size: 14.5px !important;
+          background: var(--surface2) !important;
+          font-weight: 800 !important;
+          transform: scale(1.08);
         }
 
         .category-bar-item-row {
