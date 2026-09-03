@@ -1304,7 +1304,7 @@ export default function ProductContent({ product, related }) {
           )}
       </div>
 
-      <style jsx global>{`
+      <style>{`
         .rich-content {
           direction: rtl;
           text-align: center;
