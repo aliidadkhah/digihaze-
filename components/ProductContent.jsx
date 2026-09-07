@@ -757,6 +757,7 @@ export default function ProductContent({ product, related }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
+                whiteSpace: "nowrap",
                 transition:
                   "background 0.25s ease",
               }}

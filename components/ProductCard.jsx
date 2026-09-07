@@ -335,6 +335,7 @@ export default function ProductCard({ product }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
+                whiteSpace: "nowrap",
               }}
             >
               <ShoppingCart size={17} />

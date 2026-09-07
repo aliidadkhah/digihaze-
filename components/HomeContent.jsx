@@ -20,9 +20,7 @@ import { useProducts } from "./ProductsProvider";
 export default function HomeContent() {
   const { products } = useProducts();
 
-  const featured = products.filter(
-    (p) => p.discount > 0 || p.badge
-  );
+  const featured = products;
 
   const saleItems = products.filter(
     (p) => p.discount > 0
@@ -622,7 +620,7 @@ export default function HomeContent() {
               fontSize: 22,
             }}
           >
-            پیشنهادهای ویژه
+            همه محصولات
           </h2>
 
           <Link

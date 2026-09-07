@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
 import { Reveal } from "./ui";
 import ProductCard from "./ProductCard";
@@ -94,6 +95,10 @@ export default function ShopContent({
   initialSub,
   initialDiscountOnly,
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [active, setActive] = useState(
     initialCategory || "all"
   );
@@ -332,6 +337,25 @@ export default function ShopContent({
                 onClick={() => {
                   setActive(c.id);
                   setActiveSub("");
+
+                  const nextParams = new URLSearchParams(
+                    searchParams.toString()
+                  );
+
+                  if (c.id === "all") {
+                    nextParams.delete("category");
+                  } else {
+                    nextParams.set("category", c.id);
+                  }
+
+                  nextParams.delete("sub");
+
+                  const qs = nextParams.toString();
+
+                  router.replace(
+                    qs ? `${pathname}?${qs}` : pathname,
+                    { scroll: false }
+                  );
                 }}
                 style={{
                   border: `1.5px solid ${
