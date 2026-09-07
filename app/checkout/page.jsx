@@ -21,26 +21,7 @@ import {
   Landmark,
 } from "lucide-react";
 
-const SHIPPING_METHODS = [
-  {
-    id: "tipax",
-    label: "ارسال با تیپاکس (پس‌کرایه)",
-    desc: "۲ الی ۳ روز کاری — هزینه در مقصد از گیرنده دریافت می‌شود",
-    cost: 0,
-  },
-  {
-    id: "post",
-    label: "ارسال با پست",
-    desc: "۳ الی ۵ روز کاری",
-    cost: 179000,
-  },
-  {
-    id: "chapar",
-    label: "ارسال با چاپار (پس‌کرایه)",
-    desc: "۲ الی ۳ روز کاری — هزینه در مقصد از گیرنده دریافت می‌شود",
-    cost: 0,
-  },
-];
+import { SHIPPING_METHODS } from "@/lib/shipping";
 
 export default function CheckoutPage() {
   const router = useRouter();
