@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
 import { discountedPrice } from "@/lib/data";
 import { getProductById } from "@/lib/products";
+import { getShippingCost } from "@/lib/shipping";
 
 export async function GET(req) {
   try {
@@ -87,6 +88,9 @@ export async function POST(req) {
     // =========================
     // بررسی روش ارسال
     // =========================
+    // نکته امنیتی: هزینه‌ی ارسال هرگز از روی مقداری که کلاینت
+    // توی درخواست فرستاده محاسبه نمی‌شه (چون قابل دستکاری در مرورگره).
+    // همیشه از روی لیست ثابت سمت سرور (lib/shipping.js) خونده می‌شه.
     const shippingMethod = shipping?.method;
     if (!SHIPPING_LABELS[shippingMethod]) {
       return NextResponse.json(
@@ -94,7 +98,7 @@ export async function POST(req) {
         { status: 400 }
       );
     }
-    const shippingCost = Number(shipping?.cost) || 0;
+    const shippingCost = getShippingCost(shippingMethod) ?? 0;
 
     // =========================
     // بررسی روش پرداخت
