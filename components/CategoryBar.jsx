@@ -7,454 +7,481 @@ import { CATEGORIES } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
 
 export default function CategoryBar() {
-const pathname = usePathname();
-const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-const [openId, setOpenId] = useState(null);
-const [panelPos, setPanelPos] = useState(null);
+  const [openId, setOpenId] = useState(null);
+  const [panelPos, setPanelPos] = useState(null);
 
-const wrapRef = useRef(null);
-const closeTimerRef = useRef(null);
-const itemRefs = useRef({});
+  const wrapRef = useRef(null);
+  const closeTimerRef = useRef(null);
+  const itemRefs = useRef({});
 
-const clearCloseTimer = () => {
-if (closeTimerRef.current) {
-clearTimeout(closeTimerRef.current);
-closeTimerRef.current = null;
-}
-};
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
 
-const computePanelPos = (id) => {
-const el = itemRefs.current[id];
+  const computePanelPos = (id) => {
+    const el = itemRefs.current[id];
 
-```
-if (!el) return;
+    if (!el) return;
 
-const rect = el.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
 
-setPanelPos({
-  top: rect.bottom + 6,
-  right: window.innerWidth - rect.right,
-});
-```
+    setPanelPos({
+      top: rect.bottom + 6,
+      right: window.innerWidth - rect.right,
+    });
+  };
 
-};
+  const openNow = (id) => {
+    clearCloseTimer();
+    computePanelPos(id);
+    setOpenId(id);
+  };
 
-const openNow = (id) => {
-clearCloseTimer();
-computePanelPos(id);
-setOpenId(id);
-};
+  const closeWithDelay = () => {
+    clearCloseTimer();
 
-const closeWithDelay = () => {
-clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setOpenId(null);
+      setPanelPos(null);
+    }, 150);
+  };
 
-```
-closeTimerRef.current = setTimeout(() => {
-  setOpenId(null);
-}, 150);
-```
+  const activeCategory =
+    pathname === "/shop"
+      ? "all"
+      : pathname.startsWith("/shop/")
+        ? pathname.split("/")[2] || "all"
+        : null;
 
-};
+  const activeSub = searchParams.get("sub") || "";
 
-const activeCategory =
-pathname === "/shop"
-? "all"
-: pathname.startsWith("/shop/")
-? pathname.split("/")[2] || "all"
-: null;
+  const items = [
+    {
+      href: "/shop",
+      label: "همه محصولات",
+      id: "all",
+      subcategories: [],
+    },
 
-const activeSub =
-searchParams.get("sub") || "";
+    ...CATEGORIES.map((c) => ({
+      href: `/shop/${c.id}`,
+      label: c.label,
+      id: c.id,
+      color: c.color,
+      subcategories: c.subcategories || [],
+    })),
+  ];
 
-const items = [
-{
-href: "/shop",
-label: "همه محصولات",
-id: "all"
-},
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (
+        wrapRef.current &&
+        !wrapRef.current.contains(e.target)
+      ) {
+        setOpenId(null);
+        setPanelPos(null);
+      }
+    }
 
-```
-...CATEGORIES.map((c) => ({
-  href: `/shop/${c.id}`,
-  label: c.label,
-  id: c.id,
-  color: c.color,
-  subcategories: c.subcategories || [],
-})),
-```
+    document.addEventListener(
+      "mousedown",
+      onClickOutside
+    );
 
-];
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        onClickOutside
+      );
 
-useEffect(() => {
-function onClickOutside(e) {
-if (
-wrapRef.current &&
-!wrapRef.current.contains(e.target)
-) {
-setOpenId(null);
-}
-}
+      clearCloseTimer();
+    };
+  }, []);
 
-```
-document.addEventListener(
-  "mousedown",
-  onClickOutside
-);
+  useEffect(() => {
+    const handleResize = () => {
+      if (openId) {
+        computePanelPos(openId);
+      }
+    };
 
-return () => {
-  document.removeEventListener(
-    "mousedown",
-    onClickOutside
-  );
+    const handleScroll = () => {
+      if (openId) {
+        computePanelPos(openId);
+      }
+    };
 
-  clearCloseTimer();
-};
-```
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true);
 
-}, []);
+    return () => {
+      window.removeEventListener(
+        "resize",
+        handleResize
+      );
 
-return (
-<div
-className="category-bar"
-ref={wrapRef}
-style={{
-borderTop: "1px solid var(--surface2)",
-borderBottom: "1px solid var(--surface2)",
-background: "var(--surface)",
-position: "relative",
-}}
->
-<div
-className="category-bar-inner"
-style={{
-maxWidth: 1180,
-margin: "0 auto",
-padding: "0 20px",
-display: "flex",
-alignItems: "center",
-gap: 26,
-overflowX: "auto",
-}}
->
-{items.map((it) => {
-const active =
-activeCategory === it.id;
+      window.removeEventListener(
+        "scroll",
+        handleScroll,
+        true
+      );
+    };
+  }, [openId]);
 
-```
-      const hasSubs =
-        it.subcategories?.length > 0;
+  return (
+    <div
+      className="category-bar"
+      ref={wrapRef}
+      style={{
+        borderTop: "1px solid var(--surface2)",
+        borderBottom: "1px solid var(--surface2)",
+        background: "var(--surface)",
+        position: "relative",
+      }}
+    >
+      <div
+        className="category-bar-inner"
+        style={{
+          maxWidth: 1180,
+          margin: "0 auto",
+          padding: "0 20px",
+          display: "flex",
+          alignItems: "center",
+          gap: 26,
+          overflowX: "auto",
+        }}
+      >
+        {items.map((it) => {
+          const active =
+            activeCategory === it.id;
 
-      const panelOpen =
-        openId === it.id;
+          const hasSubs =
+            it.subcategories?.length > 0;
 
-      return (
-        <div
-          key={it.href}
-          ref={(el) => {
-            itemRefs.current[it.id] = el;
-          }}
-          style={{
-            position: "relative",
-            flexShrink: 0
-          }}
-          onMouseEnter={
-            hasSubs
-              ? () => openNow(it.id)
-              : undefined
-          }
-          onMouseLeave={
-            hasSubs
-              ? closeWithDelay
-              : undefined
-          }
-        >
-          <div
-            className="category-bar-item-row"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              width: "max-content",
-            }}
-          >
-            <Link
-              href={it.href}
-              className="category-bar-link"
-              onClick={() => setOpenId(null)}
+          const panelOpen =
+            openId === it.id;
+
+          return (
+            <div
+              key={it.href}
+              ref={(el) => {
+                itemRefs.current[it.id] = el;
+              }}
               style={{
                 position: "relative",
-                whiteSpace: "nowrap",
-                fontFamily:
-                  "Vazirmatn, sans-serif",
-                fontSize: 13.5,
-                fontWeight:
-                  active ? 800 : 600,
-                color: active
-                  ? "#22E5C9"
-                  : "var(--text-lo)",
-                textDecoration: "none",
-                padding: "13px 0 13px 2px",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
+                flexShrink: 0,
               }}
+              onMouseEnter={
+                hasSubs
+                  ? () => openNow(it.id)
+                  : undefined
+              }
+              onMouseLeave={
+                hasSubs
+                  ? closeWithDelay
+                  : undefined
+              }
             >
-              {it.color && (
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: it.color,
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-
-              {it.label}
-
-              {active && (
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    left: 0,
-                    height: 2,
-                    background: "#22E5C9",
-                    borderRadius: 2,
-                  }}
-                />
-              )}
-            </Link>
-
-            {hasSubs && (
-              <button
-                type="button"
-                aria-label={`زیردسته‌های ${it.label}`}
-                onClick={() =>
-                  panelOpen
-                    ? closeWithDelay()
-                    : openNow(it.id)
-                }
-                className="category-bar-chevron"
+              <div
+                className="category-bar-item-row"
                 style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  margin: 0,
-                  padding:
-                    "13px 2px 13px 0",
                   display: "inline-flex",
                   alignItems: "center",
-                  color: active
-                    ? "#22E5C9"
-                    : "var(--text-lo)",
+                  width: "max-content",
                 }}
               >
-                <ChevronDown
-                  size={14}
-                  style={{
-                    transition:
-                      "transform .16s",
-                    transform: panelOpen
-                      ? "rotate(180deg)"
-                      : "rotate(0deg)",
+                <Link
+                  href={it.href}
+                  className="category-bar-link"
+                  onClick={() => {
+                    setOpenId(null);
+                    setPanelPos(null);
                   }}
-                />
-              </button>
-            )}
-          </div>
-
-          {hasSubs &&
-            panelOpen &&
-            panelPos && (
-              <div
-                className="category-bar-panel"
-                onMouseEnter={() =>
-                  openNow(it.id)
-                }
-                onMouseLeave={
-                  closeWithDelay
-                }
-                style={{
-                  position: "fixed",
-                  top: panelPos.top,
-                  right: panelPos.right,
-                  background:
-                    "var(--surface)",
-                  border:
-                    "1px solid var(--surface2)",
-                  borderRadius: 14,
-                  boxShadow:
-                    "0 14px 30px rgba(0,0,0,.24)",
-                  padding: "16px 18px",
-                  minWidth: 340,
-                  zIndex: 60,
-                }}
-              >
-                <div
                   style={{
+                    position: "relative",
+                    whiteSpace: "nowrap",
                     fontFamily:
                       "Vazirmatn, sans-serif",
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    color:
-                      "var(--text-lo)",
-                    marginBottom: 10,
+                    fontSize: 13.5,
+                    fontWeight:
+                      active ? 800 : 600,
+                    color: active
+                      ? "#22E5C9"
+                      : "var(--text-lo)",
+                    textDecoration: "none",
+                    padding: "13px 0 13px 2px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
                   }}
                 >
-                  بر اساس برند {it.label}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "1fr 1fr",
-                    gap: "0px 18px",
-                  }}
-                >
-                  {it.subcategories.map(
-                    (s) => {
-                      const subActive =
-                        active &&
-                        activeSub === s.id;
-
-                      return (
-                        <Link
-                          key={s.id}
-                          href={`/shop/${it.id}?sub=${s.id}`}
-                          onClick={() =>
-                            setOpenId(null)
-                          }
-                          style={{
-                            display:
-                              "block",
-                            padding:
-                              "5px 10px",
-                            lineHeight: 1.4,
-                            borderRadius: 8,
-                            fontFamily:
-                              "Vazirmatn, sans-serif",
-                            fontSize: 13.5,
-                            fontWeight:
-                              subActive
-                                ? 700
-                                : 500,
-                            color:
-                              subActive
-                                ? "#22E5C9"
-                                : "var(--text-hi)",
-                            textDecoration:
-                              "none",
-                          }}
-                          className="category-bar-sub-item"
-                        >
-                          {s.label}
-                        </Link>
-                      );
-                    }
+                  {it.color && (
+                    <span
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: "50%",
+                        background: it.color,
+                        flexShrink: 0,
+                      }}
+                    />
                   )}
-                </div>
 
-                <div
-                  style={{
-                    borderTop:
-                      "1px solid var(--surface2)",
-                    marginTop: 10,
-                    paddingTop: 10,
-                  }}
-                >
-                  <Link
-                    href={`/shop/${it.id}`}
-                    onClick={() =>
-                      setOpenId(null)
+                  {it.label}
+
+                  {active && (
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        right: 0,
+                        left: 0,
+                        height: 2,
+                        background: "#22E5C9",
+                        borderRadius: 2,
+                      }}
+                    />
+                  )}
+                </Link>
+
+                {hasSubs && (
+                  <button
+                    type="button"
+                    aria-label={`زیردسته‌های ${it.label}`}
+                    onClick={() => {
+                      if (panelOpen) {
+                        closeWithDelay();
+                      } else {
+                        openNow(it.id);
+                      }
+                    }}
+                    className="category-bar-chevron"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      margin: 0,
+                      padding:
+                        "13px 2px 13px 0",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      color: active
+                        ? "#22E5C9"
+                        : "var(--text-lo)",
+                    }}
+                  >
+                    <ChevronDown
+                      size={14}
+                      style={{
+                        transition:
+                          "transform .16s",
+                        transform: panelOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                )}
+              </div>
+
+              {hasSubs &&
+                panelOpen &&
+                panelPos && (
+                  <div
+                    className="category-bar-panel"
+                    onMouseEnter={() =>
+                      openNow(it.id)
+                    }
+                    onMouseLeave={
+                      closeWithDelay
                     }
                     style={{
-                      display: "block",
-                      padding: "6px 10px",
-                      borderRadius: 8,
-                      fontFamily:
-                        "Vazirmatn, sans-serif",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "#22E5C9",
-                      textDecoration:
-                        "none",
+                      position: "fixed",
+                      top: panelPos.top,
+                      right: panelPos.right,
+                      background:
+                        "var(--surface)",
+                      border:
+                        "1px solid var(--surface2)",
+                      borderRadius: 14,
+                      boxShadow:
+                        "0 14px 30px rgba(0,0,0,.24)",
+                      padding: "16px 18px",
+                      minWidth: 340,
+                      zIndex: 60,
                     }}
-                    className="category-bar-sub-item"
                   >
-                    مشاهده همه {it.label}
-                  </Link>
-                </div>
-              </div>
-            )}
-        </div>
-      );
-    })}
-  </div>
+                    <div
+                      style={{
+                        fontFamily:
+                          "Vazirmatn, sans-serif",
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        color:
+                          "var(--text-lo)",
+                        marginBottom: 10,
+                      }}
+                    >
+                      بر اساس برند {it.label}
+                    </div>
 
-  <style>{`
-    .category-bar-inner {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns:
+                          "1fr 1fr",
+                        gap: "0px 18px",
+                      }}
+                    >
+                      {it.subcategories.map(
+                        (s) => {
+                          const subActive =
+                            active &&
+                            activeSub === s.id;
 
-    .category-bar-inner::-webkit-scrollbar {
-      display: none;
-    }
+                          return (
+                            <Link
+                              key={s.id}
+                              href={`/shop/${it.id}?sub=${s.id}`}
+                              onClick={() => {
+                                setOpenId(null);
+                                setPanelPos(null);
+                              }}
+                              style={{
+                                display: "block",
+                                padding:
+                                  "5px 10px",
+                                lineHeight: 1.4,
+                                borderRadius: 8,
+                                fontFamily:
+                                  "Vazirmatn, sans-serif",
+                                fontSize: 13.5,
+                                fontWeight:
+                                  subActive
+                                    ? 700
+                                    : 500,
+                                color:
+                                  subActive
+                                    ? "#22E5C9"
+                                    : "var(--text-hi)",
+                                textDecoration:
+                                  "none",
+                              }}
+                              className="category-bar-sub-item"
+                            >
+                              {s.label}
+                            </Link>
+                          );
+                        }
+                      )}
+                    </div>
 
-    .category-bar-link:hover {
-      color: var(--text-hi);
-    }
+                    <div
+                      style={{
+                        borderTop:
+                          "1px solid var(--surface2)",
+                        marginTop: 10,
+                        paddingTop: 10,
+                      }}
+                    >
+                      <Link
+                        href={`/shop/${it.id}`}
+                        onClick={() => {
+                          setOpenId(null);
+                          setPanelPos(null);
+                        }}
+                        style={{
+                          display: "block",
+                          padding: "6px 10px",
+                          borderRadius: 8,
+                          fontFamily:
+                            "Vazirmatn, sans-serif",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: "#22E5C9",
+                          textDecoration:
+                            "none",
+                        }}
+                        className="category-bar-sub-item"
+                      >
+                        مشاهده همه {it.label}
+                      </Link>
+                    </div>
+                  </div>
+                )}
+            </div>
+          );
+        })}
+      </div>
 
-    .category-bar-link {
-      text-decoration: none !important;
-    }
+      <style>{`
+        .category-bar-inner {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
 
-    .category-bar-sub-item {
-      text-decoration: none !important;
-      transition: transform 0.15s ease, background 0.15s ease;
-      transform-origin: right center;
-    }
+        .category-bar-inner::-webkit-scrollbar {
+          display: none;
+        }
 
-    .category-bar-sub-item:hover {
-      background: var(--surface2) !important;
-      font-weight: 800 !important;
-      transform: scale(1.08);
-    }
+        .category-bar-link:hover {
+          color: var(--text-hi);
+        }
 
-    .category-bar-item-row {
-      gap: 0 !important;
-    }
+        .category-bar-link {
+          text-decoration: none !important;
+        }
 
-    .category-bar-item-row > * {
-      margin: 0 !important;
-    }
+        .category-bar-sub-item {
+          text-decoration: none !important;
+          transition:
+            transform 0.15s ease,
+            background 0.15s ease;
+          transform-origin: right center;
+        }
 
-    .category-bar-chevron {
-      margin-inline-start: 0 !important;
-    }
+        .category-bar-sub-item:hover {
+          background: var(--surface2) !important;
+          font-weight: 800 !important;
+          transform: scale(1.08);
+        }
 
-    @media (max-width: 760px) {
-      .category-bar-inner {
-        gap: 20px;
-        padding: 0 14px;
-      }
+        .category-bar-item-row {
+          gap: 0 !important;
+        }
 
-      .category-bar-link {
-        font-size: 13px !important;
-        padding: 11px 2px !important;
-      }
-    }
+        .category-bar-item-row > * {
+          margin: 0 !important;
+        }
 
-    @media (max-width: 380px) {
-      .category-bar-inner {
-        gap: 16px;
-      }
-    }
-  `}</style>
-</div>
-);
+        .category-bar-chevron {
+          margin-inline-start: 0 !important;
+        }
+
+        @media (max-width: 760px) {
+          .category-bar-inner {
+            gap: 20px;
+            padding: 0 14px;
+          }
+
+          .category-bar-link {
+            font-size: 13px !important;
+            padding: 11px 2px !important;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .category-bar-inner {
+            gap: 16px;
+          }
+        }
+      `}</style>
+    </div>
+  );
 }
