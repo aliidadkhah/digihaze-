@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, LogOut, ShoppingBag, Phone, PackageSearch, MapPin } from "lucide-react";
+import { User, LogOut, ShoppingBag, Phone, PackageSearch, MapPin, ChevronDown } from "lucide-react";
 import { Badge, inputStyle } from "./ui";
 import { useUser, isProfileComplete } from "./Providers";
 import { IRAN_PROVINCES, IRAN_LOCATIONS } from "@/lib/iranLocations";
@@ -24,7 +24,19 @@ const accountRowStyle = {
 const selectStyle = {
   ...inputStyle,
   width: "100%",
-  appearance: "auto",
+  appearance: "none",
+  WebkitAppearance: "none",
+  MozAppearance: "none",
+  padding: "13px 16px 13px 34px",
+  cursor: "pointer",
+};
+
+const selectArrowStyle = {
+  position: "absolute",
+  left: 14,
+  top: "50%",
+  transform: "translateY(-50%)",
+  pointerEvents: "none",
 };
 
 // ارسال کد تایید واقعی از طریق ملی‌پیامک (سمت سرور، مسیر /api/auth/send-otp)
@@ -254,29 +266,35 @@ export default function AuthContent() {
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
               <label style={labelStyle}>استان</label>
-              <select name="province" value={profileForm.province} onChange={handleProfileChange} style={selectStyle}>
-                <option value="">انتخاب کنید</option>
-                {IRAN_PROVINCES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
+              <div style={{ position: "relative" }}>
+                <select name="province" value={profileForm.province} onChange={handleProfileChange} style={selectStyle}>
+                  <option value="">انتخاب کنید</option>
+                  {IRAN_PROVINCES.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} color="var(--text-lo)" style={selectArrowStyle} />
+              </div>
             </div>
             <div style={{ flex: 1 }}>
               <label style={labelStyle}>شهر</label>
-              <select
-                name="city"
-                value={profileForm.city}
-                onChange={handleProfileChange}
-                style={selectStyle}
-                disabled={!profileForm.province}
-              >
-                <option value="">
-                  {profileForm.province ? "انتخاب کنید" : "ابتدا استان را انتخاب کنید"}
-                </option>
-                {cities.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <div style={{ position: "relative" }}>
+                <select
+                  name="city"
+                  value={profileForm.city}
+                  onChange={handleProfileChange}
+                  style={{ ...selectStyle, opacity: profileForm.province ? 1 : 0.6 }}
+                  disabled={!profileForm.province}
+                >
+                  <option value="">
+                    {profileForm.province ? "انتخاب کنید" : "ابتدا استان را انتخاب کنید"}
+                  </option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} color="var(--text-lo)" style={selectArrowStyle} />
+              </div>
             </div>
           </div>
 
