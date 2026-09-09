@@ -104,6 +104,9 @@ export async function POST(request) {
 
     row.sort_order = (maxRow?.sort_order ?? 0) + 1;
 
+    // لاگ موقت برای دیباگ - بعد از حل مشکل حذفش کن
+    console.log("ROW TO INSERT:", JSON.stringify(row));
+
     const { data: product, error } = await supabaseAdmin
       .from("products")
       .insert(row)
