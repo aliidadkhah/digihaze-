@@ -456,7 +456,5 @@ activeCategory === it.id;
     }
   `}</style>
 </div>
-```
-
 );
 }
