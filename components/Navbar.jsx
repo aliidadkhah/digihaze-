@@ -1,66 +1,90 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import CategoryBar from "./CategoryBar";
+import { CATEGORIES } from "@/lib/data";
+
 import {
-Search,
-ShoppingCart,
+ShoppingBag,
 Menu,
 X,
+User,
+Sun,
+Moon,
+Search,
 ChevronDown,
 } from "lucide-react";
 
-import { CATEGORIES } from "@/lib/data";
+import {
+useCart,
+useUser,
+useTheme,
+} from "./Providers";
 
 const LINKS = [
 { href: "/", label: "خانه" },
 { href: "/shop", label: "فروشگاه", dropdown: true },
+{ href: "/blog", label: "بلاگ" },
+{ href: "/buying-guide", label: "راهنمای خرید" },
 { href: "/about", label: "درباره ما" },
 { href: "/contact", label: "تماس با ما" },
 ];
 
 export default function Navbar() {
+const [menuOpen, setMenuOpen] = useState(false);
+const [query, setQuery] = useState("");
+const [mobileShopOpen, setMobileShopOpen] = useState(false);
+
 const pathname = usePathname();
 const router = useRouter();
 
-const [menuOpen, setMenuOpen] = useState(false);
-const [mobileShopOpen, setMobileShopOpen] =
-useState(false);
+const { count } = useCart();
+const { user } = useUser();
+const { theme, toggle } = useTheme();
 
-const [search, setSearch] = useState("");
-
-const isActive = (href) => {
-if (href === "/") {
-return pathname === "/";
-}
-
-```
-return pathname === href ||
-  pathname.startsWith(`${href}/`);
-```
-
-};
+const isActive = (href) =>
+href === "/"
+? pathname === "/"
+: pathname.startsWith(href);
 
 const submitSearch = (e) => {
 e.preventDefault();
 
 ```
-const q = search.trim();
+const q = query.trim();
 
-if (!q) {
-  router.push("/shop");
-  return;
-}
+if (!q) return;
 
-router.push(
-  `/shop?search=${encodeURIComponent(q)}`
-);
-
-setMenuOpen(false);
+router.push(`/shop?search=${encodeURIComponent(q)}`);
 ```
 
+};
+
+const iconBtnStyle = {
+background: "var(--surface2)",
+border: "none",
+borderRadius: 12,
+width: 42,
+height: 42,
+display: "flex",
+alignItems: "center",
+justifyContent: "center",
+cursor: "pointer",
+flexShrink: 0,
+};
+
+const searchInputStyle = {
+flex: 1,
+minWidth: 0,
+background: "transparent",
+border: "none",
+outline: "none",
+color: "var(--text-hi)",
+fontFamily: "Vazirmatn, sans-serif",
+fontSize: 13,
+padding: "10px 12px",
 };
 
 return (
@@ -69,251 +93,223 @@ style={{
 position: "sticky",
 top: 0,
 zIndex: 50,
-background: "var(--bg)",
+background:
+"color-mix(in srgb, var(--bg) 85%, transparent)",
+backdropFilter: "blur(10px)",
 borderBottom: "1px solid var(--surface2)",
 }}
 >
-{/* ============================= */}
-{/* ردیف اصلی */}
-{/* ============================= */}
+<div
+className="navbar-main"
+style={{
+maxWidth: 1180,
+margin: "0 auto",
+padding: "14px 20px",
+display: "flex",
+alignItems: "center",
+justifyContent: "space-between",
+gap: 16,
+}}
+> <Link
+       href="/"
+       aria-label="دیجی هیز"
+       className="navbar-logo-link"
+     > <img
+         src="/digihaze.svg"
+         alt="Digihaze"
+         className="navbar-logo"
+       /> </Link>
 
 ```
-  <div
-    className="navbar-main"
-    style={{
-      maxWidth: 1180,
-      margin: "0 auto",
-      padding: "12px 20px",
-      display: "flex",
-      alignItems: "center",
-      gap: 18,
-    }}
-  >
-    {/* لوگو */}
-    <Link
-      href="/"
-      className="navbar-logo-link"
-    >
-      <Image
-        src="/logo.png"
-        alt="دیجی هیز"
-        width={125}
-        height={42}
-        priority
-        className="navbar-logo"
-      />
-    </Link>
+    <nav className="nav-desktop">
+      {LINKS.map((l) => (
+        <Link
+          key={l.href}
+          href={l.href}
+          className="desktop-nav-link"
+          style={{
+            color: isActive(l.href)
+              ? "#22E5C9"
+              : "var(--text-hi)",
+            fontWeight: isActive(l.href)
+              ? 700
+              : 500,
+          }}
+        >
+          {l.label}
 
-    {/* ============================= */}
-    {/* منوی دسکتاپ */}
-    {/* ============================= */}
-
-    <nav
-      className="nav-desktop"
-      style={{
-        alignItems: "center",
-        gap: 24,
-        flexShrink: 0,
-      }}
-    >
-      {LINKS.map((l) =>
-        l.dropdown ? (
-          <div
-            key={l.href}
-            style={{
-              position: "relative",
-            }}
-            className="desktop-shop-menu"
-          >
-            <Link
-              href={l.href}
-              className="desktop-nav-link"
-              style={{
-                color: isActive(l.href)
-                  ? "#22E5C9"
-                  : "var(--text-hi)",
-                fontWeight: isActive(l.href)
-                  ? 700
-                  : 500,
-              }}
-            >
-              {l.label}
-
-              {isActive(l.href) && (
-                <span className="active-line" />
-              )}
-            </Link>
-          </div>
-        ) : (
-          <Link
-            key={l.href}
-            href={l.href}
-            className="desktop-nav-link"
-            style={{
-              color: isActive(l.href)
-                ? "#22E5C9"
-                : "var(--text-hi)",
-              fontWeight: isActive(l.href)
-                ? 700
-                : 500,
-            }}
-          >
-            {l.label}
-
-            {isActive(l.href) && (
-              <span className="active-line" />
-            )}
-          </Link>
-        )
-      )}
+          {isActive(l.href) && (
+            <span className="active-line" />
+          )}
+        </Link>
+      ))}
     </nav>
-
-    {/* ============================= */}
-    {/* جستجو دسکتاپ */}
-    {/* ============================= */}
 
     <form
       onSubmit={submitSearch}
       className="nav-desktop nav-search-desktop"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        flex: "1 1 auto",
-        minWidth: 0,
-        maxWidth: 320,
-      }}
     >
       <input
-        type="search"
-        value={search}
+        value={query}
         onChange={(e) =>
-          setSearch(e.target.value)
+          setQuery(e.target.value)
         }
         placeholder="جستجوی محصول..."
-        aria-label="جستجوی محصول"
-        style={{
-          flex: 1,
-          minWidth: 0,
-          border: "none",
-          outline: "none",
-          background: "transparent",
-          color: "var(--text-hi)",
-          fontFamily: "Vazirmatn, sans-serif",
-          fontSize: 13,
-          padding: "10px 12px",
-        }}
+        style={searchInputStyle}
       />
 
       <button
         type="submit"
-        className="search-button"
         aria-label="جستجو"
+        className="search-button"
       >
         <Search
-          size={19}
-          color="var(--text-lo)"
+          size={17}
+          color="var(--text-mut)"
         />
       </button>
     </form>
 
-    {/* ============================= */}
-    {/* اکشن‌ها */}
-    {/* ============================= */}
-
     <div className="navbar-actions">
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label="تغییر حالت روشن/تاریک"
+        style={iconBtnStyle}
+      >
+        {theme === "dark" ? (
+          <Sun
+            size={19}
+            color="var(--text-hi)"
+          />
+        ) : (
+          <Moon
+            size={19}
+            color="var(--text-hi)"
+          />
+        )}
+      </button>
+
+      <Link
+        href="/auth"
+        aria-label={
+          user
+            ? "حساب کاربری"
+            : "ورود / ثبت‌نام"
+        }
+        style={{
+          ...iconBtnStyle,
+          border: user
+            ? "1.5px solid #22E5C9"
+            : "none",
+          textDecoration: "none",
+        }}
+      >
+        <User
+          size={19}
+          color={
+            user
+              ? "#22E5C9"
+              : "var(--text-hi)"
+          }
+        />
+      </Link>
+
       <Link
         href="/cart"
         aria-label="سبد خرید"
         style={{
-          color: "var(--text-hi)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          ...iconBtnStyle,
+          position: "relative",
+          textDecoration: "none",
         }}
       >
-        <ShoppingCart size={22} />
+        <ShoppingBag
+          size={19}
+          color="var(--text-hi)"
+        />
+
+        {count > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: -4,
+              left: -4,
+              background: "#2F86FF",
+              color: "var(--ink)",
+              fontSize: 10,
+              fontWeight: 800,
+              borderRadius: 999,
+              minWidth: 18,
+              height: 18,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 4px",
+            }}
+          >
+            {count}
+          </span>
+        )}
       </Link>
 
       <button
         type="button"
+        className="nav-burger"
         onClick={() =>
           setMenuOpen((v) => !v)
         }
-        aria-label="باز کردن منو"
-        className="nav-burger"
-        style={{
-          background: "none",
-          border: "none",
-          color: "var(--text-hi)",
-          cursor: "pointer",
-          padding: 0,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        aria-label="منوی سایت"
+        style={iconBtnStyle}
       >
         {menuOpen ? (
-          <X size={24} />
+          <X
+            size={19}
+            color="var(--text-hi)"
+          />
         ) : (
-          <Menu size={24} />
+          <Menu
+            size={19}
+            color="var(--text-hi)"
+          />
         )}
       </button>
     </div>
   </div>
 
-  {/* ============================= */}
-  {/* جستجوی موبایل */}
-  {/* ============================= */}
+  <Suspense fallback={null}>
+    <CategoryBar />
+  </Suspense>
 
   <div className="search-mobile-row">
-    <form
-      onSubmit={submitSearch}
-      className="mobile-search-form"
-    >
+    <form className="mobile-search-form" onSubmit={submitSearch}>
       <input
-        type="search"
-        value={search}
+        value={query}
         onChange={(e) =>
-          setSearch(e.target.value)
+          setQuery(e.target.value)
         }
         placeholder="جستجوی محصول..."
-        aria-label="جستجوی محصول"
-        style={{
-          flex: 1,
-          minWidth: 0,
-          border: "none",
-          outline: "none",
-          background: "transparent",
-          color: "var(--text-hi)",
-          fontFamily: "Vazirmatn, sans-serif",
-          fontSize: 13,
-          padding: "10px 12px",
-        }}
+        style={searchInputStyle}
       />
 
       <button
         type="submit"
-        className="search-button"
         aria-label="جستجو"
+        className="search-button"
       >
         <Search
-          size={19}
-          color="var(--text-lo)"
+          size={17}
+          color="var(--text-mut)"
         />
       </button>
     </form>
   </div>
 
-  {/* ============================= */}
-  {/* منوی موبایل */}
-  {/* ============================= */}
-
   {menuOpen && (
     <div className="mobile-menu">
-
       {LINKS.map((l) =>
         l.dropdown ? (
           <div key={l.href}>
-
             <button
               type="button"
               onClick={() =>
@@ -348,13 +344,15 @@ borderBottom: "1px solid var(--surface2)",
 
             {mobileShopOpen && (
               <div className="mobile-submenu">
-
                 <Link
                   href="/shop"
                   onClick={() =>
                     setMenuOpen(false)
                   }
-                  style={{ color: "var(--text-lo)", fontSize: 13 }}
+                  style={{
+                    color: "var(--text-lo)",
+                    fontSize: 13
+                  }}
                 >
                   همه محصولات
                 </Link>
@@ -366,7 +364,10 @@ borderBottom: "1px solid var(--surface2)",
                     onClick={() =>
                       setMenuOpen(false)
                     }
-                    style={{ color: "var(--text-lo)", fontSize: 13 }}
+                    style={{
+                      color: "var(--text-lo)",
+                      fontSize: 13
+                    }}
                   >
                     <span
                       style={{
@@ -410,7 +411,6 @@ borderBottom: "1px solid var(--surface2)",
   )}
 
   <style>{`
-
     .navbar-logo-link {
       display: flex;
       align-items: center;
@@ -542,7 +542,6 @@ borderBottom: "1px solid var(--surface2)",
     }
 
     @media (max-width: 760px) {
-
       .nav-desktop {
         display: none !important;
       }
@@ -578,7 +577,6 @@ borderBottom: "1px solid var(--surface2)",
     }
 
     @media (max-width: 480px) {
-
       .navbar-main {
         padding: 10px 10px !important;
         gap: 8px !important;
@@ -599,14 +597,11 @@ borderBottom: "1px solid var(--surface2)",
     }
 
     @media (max-width: 380px) {
-
       .navbar-logo {
         width: 82px;
         height: 34px;
       }
-
     }
-
   `}</style>
 </header>
 ```
