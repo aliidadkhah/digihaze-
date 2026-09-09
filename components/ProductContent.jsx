@@ -1020,9 +1020,9 @@ export default function ProductContent({ product, related }) {
                   dir="rtl"
                   style={{
                     color: "var(--text-lo)",
-                    fontSize: 14,
-                    lineHeight: 2,
-                    textAlign: "center",
+                    fontSize: 15.5,
+                    lineHeight: 2.1,
+                    textAlign: "right",
                   }}
                   dangerouslySetInnerHTML={{
                     __html: toDisplayHtml(product.description),
@@ -1157,9 +1157,9 @@ export default function ProductContent({ product, related }) {
                   dir="rtl"
                   style={{
                     color: "var(--text-lo)",
-                    fontSize: 14,
-                    lineHeight: 2,
-                    textAlign: "center",
+                    fontSize: 15.5,
+                    lineHeight: 2.1,
+                    textAlign: "right",
                   }}
                   dangerouslySetInnerHTML={{
                     __html: toDisplayHtml(product.brandDescription),
@@ -1308,7 +1308,7 @@ export default function ProductContent({ product, related }) {
       <style>{`
         .rich-content {
           direction: rtl;
-          text-align: center;
+          text-align: right;
         }
         .rich-content img {
           max-width: 100%;
@@ -1322,13 +1322,13 @@ export default function ProductContent({ product, related }) {
           font-family: Vazirmatn;
           font-weight: 800;
           color: var(--text-hi);
-          margin: 22px auto 12px;
+          margin: 22px 0 12px;
           padding-bottom: 8px;
           border-bottom: 2px solid #2F86FF;
           display: inline-block;
         }
         .rich-content h3 {
-          font-size: 16px;
+          font-size: 17px;
         }
         .rich-content ul,
         .rich-content ol {

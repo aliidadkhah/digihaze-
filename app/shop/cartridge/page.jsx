@@ -1,4 +1,5 @@
 import ShopContent from "@/components/ShopContent";
+import { getProducts } from "@/lib/products";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata = {
@@ -10,7 +11,9 @@ export const metadata = {
   },
 };
 
-export default function CartridgePage() {
+export default async function CartridgePage() {
+  const products = await getProducts();
+
   return (
     <>
       <div
@@ -47,6 +50,7 @@ export default function CartridgePage() {
       </div>
 
       <ShopContent
+        products={products}
         initialCategory="cartridge"
         initialSearch=""
         initialSub=""

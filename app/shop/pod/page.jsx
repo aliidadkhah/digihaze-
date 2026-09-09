@@ -1,4 +1,5 @@
 import ShopContent from "@/components/ShopContent";
+import { getProducts } from "@/lib/products";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata = {
@@ -10,7 +11,9 @@ export const metadata = {
   },
 };
 
-export default function PodPage() {
+export default async function PodPage() {
+  const products = await getProducts();
+
   return (
     <>
       <div
@@ -47,7 +50,8 @@ export default function PodPage() {
       </div>
 
       <ShopContent
-        initialCategory="pod"
+        products={products}
+        initialCategory="pod-system"
         initialSearch=""
         initialSub=""
       />

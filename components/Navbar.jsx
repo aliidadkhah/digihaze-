@@ -108,6 +108,18 @@ export default function Navbar() {
           gap: 16,
         }}
       >
+        <Link
+          href="/"
+          className="navbar-logo-link"
+          aria-label="دیجی‌هیز"
+        >
+          <img
+            src="/digihaze.svg"
+            alt="دیجی‌هیز"
+            className="navbar-logo"
+          />
+        </Link>
+
         <nav className="nav-desktop">
           {LINKS.map((l) => (
             <Link

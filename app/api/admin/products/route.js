@@ -95,6 +95,12 @@ export async function POST(request) {
 
     const row = buildRow(body);
 
+    // ستون id توی جدول products دیفالت (مثل gen_random_uuid())
+    // نداره - احتمالاً بعد از بازسازی پروژه‌ی Supabase این دیفالت
+    // از بین رفته. برای اینکه دیگه وابسته به دیفالت دیتابیس نباشیم
+    // خودمون یه id تولید می‌کنیم.
+    row.id = crypto.randomUUID();
+
     const { data: maxRow } = await supabaseAdmin
       .from("products")
       .select("sort_order")

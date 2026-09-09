@@ -85,19 +85,18 @@ export default function Footer() {
       >
         {/* Brand */}
         <div>
-          <div
+          <img
+            src="/digihaze.svg"
+            alt="دیجی‌هیز"
             style={{
-              fontFamily: "Vazirmatn",
-              fontWeight: 800,
-              fontSize: 20,
+              width: 125,
+              height: 42,
+              objectFit: "contain",
+              objectPosition: "right center",
+              display: "block",
               marginBottom: 10,
             }}
-          >
-            دیجی
-            <span style={{ color: "#2F86FF" }}>
-              هیز
-            </span>
-          </div>
+          />
 
           <p
             style={{
