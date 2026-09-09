@@ -1140,6 +1140,7 @@ export default function CheckoutPage() {
           display: flex !important;
           flex-direction: row !important;
           align-items: flex-start !important;
+          gap: 12px !important;
 
           width: 100% !important;
           min-width: 0 !important;
