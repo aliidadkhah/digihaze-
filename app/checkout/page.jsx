@@ -118,7 +118,7 @@ export default function CheckoutPage() {
     useState(false);
 
   const cardNumber =
-    "6037991234567890";
+    "5022291316719168";
 
   /* ========================= */
   /* ورود اجباری */
