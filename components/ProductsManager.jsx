@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage } from "@/lib/productImages";
-import { money } from "@/lib/data";
+import { money, CATEGORIES, resolveCategoryId } from "@/lib/data";
 import RichTextEditor from "./RichTextEditor";
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو به HTML قابل‌نمایش توی ادیتور تبدیل می‌کند
@@ -204,6 +204,14 @@ export default function ProductsManager() {
   };
 
   const update = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  // زیردسته‌های دسته‌بندی انتخاب‌شده (برای نمایش برند به‌صورت لیست، نه تایپ آزاد)
+  // مهم: فیلتر «زیردسته» توی فروشگاه دقیقاً بر اساس همین «برند» انجام می‌شه،
+  // پس برند باید عیناً با یکی از این لیبل‌ها یکی باشه.
+  const selectedCategoryId = resolveCategoryId(form.category);
+  const selectedCategorySubcats =
+    CATEGORIES.find((c) => c.id === selectedCategoryId)
+      ?.subcategories || [];
 
   // ---------- قیمت اصلی / قیمت نهایی -> محاسبه‌ی خودکار درصد تخفیف ----------
   const updatePrice = (key, value) =>
@@ -610,18 +618,61 @@ export default function ProductsManager() {
                 />
               </Field>
               <Field label="دسته‌بندی">
-                <input
+                <select
                   style={inputStyle}
                   value={form.category}
-                  onChange={(e) => update("category", e.target.value)}
-                />
+                  onChange={(e) => {
+                    update("category", e.target.value);
+                    // با عوض شدن دسته، برند/زیردسته‌ی قبلی دیگه لزوماً معتبر نیست
+                    update("brand", "");
+                  }}
+                >
+                  <option value="">— انتخاب دسته‌بندی —</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                  {form.category &&
+                    !CATEGORIES.some(
+                      (c) => c.id === resolveCategoryId(form.category)
+                    ) && (
+                      <option value={form.category}>
+                        {form.category} (قدیمی/نامعتبر)
+                      </option>
+                    )}
+                </select>
               </Field>
-              <Field label="برند">
-                <input
-                  style={inputStyle}
-                  value={form.brand}
-                  onChange={(e) => update("brand", e.target.value)}
-                />
+              <Field label="برند (زیردسته فروشگاه بر همین اساسه)">
+                {selectedCategorySubcats.length > 0 ? (
+                  <select
+                    style={inputStyle}
+                    value={form.brand}
+                    onChange={(e) => update("brand", e.target.value)}
+                  >
+                    <option value="">— انتخاب برند —</option>
+                    {selectedCategorySubcats.map((s) => (
+                      <option key={s.id} value={s.label}>
+                        {s.label}
+                      </option>
+                    ))}
+                    {form.brand &&
+                      !selectedCategorySubcats.some(
+                        (s) => s.label === form.brand
+                      ) && (
+                        <option value={form.brand}>
+                          {form.brand} (سفارشی)
+                        </option>
+                      )}
+                  </select>
+                ) : (
+                  <input
+                    style={inputStyle}
+                    value={form.brand}
+                    onChange={(e) => update("brand", e.target.value)}
+                    placeholder="اول یک دسته‌بندی با زیردسته انتخاب کن، یا برند رو دستی بنویس"
+                  />
+                )}
               </Field>
               <Field label="برچسب (مثلا: پرفروش)">
                 <input

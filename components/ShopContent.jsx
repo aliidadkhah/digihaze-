@@ -142,6 +142,16 @@ export default function ShopContent({
     ...CATEGORIES,
   ];
 
+  /*
+   * صفحه‌ی عمومی فروشگاه (/shop) با query param فیلتر می‌شود و اشکالی نداره.
+   * اما صفحات اختصاصی هر دسته (/shop/cartridge، /shop/pod و... و همچنین
+   * روت داینامیک /shop/[category]) هر کدوم عنوان، توضیحات و canonical
+   * مخصوص به خودشون رو دارن؛ پس نباید با اضافه‌کردن ?category=... روی همون
+   * آدرس، محتوای دسته‌ی دیگه‌ای رو زیر عنوان/canonical اشتباه نشون بدیم.
+   * توی این حالت باید واقعاً به آدرس همون دسته منتقل بشیم.
+   */
+  const isDedicatedCategoryPage = pathname !== "/shop";
+
   // دسته‌بندی فعال (برای نمایش بنر عریض مخصوص همون دسته)
   // برای تب "همه محصولات" یه بنر مجزا و مستقل تعریف شده که از پنل ادمین قابل تغییره
   const activeCategoryData =
@@ -335,6 +345,15 @@ export default function ShopContent({
                 key={c.id}
                 type="button"
                 onClick={() => {
+                  // روی صفحات اختصاصی هر دسته، به آدرس واقعی همون دسته می‌ریم
+                  // (نه اضافه‌کردن query param روی همین آدرس)
+                  if (isDedicatedCategoryPage) {
+                    router.push(
+                      c.id === "all" ? "/shop" : `/shop/${c.id}`
+                    );
+                    return;
+                  }
+
                   setActive(c.id);
                   setActiveSub("");
 

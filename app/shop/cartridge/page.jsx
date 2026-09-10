@@ -11,7 +11,10 @@ export const metadata = {
   },
 };
 
-export default async function CartridgePage() {
+export default async function CartridgePage({ searchParams }) {
+  const params = await searchParams;
+  const sub = params?.sub || "";
+
   const products = await getProducts();
 
   return (
@@ -53,7 +56,7 @@ export default async function CartridgePage() {
         products={products}
         initialCategory="cartridge"
         initialSearch=""
-        initialSub=""
+        initialSub={sub}
       />
     </>
   );

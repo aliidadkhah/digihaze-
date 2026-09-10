@@ -11,7 +11,10 @@ export const metadata = {
   },
 };
 
-export default async function PodPage() {
+export default async function PodPage({ searchParams }) {
+  const params = await searchParams;
+  const sub = params?.sub || "";
+
   const products = await getProducts();
 
   return (
@@ -53,7 +56,7 @@ export default async function PodPage() {
         products={products}
         initialCategory="pod-system"
         initialSearch=""
-        initialSub=""
+        initialSub={sub}
       />
     </>
   );

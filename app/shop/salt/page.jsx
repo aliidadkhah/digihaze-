@@ -11,7 +11,10 @@ export const metadata = {
   },
 };
 
-export default async function SaltPage() {
+export default async function SaltPage({ searchParams }) {
+  const params = await searchParams;
+  const sub = params?.sub || "";
+
   const products = await getProducts();
 
   return (
@@ -53,7 +56,7 @@ export default async function SaltPage() {
         products={products}
         initialCategory="salt-nicotine"
         initialSearch=""
-        initialSub=""
+        initialSub={sub}
       />
     </>
   );

@@ -11,7 +11,10 @@ export const metadata = {
   },
 };
 
-export default async function DevicePage() {
+export default async function DevicePage({ searchParams }) {
+  const params = await searchParams;
+  const sub = params?.sub || "";
+
   const products = await getProducts();
 
   return (
@@ -53,7 +56,7 @@ export default async function DevicePage() {
         products={products}
         initialCategory="disposable-pod"
         initialSearch=""
-        initialSub=""
+        initialSub={sub}
       />
     </>
   );

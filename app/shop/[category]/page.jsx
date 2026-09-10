@@ -181,8 +181,11 @@ export async function generateMetadata({ params }) {
 
 export default async function CategoryShopPage({
   params,
+  searchParams,
 }) {
   const { category: rawCategory } = await params;
+  const sp = await searchParams;
+  const sub = sp?.sub || "";
 
   // اگر شناسه‌ی قدیمی بود (pod/device/salt)، بدون ریدایرکت HTTP
   // (که روی Cloudflare می‌تونست باعث گیرکردن/لوپ بشه)،
@@ -340,7 +343,7 @@ export default async function CategoryShopPage({
           products={products}
           initialCategory={category}
           initialSearch=""
-          initialSub=""
+          initialSub={sub}
         />
       </main>
     </>
