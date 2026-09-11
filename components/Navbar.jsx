@@ -32,7 +32,7 @@ const LINKS = [
   { href: "/contact", label: "تماس با ما" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ categories = CATEGORIES }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
@@ -277,7 +277,7 @@ export default function Navbar() {
       </div>
 
       <Suspense fallback={null}>
-        <CategoryBar />
+        <CategoryBar categories={categories} />
       </Suspense>
 
       <div className="search-mobile-row">

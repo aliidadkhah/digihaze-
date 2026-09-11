@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
 import AnnouncementManager from "@/components/AnnouncementManager";
 import PostsManager from "@/components/PostsManager";
 import ShippingPaymentManager from "@/components/ShippingPaymentManager";
+import CategoriesManager from "@/components/CategoriesManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF8A3D", paid: "#22E5C9", failed: "#2F86FF", cancelled: "var(--text-faint)" };
@@ -193,6 +194,8 @@ export default function AdminPage() {
             ? "بلاگ و راهنمای خرید"
             : tab === "shipping-payment"
             ? "روش‌های ارسال و پرداخت"
+            : tab === "categories"
+            ? "دسته‌بندی‌ها"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -244,6 +247,12 @@ export default function AdminPage() {
         >
           <Truck size={14} /> ارسال و پرداخت
         </button>
+        <button
+          onClick={() => setTab("categories")}
+          style={tabBtnStyle(tab === "categories")}
+        >
+          <ListTree size={14} /> دسته‌بندی‌ها
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
@@ -255,6 +264,8 @@ export default function AdminPage() {
       {tab === "announcement" && <AnnouncementManager />}
 
       {tab === "shipping-payment" && <ShippingPaymentManager />}
+
+      {tab === "categories" && <CategoriesManager />}
 
       {tab === "orders" && (
         <>

@@ -90,6 +90,7 @@ function matchesSearch(product, query) {
 
 export default function ShopContent({
   products = [],
+  categories = CATEGORIES,
   initialCategory,
   initialSearch,
   initialSub,
@@ -139,7 +140,7 @@ export default function ShopContent({
       label: "همه",
       color: "var(--text-hi)",
     },
-    ...CATEGORIES,
+    ...categories,
   ];
 
   /*
@@ -161,7 +162,7 @@ export default function ShopContent({
           label: "همه محصولات",
           banner: "/category-banner-all.jpg",
         }
-      : CATEGORIES.find((c) => c.id === active);
+      : categories.find((c) => c.id === active);
 
   const list = useMemo(() => {
     let arr =
@@ -175,7 +176,7 @@ export default function ShopContent({
      * فیلتر زیردسته
      */
     if (activeSub) {
-      const cat = CATEGORIES.find(
+      const cat = categories.find(
         (c) => c.id === active
       );
 
@@ -262,6 +263,7 @@ export default function ShopContent({
     return arr;
   }, [
     products,
+    categories,
     active,
     activeSub,
     sort,

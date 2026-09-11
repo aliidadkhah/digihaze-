@@ -1,5 +1,6 @@
 import ShopContent from "@/components/ShopContent";
 import { getProducts } from "@/lib/products";
+import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 export const metadata = {
@@ -60,6 +61,7 @@ export default async function ShopPage({
    * بنابراین محصولات در HTML اولیه صفحه وجود خواهند داشت.
    */
   const products = await getProducts();
+  const categories = await getCategoriesWithOverrides();
 
   return (
     <main
@@ -86,6 +88,7 @@ export default async function ShopPage({
 
       <ShopContent
         products={products}
+        categories={categories}
         initialCategory={category}
         initialSearch={search}
         initialSub={sub}

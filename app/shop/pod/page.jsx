@@ -1,5 +1,6 @@
 import ShopContent from "@/components/ShopContent";
 import { getProducts } from "@/lib/products";
+import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 import { SITE_NAME } from "@/lib/site";
 
 export const metadata = {
@@ -16,6 +17,7 @@ export default async function PodPage({ searchParams }) {
   const sub = params?.sub || "";
 
   const products = await getProducts();
+  const categories = await getCategoriesWithOverrides();
 
   return (
     <>
@@ -54,6 +56,7 @@ export default async function PodPage({ searchParams }) {
 
       <ShopContent
         products={products}
+        categories={categories}
         initialCategory="pod-system"
         initialSearch=""
         initialSub={sub}

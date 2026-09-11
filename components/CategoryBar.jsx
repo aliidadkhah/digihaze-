@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
 
-export default function CategoryBar() {
+export default function CategoryBar({ categories = CATEGORIES }) {
   const pathname = usePathname();
 
   const [openId, setOpenId] = useState(null);
@@ -70,7 +70,7 @@ export default function CategoryBar() {
       subcategories: [],
     },
 
-    ...CATEGORIES.map((c) => ({
+    ...categories.map((c) => ({
       href: `/shop/${c.id}`,
       label: c.label,
       id: c.id,

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
 import { ScrollMorphBackground } from "@/components/visuals";
+import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 
 import {
   SITE_URL,
@@ -154,9 +155,11 @@ const organizationSchema = {
 // Layout
 // =====================================================
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }) {
+  const categories = await getCategoriesWithOverrides();
+
   return (
     <html
       lang="fa"
@@ -202,7 +205,7 @@ export default function RootLayout({
 
             <AnnouncementBar />
 
-            <Navbar />
+            <Navbar categories={categories} />
 
             {children}
 

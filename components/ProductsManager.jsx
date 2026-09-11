@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage } from "@/lib/productImages";
-import { money, CATEGORIES, resolveCategoryId } from "@/lib/data";
+import { money, CATEGORIES, resolveCategoryId, applySubcategoryOverrides } from "@/lib/data";
 import RichTextEditor from "./RichTextEditor";
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو به HTML قابل‌نمایش توی ادیتور تبدیل می‌کند
@@ -159,9 +159,20 @@ export default function ProductsManager() {
   const [saveError, setSaveError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
   const [uploadingImg, setUploadingImg] = useState(false);
+  // دسته‌بندی‌ها به همراه زیردسته‌های ذخیره‌شده توی پنل ادمین
+  // (تب «دسته‌بندی‌ها»)؛ تا وقتی لود نشده از لیست پیش‌فرض استفاده می‌شه
+  const [categories, setCategories] = useState(CATEGORIES);
 
   useEffect(() => {
     fetchProducts();
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(
+          applySubcategoryOverrides(data.categories_subcategories)
+        );
+      })
+      .catch(() => {});
   }, []);
 
   const getToken = async () => {
@@ -210,7 +221,7 @@ export default function ProductsManager() {
   // پس برند باید عیناً با یکی از این لیبل‌ها یکی باشه.
   const selectedCategoryId = resolveCategoryId(form.category);
   const selectedCategorySubcats =
-    CATEGORIES.find((c) => c.id === selectedCategoryId)
+    categories.find((c) => c.id === selectedCategoryId)
       ?.subcategories || [];
 
   // ---------- قیمت اصلی / قیمت نهایی -> محاسبه‌ی خودکار درصد تخفیف ----------
