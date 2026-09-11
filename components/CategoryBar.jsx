@@ -2,13 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
 
 export default function CategoryBar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [openId, setOpenId] = useState(null);
   const [panelPos, setPanelPos] = useState(null);
@@ -59,7 +58,9 @@ export default function CategoryBar() {
         ? pathname.split("/")[2] || "all"
         : null;
 
-  const activeSub = searchParams.get("sub") || "";
+  const activeSub = pathname.startsWith("/shop/")
+    ? pathname.split("/")[3] || ""
+    : "";
 
   const items = [
     {
@@ -348,7 +349,7 @@ export default function CategoryBar() {
                           return (
                             <Link
                               key={s.id}
-                              href={`/shop/${it.id}?sub=${s.id}`}
+                              href={`/shop/${it.id}/${s.id}`}
                               onClick={() => {
                                 setOpenId(null);
                                 setPanelPos(null);

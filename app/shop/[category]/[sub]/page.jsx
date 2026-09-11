@@ -13,11 +13,11 @@ export async function generateMetadata({ params }) {
 }
 
 // =====================================================
-// Category Page (بدون زیردسته)
+// Category Page (با زیردسته) — آدرس تمیز /shop/دسته/زیردسته
 // =====================================================
 
-export default async function CategoryShopPage({ params }) {
-  const { category: rawCategory } = await params;
+export default async function CategorySubShopPage({ params }) {
+  const { category: rawCategory, sub } = await params;
 
-  return <CategoryPageBody rawCategory={rawCategory} sub="" />;
+  return <CategoryPageBody rawCategory={rawCategory} sub={sub || ""} />;
 }
