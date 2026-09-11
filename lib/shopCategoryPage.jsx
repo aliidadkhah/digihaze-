@@ -1,6 +1,7 @@
 import ShopContent from "@/components/ShopContent";
-import { CATEGORIES, LEGACY_CATEGORY_MAP } from "@/lib/data";
+import { LEGACY_CATEGORY_MAP } from "@/lib/data";
 import { getProducts } from "@/lib/products";
+import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 import { notFound } from "next/navigation";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
@@ -181,8 +182,10 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
   // مستقیم محتوای دسته‌بندی جدید رو رندر می‌کنیم.
   const category = LEGACY_CATEGORY_MAP[rawCategory] || rawCategory;
 
+  const categories = await getCategoriesWithOverrides();
+
   // بررسی معتبر بودن دسته‌بندی
-  const exists = CATEGORIES.some((item) => item.id === category);
+  const exists = categories.some((item) => item.id === category);
 
   if (!exists) {
     notFound();
@@ -190,7 +193,7 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
   // بررسی معتبر بودن زیردسته (اگر زیردسته‌ای در URL آمده باشد)
   if (sub) {
-    const categoryDef = CATEGORIES.find((item) => item.id === category);
+    const categoryDef = categories.find((item) => item.id === category);
 
     const subExists = categoryDef?.subcategories?.some(
       (s) => s.id === sub
@@ -330,6 +333,7 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
         <ShopContent
           products={products}
+          categories={categories}
           initialCategory={category}
           initialSearch=""
           initialSub={sub}
