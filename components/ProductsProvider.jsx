@@ -70,6 +70,11 @@ function mapProduct(row) {
 
     name: row.name || "",
 
+    slug:
+      typeof row.slug === "string" && row.slug.trim()
+        ? row.slug.trim()
+        : null,
+
     category: row.category || "",
 
     brand: row.brand || "",
