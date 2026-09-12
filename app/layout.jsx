@@ -150,7 +150,15 @@ export default async function RootLayout({
       lang="fa"
       dir="rtl"
     >
-      <head>
+      <body>
+
+        {/* این دو اسکریپت قبلاً توی یه <head> دستی بودن که با
+            تزریق خودکار متادیتای Next.js (title/description/OG که
+            از generateMetadata میاد) روی دیپلوی Cloudflare/vinext
+            تداخل داشت و باعث می‌شد بقیه‌ی متاتگ‌ها رندر نشن.
+            چون این‌ها فقط داده‌ی JSON-LD هستن (نه چیزی که نیاز به
+            جای خاصی داشته باشه)، بردنشون به body مشکلی ایجاد
+            نمی‌کنه. */}
 
         <script
           type="application/ld+json"
@@ -169,10 +177,6 @@ export default async function RootLayout({
             ),
           }}
         />
-
-      </head>
-
-      <body>
 
         <GoogleAnalytics />
 
