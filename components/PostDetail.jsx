@@ -163,33 +163,108 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
       <style>{`
         .post-content {
           font-family: "Vazirmatn", sans-serif;
-          font-size: 15px;
-          line-height: 2;
+          font-size: 15.5px;
+          line-height: 2.05;
+          color: var(--text-lo);
+        }
+        .post-content > *:first-child {
+          margin-top: 0;
+        }
+        .post-content p {
+          margin: 0 0 16px;
+        }
+        .post-content > p:first-of-type {
           color: var(--text-hi);
+          font-size: 1.05em;
+        }
+        .post-content h1,
+        .post-content h2,
+        .post-content h3 {
+          font-family: "Vazirmatn", sans-serif;
+          font-weight: 800;
+          color: var(--text-hi);
+          line-height: 1.6;
+          margin: 34px 0 16px;
+          padding-right: 14px;
+          border-right: 4px solid #2f86ff;
+        }
+        .post-content h1 { font-size: 22px; }
+        .post-content h2 { font-size: 20px; }
+        .post-content h3 { font-size: 18px; }
+        .post-content strong,
+        .post-content b {
+          color: var(--text-hi);
+          font-weight: 800;
+        }
+        .post-content ul,
+        .post-content ol {
+          list-style: none;
+          margin: 0 0 18px;
+          padding: 0;
+        }
+        .post-content li {
+          position: relative;
+          padding-right: 24px;
+          margin-bottom: 10px;
+          line-height: 1.95;
+        }
+        .post-content ul li::before {
+          content: "";
+          position: absolute;
+          right: 4px;
+          top: 0.75em;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #2f86ff;
+        }
+        .post-content ol {
+          counter-reset: pc-item;
+        }
+        .post-content ol li {
+          counter-increment: pc-item;
+        }
+        .post-content ol li::before {
+          content: counter(pc-item);
+          position: absolute;
+          right: -2px;
+          top: 0.1em;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #2f86ff22;
+          color: #2f86ff;
+          font-size: 10.5px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .post-content blockquote {
+          position: relative;
+          margin: 22px 0;
+          padding: 14px 18px;
+          background: rgba(47, 134, 255, 0.08);
+          border-right: 4px solid #2f86ff;
+          border-radius: 10px;
+          color: var(--text-hi);
+          font-size: 0.94em;
+          line-height: 1.9;
+        }
+        .post-content blockquote p {
+          margin: 0;
         }
         .post-content img {
           max-width: 100%;
-          border-radius: 12px;
-          margin: 14px 0;
+          border-radius: 14px;
+          margin: 22px auto;
           display: block;
+          box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
         }
-        .post-content h3 {
-          font-size: 18px;
-          font-weight: 800;
-          margin: 26px 0 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #2f86ff;
-          display: inline-block;
-        }
-        .post-content ul {
-          padding-inline-start: 22px;
-          margin: 10px 0;
-        }
-        .post-content li {
-          margin-bottom: 6px;
-        }
-        .post-content p {
-          margin: 10px 0;
+        .post-content hr {
+          border: none;
+          border-top: 1px solid var(--surface2);
+          margin: 32px 0;
         }
       `}</style>
     </main>
