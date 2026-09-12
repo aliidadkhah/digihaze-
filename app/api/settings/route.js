@@ -23,6 +23,7 @@ const DEFAULT_SHIPPING_METHODS = {
   tipax: true,
   post: true,
   chapar: true,
+  tabriz_city: true,
 };
 
 const DEFAULT_PAYMENT_METHODS = {
@@ -120,6 +121,7 @@ export async function PATCH(request) {
         tipax: !!body.shipping_methods_enabled.tipax,
         post: !!body.shipping_methods_enabled.post,
         chapar: !!body.shipping_methods_enabled.chapar,
+        tabriz_city: !!body.shipping_methods_enabled.tabriz_city,
       };
     }
 

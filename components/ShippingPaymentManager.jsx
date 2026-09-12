@@ -8,6 +8,7 @@ const SHIPPING_OPTIONS = [
   { id: "tipax", label: "ارسال با تیپاکس (پس‌کرایه)" },
   { id: "post", label: "ارسال با پست" },
   { id: "chapar", label: "ارسال با چاپار (پس‌کرایه)" },
+  { id: "tabriz_city", label: "ارسال داخل شهر تبریز" },
 ];
 
 const PAYMENT_OPTIONS = [
@@ -15,7 +16,7 @@ const PAYMENT_OPTIONS = [
   { id: "gateway", label: "پرداخت با درگاه شاپرک" },
 ];
 
-const DEFAULT_SHIPPING = { tipax: true, post: true, chapar: true };
+const DEFAULT_SHIPPING = { tipax: true, post: true, chapar: true, tabriz_city: true };
 const DEFAULT_PAYMENT = { card_to_card: true, gateway: true };
 
 export default function ShippingPaymentManager() {

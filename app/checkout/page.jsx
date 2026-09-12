@@ -45,6 +45,7 @@ export default function CheckoutPage() {
     tipax: true,
     post: true,
     chapar: true,
+    tabriz_city: true,
   });
 
   const [enabledPayment, setEnabledPayment] = useState({

@@ -45,6 +45,7 @@ const SHIPPING_LABELS = {
   post: "پست",
   tipax: "تیپاکس (پس‌کرایه)",
   chapar: "چاپار (پس‌کرایه)",
+  tabriz_city: "ارسال داخل شهر تبریز",
 };
 
 const PAYMENT_LABELS = {
