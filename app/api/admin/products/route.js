@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { generateUniqueSlug } from "@/lib/slugify";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -101,6 +102,10 @@ export async function POST(request) {
     // خودمون یه id تولید می‌کنیم.
     row.id = crypto.randomUUID();
 
+    // اسلاگ خوانا از روی اسم محصول می‌سازیم (برای URL سئوشده
+    // به‌جای id خام). اگه اسم تکراری باشه، عدد به آخرش اضافه می‌شه.
+    row.slug = await generateUniqueSlug(supabaseAdmin, row.name);
+
     const { data: maxRow } = await supabaseAdmin
       .from("products")
       .select("sort_order")
@@ -154,6 +159,20 @@ export async function PATCH(request) {
     }
 
     const row = buildRow(body);
+
+    // اگه این محصول هنوز اسلاگ نداره (مثلاً محصولات قدیمی که با
+    // p1, p3... ساخته شدن)، الان که داره ویرایش می‌شه یکی می‌سازیم.
+    // اگه از قبل اسلاگ داشته، دست نمی‌زنیم که لینک‌های قدیمی
+    // خراب نشن.
+    const { data: existing } = await supabaseAdmin
+      .from("products")
+      .select("slug")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!existing?.slug) {
+      row.slug = await generateUniqueSlug(supabaseAdmin, row.name, id);
+    }
 
     const { data: product, error } = await supabaseAdmin
       .from("products")
