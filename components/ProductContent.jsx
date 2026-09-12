@@ -1309,37 +1309,107 @@ export default function ProductContent({ product, related }) {
         .rich-content {
           direction: rtl;
           text-align: right;
+          font-family: "Vazirmatn", sans-serif;
         }
-        .rich-content img {
-          max-width: 100%;
-          border-radius: 14px;
-          margin: 14px auto;
-          display: block;
+        .rich-content > *:first-child {
+          margin-top: 0;
+        }
+        .rich-content p {
+          margin: 0 0 16px;
+          line-height: 2.05;
+        }
+        .rich-content > p:first-of-type {
+          color: var(--text-hi);
+          font-size: 1.05em;
         }
         .rich-content h1,
         .rich-content h2,
         .rich-content h3 {
-          font-family: Vazirmatn;
+          font-family: "Vazirmatn", sans-serif;
           font-weight: 800;
           color: var(--text-hi);
-          margin: 22px 0 12px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #2F86FF;
-          display: inline-block;
+          line-height: 1.6;
+          margin: 32px 0 16px;
+          padding-right: 14px;
+          border-right: 4px solid #2F86FF;
         }
-        .rich-content h3 {
-          font-size: 17px;
+        .rich-content h1 { font-size: 21px; }
+        .rich-content h2 { font-size: 19px; }
+        .rich-content h3 { font-size: 17px; }
+        .rich-content strong,
+        .rich-content b {
+          color: var(--text-hi);
+          font-weight: 800;
         }
         .rich-content ul,
         .rich-content ol {
-          padding-inline-start: 22px;
-          margin: 8px 0;
+          list-style: none;
+          margin: 0 0 18px;
+          padding: 0;
         }
         .rich-content li {
-          margin: 4px 0;
+          position: relative;
+          padding-right: 24px;
+          margin-bottom: 10px;
+          line-height: 1.95;
         }
-        .rich-content p {
-          margin: 0 0 10px;
+        .rich-content ul li::before {
+          content: "";
+          position: absolute;
+          right: 4px;
+          top: 0.75em;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #2F86FF;
+        }
+        .rich-content ol {
+          counter-reset: rc-item;
+        }
+        .rich-content ol li {
+          counter-increment: rc-item;
+        }
+        .rich-content ol li::before {
+          content: counter(rc-item);
+          position: absolute;
+          right: -2px;
+          top: 0.1em;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #2F86FF22;
+          color: #2F86FF;
+          font-size: 10.5px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .rich-content blockquote {
+          position: relative;
+          margin: 22px 0;
+          padding: 14px 18px;
+          background: rgba(47, 134, 255, 0.08);
+          border-right: 4px solid #2F86FF;
+          border-radius: 10px;
+          color: var(--text-hi);
+          font-size: 0.94em;
+          line-height: 1.9;
+        }
+        .rich-content blockquote p {
+          margin: 0;
+        }
+        .rich-content img {
+          max-width: 100%;
+          border-radius: 14px;
+          margin: 22px auto;
+          display: block;
+          box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+        }
+        .rich-content hr {
+          border: none;
+          border-top: 1px solid var(--surface2);
+          margin: 32px 0;
         }
       `}</style>
 
