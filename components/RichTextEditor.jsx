@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Bold, Heading2, List, ImagePlus, Highlighter } from "lucide-react";
+import { Bold, Heading2, List, ImagePlus, Highlighter, Quote } from "lucide-react";
 import { uploadProductImage } from "@/lib/productImages";
 
 const btnStyle = {
@@ -140,6 +140,15 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         >
           <Highlighter size={14} />
         </button>
+        <button
+          type="button"
+          title="کادر نکته / هشدار (پاراگراف جاری رو تبدیل می‌کند)"
+          style={btnStyle}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => exec("formatBlock", "BLOCKQUOTE")}
+        >
+          <Quote size={14} />
+        </button>
         <label style={{ ...btnStyle, cursor: "pointer" }} title="افزودن عکس در محل مکان‌نما">
           <ImagePlus size={14} />
           <input
@@ -190,12 +199,18 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           font-size: 15px;
           font-weight: 800;
           margin: 14px 0 8px;
-          padding-bottom: 6px;
-          border-bottom: 2px solid #2F86FF;
-          display: inline-block;
+          padding-right: 10px;
+          border-right: 3px solid #2F86FF;
         }
         .rte-editable :global(ul) {
           padding-inline-start: 20px;
+        }
+        .rte-editable :global(blockquote) {
+          margin: 10px 0;
+          padding: 10px 14px;
+          background: #2F86FF14;
+          border-right: 3px solid #2F86FF;
+          border-radius: 8px;
         }
         .rte-editable:empty:before {
           content: attr(data-placeholder);
