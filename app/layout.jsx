@@ -6,6 +6,7 @@ import AnnouncementBar from "@/components/AnnouncementBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ScrollMorphBackground } from "@/components/visuals";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 
@@ -15,10 +16,6 @@ import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
 } from "@/lib/site";
-
-// =====================================================
-// SEO اصلی سایت
-// =====================================================
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -103,10 +100,6 @@ export const metadata = {
   category: "shopping",
 };
 
-// =====================================================
-// WebSite Schema
-// =====================================================
-
 const websiteSchema = {
   "@context": "https://schema.org",
 
@@ -126,10 +119,6 @@ const websiteSchema = {
     "@id": `${SITE_URL}#organization`,
   },
 };
-
-// =====================================================
-// Organization Schema
-// =====================================================
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -151,10 +140,6 @@ const organizationSchema = {
   },
 };
 
-// =====================================================
-// Layout
-// =====================================================
-
 export default async function RootLayout({
   children,
 }) {
@@ -167,10 +152,6 @@ export default async function RootLayout({
     >
       <head>
 
-        {/* =====================================
-            WebSite Schema
-        ====================================== */}
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -179,10 +160,6 @@ export default async function RootLayout({
             ),
           }}
         />
-
-        {/* =====================================
-            Organization Schema
-        ====================================== */}
 
         <script
           type="application/ld+json"
@@ -196,6 +173,8 @@ export default async function RootLayout({
       </head>
 
       <body>
+
+        <GoogleAnalytics />
 
         <Providers>
 
