@@ -10,18 +10,21 @@ const BANNER_SLIDES = [
     color: "#2F86FF",
     href: "/shop/salt-nicotine",
     img: "/slider.jpg",
+    mobileImg: "/slider-mobile.jpg",
   },
   {
     id: "b2",
     color: "#FF8A3D",
     href: "/product/p3",
     img: "/slider2+.jpg",
+    mobileImg: "/slider2-mobile.jpg",
   },
   {
     id: "b3",
     color: "#22E5C9",
     href: "/shop",
     img: "/slider3.jpg",
+    mobileImg: "/slider3-mobile.jpg",
   },
 ];
 
@@ -106,6 +109,7 @@ export default function BannerCarousel() {
             >
               <SiteImage
                 src={slide.img}
+                mobileSrc={slide.mobileImg}
                 alt=""
                 // فقط اسلاید اول LCP است؛ آن را فوری بگیر.
                 // اسلایدهای بعدی تا زمان نیاز lazy باشند.

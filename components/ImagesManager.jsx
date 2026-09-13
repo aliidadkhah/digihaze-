@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, Check, Loader2 } from "lucide-react";
+import { UploadCloud, Check, Loader2, RotateCcw } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { IMAGES_BUCKET, filenameFromPath } from "@/lib/images";
 import { IMAGE_SLOTS } from "@/lib/imageSlots";
@@ -32,6 +32,30 @@ export default function ImagesManager() {
     if (error) {
       setErrorKey(path);
       console.error("Upload error:", error);
+      return;
+    }
+    setDoneKey(path);
+    setBump((b) => b + 1);
+    setTimeout(() => setDoneKey(null), 2500);
+  };
+
+  // عکس آپلودشده رو از Storage پاک می‌کنه و به عکس پیش‌فرض داخل public برمی‌گردونه
+  const resetToDefault = async (path) => {
+    const filename = filenameFromPath(path);
+    if (!confirm("این عکس حذف بشه و به پیش‌فرض برگرده؟")) return;
+
+    setBusyKey(path);
+    setErrorKey(null);
+    setDoneKey(null);
+
+    const { error } = await supabase.storage
+      .from(IMAGES_BUCKET)
+      .remove([filename]);
+
+    setBusyKey(null);
+    if (error) {
+      setErrorKey(path);
+      console.error("Remove error:", error);
       return;
     }
     setDoneKey(path);
@@ -132,6 +156,34 @@ export default function ImagesManager() {
                       {busy && <Loader2 size={22} color="#fff" className="spin" />}
                       {done && <Check size={22} color="#22E5C9" />}
                     </div>
+
+                    <button
+                      type="button"
+                      title="حذف و بازگشت به پیش‌فرض"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        resetToDefault(slot.path);
+                      }}
+                      disabled={busy}
+                      style={{
+                        position: "absolute",
+                        top: 6,
+                        left: 6,
+                        width: 22,
+                        height: 22,
+                        borderRadius: "50%",
+                        border: "none",
+                        background: "rgba(0,0,0,0.55)",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: busy ? "default" : "pointer",
+                      }}
+                    >
+                      <RotateCcw size={12} />
+                    </button>
                   </div>
 
                   <div
@@ -150,7 +202,7 @@ export default function ImagesManager() {
 
                   {failed && (
                     <div style={{ padding: "0 10px 8px", fontSize: 11, color: "#E53935" }}>
-                      آپلود ناموفق بود، دوباره امتحان کن
+                      عملیات ناموفق بود، دوباره امتحان کن
                     </div>
                   )}
 

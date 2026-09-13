@@ -23,16 +23,34 @@ export default function CategoryBar({ categories = CATEGORIES }) {
     }
   };
 
+  // حداقل فاصله از لبه‌ی چپ/راست صفحه که پنل هیچ‌وقت نباید ازش رد بشه
+  const PANEL_EDGE_MARGIN = 12;
+
   const computePanelPos = (id) => {
     const el = itemRefs.current[id];
 
     if (!el) return;
 
     const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+
+    // عرض پنل رو با عرض صفحه هماهنگ می‌کنیم تا توی گوشی از کادر خارج نشه
+    const width = Math.min(340, vw - PANEL_EDGE_MARGIN * 2);
+
+    // فاصله‌ی ایده‌آل از راست، طوری که پنل زیر همون آیتم باز بشه
+    const idealRight = vw - rect.right;
+
+    // این فاصله رو کلمپ می‌کنیم که نه از راست صفحه رد بشه، نه از چپ
+    const maxRight = vw - width - PANEL_EDGE_MARGIN;
+    const right = Math.min(
+      Math.max(idealRight, PANEL_EDGE_MARGIN),
+      Math.max(maxRight, PANEL_EDGE_MARGIN)
+    );
 
     setPanelPos({
       top: rect.bottom + 6,
-      right: window.innerWidth - rect.right,
+      right,
+      width,
     });
   };
 
@@ -314,7 +332,9 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                       boxShadow:
                         "0 14px 30px rgba(0,0,0,.24)",
                       padding: "16px 18px",
-                      minWidth: 340,
+                      width: panelPos.width,
+                      maxWidth: `calc(100vw - ${PANEL_EDGE_MARGIN * 2}px)`,
+                      boxSizing: "border-box",
                       zIndex: 60,
                     }}
                   >
@@ -336,7 +356,9 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                       style={{
                         display: "grid",
                         gridTemplateColumns:
-                          "1fr 1fr",
+                          panelPos.width < 300
+                            ? "1fr"
+                            : "1fr 1fr",
                         gap: "0px 18px",
                       }}
                     >
