@@ -5,26 +5,48 @@ import { getStorageImageUrl } from "@/lib/images";
 
 /**
  * جایگزین <img> عادی.
- * اول سعی می‌کنه عکس رو از Supabase Storage (که از پنل ادمین آپلود شده) بگیره،
- * اگه پیدا نشد (یعنی هنوز کسی عکس رو عوض نکرده) خودکار برمی‌گرده به فایل محلی داخل public/
  *
- * استفاده دقیقا مثل <img> عادیه:
- * <SiteImage src="/pod-koko-tenet.jpg" alt="..." style={{...}} />
+ * نکته مهم برای Performance:
+ * آدرس Supabase از همان render اول ساخته می‌شود و منتظر useEffect نمی‌مانیم.
+ * این کار جلوی درخواست اولیه‌ی 404 به /public و سپس تعویض src را می‌گیرد.
+ *
+ * برای تصویر LCP می‌توانی priority را true کنی:
+ * <SiteImage src="/slider.jpg" priority ... />
  */
-export default function SiteImage({ src, alt = "", ...rest }) {
-  const [current, setCurrent] = useState(src);
+export default function SiteImage({
+  src,
+  alt = "",
+  priority = false,
+  loading,
+  fetchPriority,
+  ...rest
+}) {
+  // آدرس نهایی را همان لحظه‌ی render مشخص کن تا مرورگر بتواند
+  // تصویر مهم را از HTML اولیه سریع‌تر discover کند.
+  const resolvedSrc = getStorageImageUrl(src);
+  const [current, setCurrent] = useState(resolvedSrc);
 
   useEffect(() => {
     setCurrent(getStorageImageUrl(src));
   }, [src]);
+
+  const imageLoading =
+    loading ?? (priority ? "eager" : undefined);
+
+  const imageFetchPriority =
+    fetchPriority ?? (priority ? "high" : undefined);
 
   return (
     <img
       {...rest}
       src={current}
       alt={alt}
+      loading={imageLoading}
+      fetchPriority={imageFetchPriority}
+      decoding="async"
       onError={() => {
-        // اگه نسخه‌ی آپلودشده در Storage پیدا نشد، برگرد به عکس پیش‌فرض سایت
+        // اگر نسخه‌ی آپلودشده در Storage وجود نداشت،
+        // به عکس پیش‌فرض داخل public برگرد.
         if (current !== src) setCurrent(src);
       }}
     />

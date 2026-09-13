@@ -83,7 +83,7 @@ export default function BannerCarousel() {
               "transform 0.35s cubic-bezier(.65,0,.35,1)",
           }}
         >
-          {BANNER_SLIDES.map((slide) => (
+          {BANNER_SLIDES.map((slide, index) => (
             <button
               key={slide.id}
               onClick={() =>
@@ -107,6 +107,15 @@ export default function BannerCarousel() {
               <SiteImage
                 src={slide.img}
                 alt=""
+                // فقط اسلاید اول LCP است؛ آن را فوری بگیر.
+                // اسلایدهای بعدی تا زمان نیاز lazy باشند.
+                priority={index === 0}
+                loading={
+                  index === 0 ? "eager" : "lazy"
+                }
+                fetchPriority={
+                  index === 0 ? "high" : "low"
+                }
                 style={{
                   width: "100%",
                   height: "100%",
@@ -149,8 +158,7 @@ export default function BannerCarousel() {
                     ? slide.color
                     : "#ffffff77",
                 cursor: "pointer",
-                transition:
-                  "all 0.2s ease",
+                transition: "all 0.2s ease",
               }}
             />
           ))}
