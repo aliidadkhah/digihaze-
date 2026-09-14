@@ -27,7 +27,7 @@ export default function HomeContent() {
   );
 
   const [heroColor, setHeroColor] =
-    useState("#2F86FF");
+    useState("#0A84FF");
 
   const heroRef = useRef(null);
 
@@ -103,7 +103,7 @@ export default function HomeContent() {
           />
 
           <FlavorCloud
-            color="#22E5C9"
+            color="#00FFD1"
             size={340}
             style={{
               top: 40,
@@ -114,7 +114,7 @@ export default function HomeContent() {
           />
 
           <FlavorCloud
-            color="#FF8A3D"
+            color="#FF7A1F"
             size={300}
             style={{
               top: 120,
@@ -147,7 +147,7 @@ export default function HomeContent() {
               animationDelay: "0.05s",
             }}
           >
-            <Badge bg="#22E5C9">
+            <Badge bg="#00FFD1">
               فصل جدید طعم‌ها رسید 🌫️
             </Badge>
           </div>
@@ -170,9 +170,9 @@ export default function HomeContent() {
             هر پاف، یک{" "}
             <span
               style={{
-                color: "#2F86FF",
+                color: "#0A84FF",
                 textShadow:
-                  "0 0 30px #2F86FF66",
+                  "0 0 30px #0A84FF66",
               }}
             >
               طعم
@@ -243,7 +243,7 @@ export default function HomeContent() {
               className="pulse-btn"
               style={{
                 background:
-                  "#2F86FF",
+                  "#0A84FF",
                 color:
                   "var(--ink)",
                 border: "none",
@@ -292,12 +292,13 @@ export default function HomeContent() {
       ========================= */}
 
       <section
+        className="site-section"
         aria-labelledby="shop-categories-title"
         style={{
           maxWidth: 1180,
           margin: "0 auto",
           padding:
-            "10px 20px 50px",
+            "44px 20px 50px",
         }}
       >
         <h2
@@ -348,7 +349,7 @@ export default function HomeContent() {
                     cursor:
                       "pointer",
                     transition:
-                      "border-color 0.25s ease, transform 0.25s ease",
+                      "border-color 0.25s ease, transform 0.25s ease, box-shadow 0.3s ease",
                     textDecoration:
                       "none",
                     boxSizing:
@@ -358,10 +359,13 @@ export default function HomeContent() {
                     e
                   ) => {
                     e.currentTarget.style.borderColor =
-                      c.color;
+                      `${c.color}cc`;
 
                     e.currentTarget.style.transform =
                       "translateY(-4px)";
+
+                    e.currentTarget.style.boxShadow =
+                      `0 18px 36px -12px ${c.color}88, 0 0 26px -4px ${c.color}66`;
                   }}
                   onMouseOut={(
                     e
@@ -371,6 +375,9 @@ export default function HomeContent() {
 
                     e.currentTarget.style.transform =
                       "translateY(0)";
+
+                    e.currentTarget.style.boxShadow =
+                      "none";
                   }}
                 >
                   <div
@@ -422,11 +429,12 @@ export default function HomeContent() {
       ========================= */}
 
       <section
+        className="site-section"
         style={{
           maxWidth: 1180,
           margin: "0 auto",
           padding:
-            "0 20px 50px",
+            "40px 20px 50px",
         }}
       >
         <Reveal>
@@ -467,19 +475,15 @@ export default function HomeContent() {
       ========================= */}
 
       <section
-        className="sale-section"
+        className="sale-section site-section site-section-alt"
         aria-labelledby="sale-title"
         style={{
           width: "100%",
           margin: 0,
           padding:
-            "38px 0 50px",
-          background:
-            "linear-gradient(180deg, rgba(47,134,255,0.035), rgba(34,229,201,0.02))",
-          borderTop:
-            "1px solid rgba(255,255,255,0.035)",
+            "44px 0 54px",
           borderBottom:
-            "1px solid rgba(255,255,255,0.035)",
+            "1px solid var(--border-soft)",
         }}
       >
         <div
@@ -535,7 +539,7 @@ export default function HomeContent() {
               href="/shop"
               style={{
                 color:
-                  "#22E5C9",
+                  "#00FFD1",
                 fontFamily:
                   "Vazirmatn",
                 fontSize: 13,
@@ -591,6 +595,7 @@ export default function HomeContent() {
       ========================= */}
 
       <section
+        className="site-section"
         aria-labelledby="featured-title"
         style={{
           maxWidth: 1180,
@@ -627,7 +632,7 @@ export default function HomeContent() {
             href="/shop"
             style={{
               color:
-                "#22E5C9",
+                "#00FFD1",
               fontFamily:
                 "Vazirmatn",
               fontSize: 13,

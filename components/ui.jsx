@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react";
 
-export function Badge({ children, bg = "#2F86FF" }) {
+export function Badge({ children, bg = "#0A84FF" }) {
   return (
     <span
       style={{
@@ -28,8 +28,8 @@ export function Stars({ rating, size = 14 }) {
         <Star
           key={i}
           size={size}
-          fill={i <= Math.round(rating) ? "#C6FF3D" : "none"}
-          stroke={i <= Math.round(rating) ? "#C6FF3D" : "var(--text-lo)"}
+          fill={i <= Math.round(rating) ? "#B6FF1A" : "none"}
+          stroke={i <= Math.round(rating) ? "#B6FF1A" : "var(--text-lo)"}
         />
       ))}
     </span>
@@ -75,7 +75,7 @@ export function Reveal({ children, delay = 0, y = 26, style = {} }) {
   );
 }
 
-export function Countdown({ target, color = "#C6FF3D" }) {
+export function Countdown({ target, color = "#B6FF1A" }) {
   const [left, setLeft] = useState(0);
   useEffect(() => {
     setLeft(target - Date.now());

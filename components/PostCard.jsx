@@ -69,7 +69,7 @@ export default function PostCard({ post, basePath }) {
               top: 10,
               right: 10,
               background: "var(--ink)",
-              color: "#2F86FF",
+              color: "#0A84FF",
               fontSize: 11,
               fontWeight: 800,
               borderRadius: 999,

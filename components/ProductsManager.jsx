@@ -413,7 +413,7 @@ export default function ProductsManager() {
             display: "flex",
             alignItems: "center",
             gap: 6,
-            background: "#2F86FF",
+            background: "#0A84FF",
             color: "#fff",
             border: "none",
             borderRadius: 10,
@@ -521,7 +521,7 @@ export default function ProductsManager() {
                     fontSize: 11,
                     fontFamily: "Vazirmatn",
                     fontWeight: 700,
-                    color: p.available ? "#22E5C9" : "#ff6b6b",
+                    color: p.available ? "#00FFD1" : "#ff6b6b",
                   }}
                 >
                   {p.available ? "موجود" : "ناموجود"}
@@ -715,7 +715,7 @@ export default function ProductsManager() {
                     ...inputStyle,
                     display: "flex",
                     alignItems: "center",
-                    color: form.discount > 0 ? "#22E5C9" : "var(--text-mut)",
+                    color: form.discount > 0 ? "#00FFD1" : "var(--text-mut)",
                     fontWeight: 700,
                     background: "var(--surface2)",
                   }}
@@ -1184,7 +1184,7 @@ export default function ProductsManager() {
                 type="submit"
                 disabled={saving}
                 style={{
-                  background: "#2F86FF",
+                  background: "#0A84FF",
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 24px",

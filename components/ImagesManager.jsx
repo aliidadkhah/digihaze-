@@ -154,7 +154,7 @@ export default function ImagesManager() {
                       }}
                     >
                       {busy && <Loader2 size={22} color="#fff" className="spin" />}
-                      {done && <Check size={22} color="#22E5C9" />}
+                      {done && <Check size={22} color="#00FFD1" />}
                     </div>
 
                     <button

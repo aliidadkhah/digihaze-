@@ -120,7 +120,7 @@ export default function ShippingPaymentManager() {
       {/* روش‌های ارسال */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <Truck size={17} color="#2F86FF" />
+          <Truck size={17} color="#0A84FF" />
           <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
             روش‌های ارسال
           </span>
@@ -159,7 +159,7 @@ export default function ShippingPaymentManager() {
       {/* روش‌های پرداخت */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-          <CreditCard size={17} color="#22E5C9" />
+          <CreditCard size={17} color="#00FFD1" />
           <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
             روش‌های پرداخت
           </span>
@@ -219,7 +219,7 @@ export default function ShippingPaymentManager() {
           display: "flex",
           alignItems: "center",
           gap: 6,
-          background: saved ? "#22E5C9" : "#2F86FF",
+          background: saved ? "#00FFD1" : "#0A84FF",
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",

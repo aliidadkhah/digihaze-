@@ -64,7 +64,7 @@ export default function OrderSuccessClient({
         >
           <CheckCircle
             size={68}
-            color="#22E5C9"
+            color="#00FFD1"
             strokeWidth={1.7}
           />
         </div>
@@ -165,10 +165,10 @@ export default function OrderSuccessClient({
         <div
           style={{
             background:
-              "#22E5C912",
+              "#00FFD112",
 
             border:
-              "1px solid #22E5C933",
+              "1px solid #00FFD133",
 
             borderRadius: 14,
 

@@ -364,7 +364,7 @@ export default function Providers({ children }) {
                 className="cart-toast-link"
                 onClick={() => setCartToast(null)}
                 style={{
-                  background: "#22E5C9",
+                  background: "#00FFD1",
                   color: "#0b0b17",
                 }}
               >

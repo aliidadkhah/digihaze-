@@ -85,7 +85,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
     if (!ref.current?.contains(range.commonAncestorContainer)) return;
 
     const span = document.createElement("span");
-    span.style.background = "#2F86FF2E";
+    span.style.background = "#0A84FF2E";
     span.style.borderRadius = "6px";
     span.style.padding = "1px 6px";
     span.appendChild(range.extractContents());
@@ -200,7 +200,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           font-weight: 800;
           margin: 14px 0 8px;
           padding-right: 10px;
-          border-right: 3px solid #2F86FF;
+          border-right: 3px solid #0A84FF;
         }
         .rte-editable :global(ul) {
           padding-inline-start: 20px;
@@ -208,8 +208,8 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         .rte-editable :global(blockquote) {
           margin: 10px 0;
           padding: 10px 14px;
-          background: #2F86FF14;
-          border-right: 3px solid #2F86FF;
+          background: #0A84FF14;
+          border-right: 3px solid #0A84FF;
           border-radius: 8px;
         }
         .rte-editable:empty:before {

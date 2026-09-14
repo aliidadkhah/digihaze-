@@ -260,7 +260,7 @@ export default function PostsManager() {
               key={t.id}
               onClick={() => setFilterType(t.id)}
               style={{
-                background: filterType === t.id ? "#2F86FF" : "var(--surface2)",
+                background: filterType === t.id ? "#0A84FF" : "var(--surface2)",
                 color: filterType === t.id ? "#fff" : "var(--text-hi)",
                 border: "none",
                 borderRadius: 10,
@@ -282,7 +282,7 @@ export default function PostsManager() {
             display: "flex",
             alignItems: "center",
             gap: 6,
-            background: "#2F86FF",
+            background: "#0A84FF",
             color: "#fff",
             border: "none",
             borderRadius: 10,
@@ -384,7 +384,7 @@ export default function PostsManager() {
                     fontSize: 11,
                     fontFamily: "Vazirmatn",
                     fontWeight: 700,
-                    color: p.type === "guide" ? "#FF8A3D" : "#2F86FF",
+                    color: p.type === "guide" ? "#FF7A1F" : "#0A84FF",
                   }}
                 >
                   {TYPE_LABELS[p.type] || "بلاگ"}
@@ -400,7 +400,7 @@ export default function PostsManager() {
                     display: "flex",
                     alignItems: "center",
                     gap: 3,
-                    color: p.published ? "#22E5C9" : "var(--text-faint)",
+                    color: p.published ? "#00FFD1" : "var(--text-faint)",
                   }}
                 >
                   {p.published ? <Eye size={12} /> : <EyeOff size={12} />}
@@ -508,7 +508,7 @@ export default function PostsManager() {
                   onClick={() => update("type", t.id)}
                   style={{
                     flex: 1,
-                    background: form.type === t.id ? "#2F86FF" : "var(--bg)",
+                    background: form.type === t.id ? "#0A84FF" : "var(--bg)",
                     color: form.type === t.id ? "#fff" : "var(--text-hi)",
                     border: "1px solid var(--surface2)",
                     borderRadius: 10,
@@ -707,7 +707,7 @@ export default function PostsManager() {
                 type="submit"
                 disabled={saving}
                 style={{
-                  background: "#2F86FF",
+                  background: "#0A84FF",
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 24px",

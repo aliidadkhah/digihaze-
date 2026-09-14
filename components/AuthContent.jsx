@@ -196,8 +196,8 @@ export default function AuthContent() {
   if (user && isProfileComplete(user)) {
     return (
       <div style={{ maxWidth: 480, margin: "0 auto", padding: "70px 20px 90px", textAlign: "center" }}>
-        <div style={{ width: 74, height: 74, borderRadius: "50%", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", border: "2px solid #22E5C9" }}>
-          <User size={30} color="#22E5C9" />
+        <div style={{ width: 74, height: 74, borderRadius: "50%", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", border: "2px solid #00FFD1" }}>
+          <User size={30} color="#00FFD1" />
         </div>
         <h2 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20, marginBottom: 6 }}>خوش اومدی، {user.name}</h2>
         <p style={{ color: "var(--text-mut)", fontSize: 13, marginBottom: 26 }}>{user.contact}</p>
@@ -214,8 +214,8 @@ export default function AuthContent() {
           <button onClick={() => setStep("profile")} style={accountRowStyle}>
             <MapPin size={16} color="var(--text-lo)" /> ویرایش آدرس و مشخصات
           </button>
-          <button onClick={logout} style={{ ...accountRowStyle, color: "#2F86FF", borderColor: "#3a1440" }}>
-            <LogOut size={16} color="#2F86FF" /> خروج از حساب
+          <button onClick={logout} style={{ ...accountRowStyle, color: "#0A84FF", borderColor: "#3a1440" }}>
+            <LogOut size={16} color="#0A84FF" /> خروج از حساب
           </button>
         </div>
       </div>
@@ -231,7 +231,7 @@ export default function AuthContent() {
     return (
       <div style={{ maxWidth: 480, margin: "0 auto", padding: "50px 20px 90px" }}>
         <div style={{ textAlign: "center", marginBottom: 26 }}>
-          <Badge bg="#22E5C9">یک قدم مونده</Badge>
+          <Badge bg="#00FFD1">یک قدم مونده</Badge>
           <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22, margin: "16px 0 6px" }}>
             تکمیل مشخصات گیرنده
           </h1>
@@ -326,12 +326,12 @@ export default function AuthContent() {
           </div>
 
           {profileError && (
-            <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>
+            <div style={{ color: "#0A84FF", fontSize: 12.5, background: "#0A84FF22", borderRadius: 10, padding: "8px 12px" }}>
               {profileError}
             </div>
           )}
 
-          <button type="submit" style={{ background: "#22E5C9", color: "#061014", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
+          <button type="submit" style={{ background: "#00FFD1", color: "#061014", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
             ذخیره و ادامه
           </button>
         </form>
@@ -342,7 +342,7 @@ export default function AuthContent() {
   return (
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "60px 20px 90px" }}>
       <div style={{ textAlign: "center", marginBottom: 30 }}>
-        <Badge bg="#FF8A3D">ورود سریع</Badge>
+        <Badge bg="#FF7A1F">ورود سریع</Badge>
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 26, margin: "16px 0 6px" }}>
           {step === "phone" ? "ورود با شماره موبایل" : "کد تایید رو وارد کن"}
         </h1>
@@ -364,8 +364,8 @@ export default function AuthContent() {
               style={{ ...inputStyle, width: "100%", paddingRight: 42, direction: "ltr", textAlign: "right" }}
             />
           </div>
-          {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          {error && <div style={{ color: "#0A84FF", fontSize: 12.5, background: "#0A84FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
+          <button type="submit" disabled={loading} style={{ background: "#0A84FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "در حال ارسال..." : "دریافت کد تایید"}
           </button>
         </form>
@@ -383,9 +383,9 @@ export default function AuthContent() {
             autoFocus
           />
 
-          {error && <div style={{ color: "#2F86FF", fontSize: 12.5, background: "#2F86FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
+          {error && <div style={{ color: "#0A84FF", fontSize: 12.5, background: "#0A84FF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
 
-          <button type="submit" disabled={loading} style={{ background: "#2F86FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
+          <button type="submit" disabled={loading} style={{ background: "#0A84FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "در حال بررسی..." : "تایید و ورود"}
           </button>
 
@@ -397,7 +397,7 @@ export default function AuthContent() {
               type="button"
               disabled={timer > 0}
               onClick={sendCode}
-              style={{ background: "none", border: "none", color: timer > 0 ? "var(--text-faint)" : "#22E5C9", cursor: timer > 0 ? "default" : "pointer", fontFamily: "Vazirmatn" }}
+              style={{ background: "none", border: "none", color: timer > 0 ? "var(--text-faint)" : "#00FFD1", cursor: timer > 0 ? "default" : "pointer", fontFamily: "Vazirmatn" }}
             >
               {timer > 0 ? `ارسال مجدد (${timer})` : "ارسال مجدد کد"}
             </button>

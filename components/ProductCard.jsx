@@ -45,14 +45,14 @@ export default function ProductCard({ product }) {
         flexDirection: "column",
         borderRadius: 18,
         transition:
-          "transform 0.25s ease, box-shadow 0.25s ease",
+          "transform 0.25s ease, box-shadow 0.3s ease",
         transform:
           hover && isAvailable
             ? "translateY(-6px)"
             : "translateY(0)",
         boxShadow:
           hover && isAvailable
-            ? `0 16px 32px -12px ${product.color}55`
+            ? `0 20px 44px -10px ${product.color}88, 0 0 0 1px ${product.color}22, 0 0 32px -4px ${product.color}66`
             : "none",
         willChange: "transform",
       }}
@@ -65,8 +65,11 @@ export default function ProductCard({ product }) {
           background: "var(--surface)",
           borderRadius: 18,
           overflow: "hidden",
-          border: "1px solid var(--surface2)",
+          border: `1px solid ${
+            hover && isAvailable ? `${product.color}aa` : "var(--surface2)"
+          }`,
           position: "relative",
+          transition: "border-color 0.25s ease",
         }}
       >
         {/* PRODUCT LINK */}
@@ -141,7 +144,7 @@ export default function ProductCard({ product }) {
                 <span
                   style={{
                     background: "var(--ink)",
-                    color: "#C6FF3D",
+                    color: "#B6FF1A",
                     fontSize: 12,
                     fontWeight: 800,
                     borderRadius: 999,

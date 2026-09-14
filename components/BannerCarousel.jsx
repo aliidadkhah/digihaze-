@@ -7,21 +7,21 @@ import SiteImage from "./SiteImage";
 const BANNER_SLIDES = [
   {
     id: "b1",
-    color: "#2F86FF",
+    color: "#0A84FF",
     href: "/shop/salt-nicotine",
     img: "/slider.jpg",
     mobileImg: "/slider-mobile.jpg",
   },
   {
     id: "b2",
-    color: "#FF8A3D",
+    color: "#FF7A1F",
     href: "/product/p3",
     img: "/slider2+.jpg",
     mobileImg: "/slider2-mobile.jpg",
   },
   {
     id: "b3",
-    color: "#22E5C9",
+    color: "#00FFD1",
     href: "/shop",
     img: "/slider3.jpg",
     mobileImg: "/slider3-mobile.jpg",

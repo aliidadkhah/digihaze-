@@ -328,7 +328,7 @@ export default function CheckoutPage() {
 
           .primary-button {
             width: 100%;
-            background: #22e5c9;
+            background: #00FFD1;
             color: #061014;
             border: none;
             border-radius: 12px;
@@ -797,7 +797,7 @@ export default function CheckoutPage() {
 
             <Landmark
               size={40}
-              color="#22E5C9"
+              color="#00FFD1"
               style={{
                 margin:
                   "0 auto 16px",
@@ -941,7 +941,7 @@ export default function CheckoutPage() {
         .edit-link {
           background: none;
           border: none;
-          color: #22e5c9;
+          color: #00FFD1;
           font-family: Vazirmatn;
           font-size: 12.5px;
           font-weight: 700;
@@ -1008,8 +1008,8 @@ export default function CheckoutPage() {
         }
 
         .option-item.selected {
-          border-color: #22e5c9;
-          background: #22e5c910;
+          border-color: #00FFD1;
+          background: #00FFD110;
         }
 
         /*
@@ -1046,7 +1046,7 @@ export default function CheckoutPage() {
 
           cursor: pointer;
 
-          accent-color: #22e5c9;
+          accent-color: #00FFD1;
         }
 
         .option-text {
@@ -1075,7 +1075,7 @@ export default function CheckoutPage() {
         .option-price {
           flex-shrink: 0;
           font-size: 12px;
-          color: #22e5c9;
+          color: #00FFD1;
           font-weight: 800;
           white-space: nowrap;
         }
@@ -1126,7 +1126,7 @@ export default function CheckoutPage() {
         }
 
         .input:focus {
-          border-color: #22e5c9;
+          border-color: #00FFD1;
         }
 
         .description {
@@ -1194,7 +1194,7 @@ export default function CheckoutPage() {
         }
 
         .copied {
-          color: #22e5c9;
+          color: #00FFD1;
           font-family: Vazirmatn, sans-serif;
           font-size: 11px;
           font-weight: 900;
@@ -1216,7 +1216,7 @@ export default function CheckoutPage() {
           display: block;
           width: 100%;
           border: none;
-          background: #22e5c9;
+          background: #00FFD1;
           color: #061014;
           border-radius: 12px;
           padding: 14px 0;

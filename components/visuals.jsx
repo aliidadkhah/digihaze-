@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-export function FlavorCloud({ color = "#2F86FF", size = 520, style }) {
+export function FlavorCloud({ color = "#0A84FF", size = 520, style }) {
   return (
     <div
       aria-hidden
@@ -150,10 +150,10 @@ function useScrollY() {
 }
 
 const MORPH_BLOBS = [
-  { color: "#2F86FF", top: "0%", side: "right", size: 460, speed: 0.18, rotSpeed: 0.05, phase: 0 },
-  { color: "#FF8A3D", top: "35%", side: "left", size: 520, speed: 0.28, rotSpeed: -0.04, phase: 2 },
-  { color: "#22E5C9", top: "70%", side: "right", size: 400, speed: 0.12, rotSpeed: 0.07, phase: 4 },
-  { color: "#C6FF3D", top: "110%", side: "left", size: 440, speed: 0.22, rotSpeed: -0.06, phase: 1 },
+  { color: "#0A84FF", top: "0%", side: "right", size: 460, speed: 0.18, rotSpeed: 0.05, phase: 0 },
+  { color: "#FF7A1F", top: "35%", side: "left", size: 520, speed: 0.28, rotSpeed: -0.04, phase: 2 },
+  { color: "#00FFD1", top: "70%", side: "right", size: 400, speed: 0.12, rotSpeed: 0.07, phase: 4 },
+  { color: "#B6FF1A", top: "110%", side: "left", size: 440, speed: 0.22, rotSpeed: -0.06, phase: 1 },
 ];
 
 export function ScrollMorphBackground() {

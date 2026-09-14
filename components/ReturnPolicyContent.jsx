@@ -60,7 +60,7 @@ export default function ReturnPolicyContent() {
   return (
     <div style={{ maxWidth: 820, margin: "0 auto", padding: "60px 20px 80px" }}>
       <Reveal>
-        <Badge bg="#FF8A3D">مرجوعی و بازگشت کالا</Badge>
+        <Badge bg="#FF7A1F">مرجوعی و بازگشت کالا</Badge>
 
         <h1
           style={{
@@ -105,7 +105,7 @@ export default function ReturnPolicyContent() {
                   width: 6,
                   height: 6,
                   borderRadius: "50%",
-                  background: "#FF8A3D",
+                  background: "#FF7A1F",
                   flexShrink: 0,
                 }}
               />
@@ -215,7 +215,7 @@ export default function ReturnPolicyContent() {
                 fontWeight: 700,
               }}
             >
-              <Mail size={16} color="#22E5C9" />
+              <Mail size={16} color="#00FFD1" />
               info@digihaze.ir
             </a>
 
@@ -235,7 +235,7 @@ export default function ReturnPolicyContent() {
                 fontWeight: 700,
               }}
             >
-              <Phone size={16} color="#22E5C9" />
+              <Phone size={16} color="#00FFD1" />
               09020951384
             </a>
           </div>

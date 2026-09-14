@@ -47,7 +47,7 @@ export default function AnnouncementBar() {
     return null;
   }
 
-  const color = settings.announcement_color || "#2F86FF";
+  const color = settings.announcement_color || "#0A84FF";
 
   const close = () => {
     setDismissed(true);

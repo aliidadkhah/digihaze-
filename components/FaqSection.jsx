@@ -218,15 +218,16 @@ export default function FaqSection() {
 
   return (
     <section
+      className="site-section"
       style={{
         maxWidth: 900,
         margin: "0 auto",
-        padding: "50px 20px 80px",
+        padding: "54px 20px 80px",
       }}
     >
       <Reveal>
         <div style={{ textAlign: "center", marginBottom: 34 }}>
-          <Badge bg="#2F86FF">راهنمای خرید</Badge>
+          <Badge bg="#0A84FF">راهنمای خرید</Badge>
 
           <h2
             style={{
@@ -281,7 +282,7 @@ export default function FaqSection() {
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
-                    background: "#22E5C9",
+                    background: "#00FFD1",
                     flexShrink: 0,
                   }}
                 />
@@ -323,7 +324,7 @@ export default function FaqSection() {
               fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 13,
-              color: "#2F86FF",
+              color: "#0A84FF",
               cursor: "pointer",
             }}
           >
