@@ -19,8 +19,8 @@ export default function AboutContent() {
       </Reveal>
       <div className="about-stats" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
         {[
-          { n: "+4200", l: "مشتری راضی" },
-          { n: "+180", l: "محصول متنوع" },
+          { n: "+200", l: "مشتری راضی" },
+          { n: "+30", l: "محصول متنوع" },
           { n: "24h", l: "پشتیبانی پاسخگو" },
         ].map((s, i) => (
           <Reveal key={i} delay={0.1 * i}>
