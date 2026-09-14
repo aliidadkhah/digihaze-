@@ -3,6 +3,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import ProductsProvider from "@/components/ProductsProvider";
 import AnnouncementBar from "@/components/AnnouncementBar";
+import ScrollProgressLine from "@/components/ScrollProgressLine";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
@@ -182,6 +183,8 @@ export default async function RootLayout({
         <Providers>
 
           <ProductsProvider>
+
+            <ScrollProgressLine />
 
             <AnnouncementBar />
 
