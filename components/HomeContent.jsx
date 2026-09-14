@@ -121,7 +121,7 @@ export default function HomeContent() {
                 "0.16s",
             }}
           >
-            هر پاف، یک{" "}
+            خرید پاد، سالت و کارتریج{" "}
             <span
               style={{
                 color: "#0A84FF",
@@ -129,9 +129,9 @@ export default function HomeContent() {
                   "0 0 34px #0A84FFaa",
               }}
             >
-              طعم
+              در دیجی
             </span>{" "}
-            تازه
+            هیز
           </h1>
 
           {/* =========================
