@@ -172,7 +172,7 @@ export default function HomeContent() {
               style={{
                 color: "#0A84FF",
                 textShadow:
-                  "0 0 30px #0A84FF66",
+                  "0 0 34px #0A84FFaa",
               }}
             >
               طعم
