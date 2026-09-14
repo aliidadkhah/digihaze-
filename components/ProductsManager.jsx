@@ -692,6 +692,22 @@ export default function ProductsManager() {
                   onChange={(e) => update("badge", e.target.value)}
                 />
               </Field>
+              <Field label="رنگ تم کارت (برچسب و هاور)">
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input
+                    type="color"
+                    value={form.color || "#0A84FF"}
+                    onChange={(e) => update("color", e.target.value)}
+                    style={{ width: 40, height: 38, border: "none", borderRadius: 8, background: "none", cursor: "pointer" }}
+                  />
+                  <input
+                    style={{ ...inputStyle, flex: 1 }}
+                    placeholder="#0A84FF"
+                    value={form.color}
+                    onChange={(e) => update("color", e.target.value)}
+                  />
+                </div>
+              </Field>
               <Field label="قیمت اصلی (تومان، قبل تخفیف)">
                 <input
                   type="number"
