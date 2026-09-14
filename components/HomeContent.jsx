@@ -102,7 +102,7 @@ export default function HomeContent() {
             }}
           >
             <Badge bg="#00FFD1">
-              فصل جدید طعم‌ها رسید 🌫️
+              هر پاف یک طعم تازه 🌫️
             </Badge>
           </div>
 
@@ -121,7 +121,7 @@ export default function HomeContent() {
                 "0.16s",
             }}
           >
-             دیجی هیز؛ فروشگاه آنلاین پاد، سالت نیکوتین{" "}
+             دیجی هیز؛ فروشگاه پاد، سالت نیکوتین و کارتریج{" "}
             <span
               style={{
                 color: "#0A84FF",
@@ -129,9 +129,9 @@ export default function HomeContent() {
                   "0 0 34px #0A84FFaa",
               }}
             >
-              و
+              
             </span>{" "}
-            کارتریج
+            
           </h1>
 
           {/* =========================
@@ -152,7 +152,6 @@ export default function HomeContent() {
                 "0.22s",
             }}
           >
-            هرپاف یک طعم تازه
           </p>
 
           <p
@@ -169,7 +168,7 @@ export default function HomeContent() {
           >
             در دیجی هیز می‌توانید
             محصولات مختلف پاد،
-            سالت نیکوتین، دستگاه و
+            سالت نیکوتین و
             کارتریج را مشاهده کنید،
             مشخصات و قیمت محصولات
             را بررسی کنید و از میان
