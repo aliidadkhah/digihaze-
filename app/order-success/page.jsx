@@ -20,18 +20,45 @@ export default function OrderSuccessPage() {
   const pollRef = useRef(null);
 
   useEffect(() => {
+    // حالت اول: سفارش کارت‌به‌کارت — بلافاصله بعد از ثبت
+    // سفارش در همین تب توی sessionStorage ذخیره شده
     try {
       const savedOrder = sessionStorage.getItem("completedOrder");
 
       if (savedOrder) {
         setOrder(JSON.parse(savedOrder));
         sessionStorage.removeItem("completedOrder");
+        setLoading(false);
+        return;
       }
     } catch (error) {
       console.error("Order success error:", error);
-    } finally {
-      setLoading(false);
     }
+
+    // حالت دوم: بازگشت از درگاه پرداخت زیبال — سفارش با
+    // شناسه‌ای که در callback زیبال به این صفحه اضافه شده واکشی می‌شود
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("order");
+
+    if (!orderId) {
+      setLoading(false);
+      return;
+    }
+
+    fetch(`/api/orders?id=${encodeURIComponent(orderId)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const fetchedOrder = (data.orders || [])[0];
+        if (fetchedOrder) {
+          setOrder(fetchedOrder);
+        }
+      })
+      .catch((error) => {
+        console.error("Order fetch error:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
@@ -119,6 +146,56 @@ export default function OrderSuccessPage() {
     order.status === "pending";
 
   const isConfirmed = order.status === "paid";
+
+  const isGatewayFailed =
+    order.payment_method === "gateway" &&
+    order.status === "failed";
+
+  if (isGatewayFailed) {
+    return (
+      <div
+        dir="rtl"
+        style={{
+          maxWidth: 650,
+          margin: "0 auto",
+          padding: "80px 20px",
+          textAlign: "center",
+          fontFamily: "Vazirmatn",
+        }}
+      >
+        <h1 style={{ fontWeight: 900, marginBottom: 15 }}>
+          پرداخت ناموفق بود
+        </h1>
+
+        <p
+          style={{
+            color: "var(--text-mut)",
+            fontSize: 14,
+            marginBottom: 25,
+          }}
+        >
+          تراکنش شما در درگاه پرداخت تکمیل نشد یا لغو شد.
+          مبلغی از حساب شما کسر نشده است. می‌توانید دوباره
+          تلاش کنید.
+        </p>
+
+        <button
+          onClick={() => router.push("/checkout")}
+          style={{
+            background: "#22E5C9",
+            border: "none",
+            borderRadius: 12,
+            padding: "12px 28px",
+            fontFamily: "Vazirmatn",
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
+        >
+          بازگشت به تسویه‌حساب
+        </button>
+      </div>
+    );
+  }
 
   const trackingLinks = [
     {

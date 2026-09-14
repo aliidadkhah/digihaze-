@@ -13,18 +13,27 @@ export async function GET(req) {
       .get("phone")
       ?.trim();
 
-    if (!phone) {
+    const id = searchParams
+      .get("id")
+      ?.trim();
+
+    if (!phone && !id) {
       return NextResponse.json(
-        { error: "شماره موبایل ارسال نشده است" },
+        { error: "شماره موبایل یا شناسه سفارش ارسال نشده است" },
         { status: 400 }
       );
     }
 
-    const { data: orders, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("orders")
       .select("*, order_items(*)")
-      .eq("customer_phone", phone)
       .order("created_at", { ascending: false });
+
+    // برای صفحه‌ی بازگشت از درگاه پرداخت، سفارش با شناسه (id) پیدا می‌شود
+    // چون در آن لحظه شماره موبایل در حافظه‌ی مرورگر موجود نیست.
+    query = id ? query.eq("id", id) : query.eq("customer_phone", phone);
+
+    const { data: orders, error } = await query;
 
     if (error) {
       console.error("ORDERS FETCH ERROR:", error);
@@ -50,7 +59,6 @@ const SHIPPING_LABELS = {
 
 const PAYMENT_LABELS = {
   card_to_card: "کارت به کارت",
-  gateway: "درگاه شاپرک",
 };
 
 export async function POST(req) {
@@ -104,6 +112,11 @@ export async function POST(req) {
     // =========================
     // بررسی روش پرداخت
     // =========================
+    // نکته امنیتی: پرداخت با درگاه (زیبال) دیگر از این مسیر ثبت نمی‌شود،
+    // چون این‌جا کلاینت می‌تونه مستقیماً status=paid بفرسته بدون این‌که
+    // واقعاً پولی رد و بدل شده باشه. سفارش‌های درگاهی همیشه باید از
+    // app/api/payment/zibal/request ساخته بشن و وضعیتشون فقط بعد از
+    // verify واقعی توی app/api/payment/zibal/callback به "paid" تغییر کنه.
     const paymentMethod = payment?.method;
     if (!PAYMENT_LABELS[paymentMethod]) {
       return NextResponse.json(
@@ -119,10 +132,8 @@ export async function POST(req) {
       );
     }
 
-    // وضعیت اولیه سفارش:
-    // کارت‌به‌کارت -> در انتظار تایید ادمین
-    // درگاه       -> پرداخت‌شده (چون فعلاً شبیه‌سازی‌شده؛ در نسخه واقعی این وضعیت باید از callback درگاه بیاد)
-    const initialStatus = paymentMethod === "gateway" ? "paid" : "pending";
+    // کارت‌به‌کارت -> در انتظار تایید دستی ادمین
+    const initialStatus = "pending";
 
     // =========================
     // محاسبه مبلغ

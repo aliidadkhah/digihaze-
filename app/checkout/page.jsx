@@ -347,30 +347,91 @@ export default function CheckoutPage() {
     };
 
   /* ========================= */
-  /* درگاه نمایشی */
+  /* درگاه پرداخت زیبال */
   /* ========================= */
 
-  const simulateGatewayPayment =
+  const startGatewayPayment =
     async () => {
       setError("");
       setLoading(true);
 
       try {
-        await createOrder(
-          {},
-          "paid"
+        const response = await fetch(
+          "/api/payment/zibal/request",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              customer: {
+                name: user.name,
+                phone: user.contact,
+                address: user.address,
+                province: user.province,
+                city: user.city,
+                postalCode:
+                  user.postalCode,
+              },
+
+              shipping: {
+                method: shippingMethod,
+              },
+
+              items: cart.map((item) => ({
+                productId:
+                  item.product.id,
+                qty: item.qty,
+              })),
+            }),
+          }
         );
+
+        const responseText =
+          await response.text();
+
+        let data;
+
+        try {
+          data = JSON.parse(
+            responseText
+          );
+        } catch {
+          console.error(
+            "SERVER RESPONSE:",
+            responseText
+          );
+
+          throw new Error(
+            "پاسخ نامعتبر از سرور دریافت شد. لطفاً دوباره تلاش کنید."
+          );
+        }
+
+        if (
+          !response.ok ||
+          !data?.paymentUrl
+        ) {
+          throw new Error(
+            data?.error ||
+              "اتصال به درگاه پرداخت انجام نشد."
+          );
+        }
+
+        // کاربر به صفحه‌ی پرداخت زیبال منتقل می‌شود
+        window.location.href =
+          data.paymentUrl;
       } catch (err) {
         console.error(
-          "ORDER ERROR:",
+          "GATEWAY PAYMENT ERROR:",
           err
         );
 
         setError(
           err?.message ||
-            "خطایی هنگام ثبت سفارش رخ داد."
+            "خطایی هنگام اتصال به درگاه پرداخت رخ داد."
         );
-      } finally {
+
         setLoading(false);
       }
     };
@@ -964,12 +1025,11 @@ export default function CheckoutPage() {
                 textAlign: "center",
               }}
             >
-              نسخه‌ی نمایشی — درگاه
-              واقعی هنوز متصل نشده.
-              مبلغ{" "}
+              با کلیک روی دکمه‌ی زیر به
+              درگاه پرداخت زیبال منتقل
+              می‌شوید. مبلغ{" "}
               {money(total)}{" "}
-              برای پرداخت نمایش داده
-              می‌شود.
+              از شما دریافت خواهد شد.
             </p>
 
             {error && (
@@ -982,13 +1042,13 @@ export default function CheckoutPage() {
               type="button"
               disabled={loading}
               onClick={
-                simulateGatewayPayment
+                startGatewayPayment
               }
               className="primary-button submit-button"
             >
               {loading
                 ? "در حال اتصال به درگاه..."
-                : "پرداخت (نمایشی)"}
+                : "پرداخت و انتقال به درگاه"}
             </button>
 
             <button
