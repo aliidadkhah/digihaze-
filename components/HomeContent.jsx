@@ -129,7 +129,7 @@ export default function HomeContent() {
                   "0 0 34px #0A84FFaa",
               }}
             >
-              در دیجی
+              از دیجی
             </span>{" "}
             هیز
           </h1>
