@@ -1,15 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap");
 
 :root {
-  --bg: #07040f;
-  --surface: #140d29;
-  --surface2: #201640;
+  --bg: #030611;
+  --surface: #0d1428;
+  --surface2: #142040;
   --text-hi: #f8f5ff;
   --text-lo: #c3b9dd;
   --text-mut: #9a8ec0;
-  --border-soft: #4a3d78;
+  --border-soft: #384a82;
   --text-faint: #6b608f;
-  --ink: #07040f;
+  --ink: #030611;
   --neon-blue: #0A84FF;
   --neon-teal: #00FFD1;
   --neon-orange: #FF7A1F;
