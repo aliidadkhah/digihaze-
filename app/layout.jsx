@@ -7,7 +7,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
-import { ScrollMorphBackground } from "@/components/visuals";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 
 import {
@@ -183,8 +182,6 @@ export default async function RootLayout({
         <Providers>
 
           <ProductsProvider>
-
-            <ScrollMorphBackground />
 
             <AnnouncementBar />
 

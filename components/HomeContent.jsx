@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { Badge, Reveal } from "./ui";
 import {
-  FlavorCloud,
   VaporParticles,
   FloatingBottle,
 } from "./visuals";
@@ -80,51 +79,6 @@ export default function HomeContent() {
           textAlign: "center",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            transform: `translate(${parallax.x}px, ${parallax.y}px)`,
-            transition:
-              "transform 0.3s ease-out",
-          }}
-        >
-          <FlavorCloud
-            color={heroColor}
-            size={640}
-            style={{
-              top: -160,
-              right: "50%",
-              transform:
-                "translateX(50%)",
-              animation:
-                "driftA 14s ease-in-out infinite",
-            }}
-          />
-
-          <FlavorCloud
-            color="#00FFD1"
-            size={340}
-            style={{
-              top: 40,
-              left: "8%",
-              animation:
-                "driftB 11s ease-in-out infinite",
-            }}
-          />
-
-          <FlavorCloud
-            color="#FF7A1F"
-            size={300}
-            style={{
-              top: 120,
-              right: "6%",
-              animation:
-                "driftA 16s ease-in-out infinite reverse",
-            }}
-          />
-        </div>
-
         <VaporParticles
           color={heroColor}
         />

@@ -57,23 +57,7 @@ body {
 }
 
 body {
-  background:
-    radial-gradient(
-      circle at 8% 42%,
-      rgba(10,132,255,0.22),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 92% 48%,
-      rgba(0,255,209,0.18),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 50% 82%,
-      rgba(255,122,31,0.16),
-      transparent 38%
-    ),
-    var(--bg);
+  background: var(--bg);
 
   color: var(--text-hi);
   font-family: "Vazirmatn", sans-serif;
