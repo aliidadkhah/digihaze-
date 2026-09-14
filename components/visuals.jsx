@@ -8,8 +8,8 @@ export function FlavorCloud({ color = "#0A84FF", size = 520, style }) {
       aria-hidden
       style={{
         position: "absolute",
-        width: size,
-        height: size,
+        width: `clamp(150px, 42vw, ${size}px)`,
+        height: `clamp(150px, 42vw, ${size}px)`,
         borderRadius: "50%",
         background: `radial-gradient(circle at 40% 40%, ${color}f2 0%, ${color}b3 22%, ${color}4d 45%, transparent 72%)`,
         filter: "blur(34px)",
@@ -151,15 +151,33 @@ function useScrollY() {
   return y;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 700px)");
+    setIsMobile(mq.matches);
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener ? mq.addEventListener("change", onChange) : mq.addListener(onChange);
+    return () => {
+      mq.removeEventListener ? mq.removeEventListener("change", onChange) : mq.removeListener(onChange);
+    };
+  }, []);
+  return isMobile;
+}
+
 const MORPH_BLOBS = [
-  { color: "#0A84FF", top: "0%", side: "right", size: 460, speed: 0.18, rotSpeed: 0.05, phase: 0 },
-  { color: "#FF7A1F", top: "35%", side: "left", size: 520, speed: 0.28, rotSpeed: -0.04, phase: 2 },
-  { color: "#00FFD1", top: "70%", side: "right", size: 400, speed: 0.12, rotSpeed: 0.07, phase: 4 },
-  { color: "#B6FF1A", top: "110%", side: "left", size: 440, speed: 0.22, rotSpeed: -0.06, phase: 1 },
+  { color: "#0A84FF", top: "2%", side: "right", size: 380, speed: 0.16, rotSpeed: 0.05, phase: 0 },
+  { color: "#FF7A1F", top: "55%", side: "left", size: 420, speed: 0.2, rotSpeed: -0.04, phase: 2 },
+  { color: "#00FFD1", top: "108%", side: "right", size: 340, speed: 0.14, rotSpeed: 0.07, phase: 4 },
+  { color: "#B6FF1A", top: "160%", side: "left", size: 360, speed: 0.18, rotSpeed: -0.06, phase: 1 },
 ];
 
 export function ScrollMorphBackground() {
   const y = useScrollY();
+  const isMobile = useIsMobile();
+  const sizeMult = isMobile ? 0.6 : 1;
+  const alphaCore = isMobile ? "55" : "80";
+  const alphaMid = isMobile ? "14" : "26";
   return (
     <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: -1, overflow: "hidden", pointerEvents: "none" }}>
       {MORPH_BLOBS.map((b, i) => {
@@ -175,17 +193,18 @@ export function ScrollMorphBackground() {
         const r6 = 50 + Math.sin(t * 0.8) * 18;
         const r7 = 50 - Math.sin(t * 1.1) * 18;
         const r8 = 50 + Math.cos(t * 1.1) * 18;
+        const renderedSize = Math.round(b.size * sizeMult);
         return (
           <div
             key={i}
             style={{
               position: "absolute",
               top: b.top,
-              [b.side]: `-${b.size * 0.25}px`,
-              width: b.size,
-              height: b.size,
-              background: `radial-gradient(circle at 35% 35%, ${b.color}99 0%, ${b.color}40 45%, transparent 72%)`,
-              filter: "blur(46px)",
+              [b.side]: `-${renderedSize * 0.25}px`,
+              width: renderedSize,
+              height: renderedSize,
+              background: `radial-gradient(circle at 35% 35%, ${b.color}${alphaCore} 0%, ${b.color}${alphaMid} 42%, transparent 70%)`,
+              filter: "blur(50px)",
               mixBlendMode: "screen",
               borderRadius: `${r1}% ${r2}% ${r3}% ${r4}% / ${r5}% ${r6}% ${r7}% ${r8}%`,
               transform: `translateY(${translateY}px) rotate(${rotate}deg) scale(${scale})`,
