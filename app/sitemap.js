@@ -4,8 +4,14 @@ import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap() {
   const products = await getProducts();
-  const blogPosts = await getPosts({ type: "blog" });
-  const guidePosts = await getPosts({ type: "guide" });
+
+  const blogPosts = await getPosts({
+    type: "blog",
+  });
+
+  const guidePosts = await getPosts({
+    type: "guide",
+  });
 
   // ============================================
   // صفحات اصلی سایت
@@ -101,12 +107,12 @@ export default async function sitemap() {
   }));
 
   // ============================================
-  // URL محصولات
+  // URL محصولات واقعی Supabase
   // ============================================
 
   const productUrls = products
     .filter((product) => {
-      // محصول باید ID داشته باشد
+      // محصول معتبر باید ID داشته باشد
       if (!product?.id) {
         return false;
       }
@@ -116,13 +122,36 @@ export default async function sitemap() {
         return false;
       }
 
-      // محصولات ناموجود هم فعلاً در Sitemap باقی می‌مانند
-      // چون صفحه محصول همچنان می‌تواند برای SEO ارزش داشته باشد
+      // برای SEO:
+      // فقط محصولی که slug واقعی دارد وارد Sitemap شود.
+      //
+      // این کار جلوی URLهایی مثل:
+      // /product/category/p3
+      // /product/category/p15
+      //
+      // را می‌گیرد.
+      if (
+        typeof product.slug !== "string" ||
+        !product.slug.trim()
+      ) {
+        return false;
+      }
+
+      // دسته‌بندی هم باید وجود داشته باشد
+      if (
+        typeof product.category !== "string" ||
+        !product.category.trim()
+      ) {
+        return false;
+      }
 
       return true;
     })
     .map((product) => ({
-      url: `${SITE_URL}/product/${product.category || "shop"}/${product.slug || product.id}`,
+      url:
+        `${SITE_URL}/product/` +
+        `${product.category}/` +
+        `${product.slug}`,
 
       lastModified: product.updated_at
         ? new Date(product.updated_at)
@@ -134,22 +163,54 @@ export default async function sitemap() {
     }));
 
   // ============================================
-  // URL پست‌های بلاگ و راهنمای خرید
+  // URL مقالات بلاگ
   // ============================================
 
-  const blogUrls = blogPosts.map((post) => ({
-    url: `${SITE_URL}/blog/${post.slug}`,
-    lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  const blogUrls = blogPosts
+    .filter(
+      (post) =>
+        post?.slug &&
+        String(post.slug).trim()
+    )
+    .map((post) => ({
+      url:
+        `${SITE_URL}/blog/` +
+        `${post.slug}`,
 
-  const guideUrls = guidePosts.map((post) => ({
-    url: `${SITE_URL}/buying-guide/${post.slug}`,
-    lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+      lastModified:
+        post.updatedAt
+          ? new Date(post.updatedAt)
+          : new Date(),
+
+      changeFrequency: "monthly",
+
+      priority: 0.6,
+    }));
+
+  // ============================================
+  // URL راهنمای خرید
+  // ============================================
+
+  const guideUrls = guidePosts
+    .filter(
+      (post) =>
+        post?.slug &&
+        String(post.slug).trim()
+    )
+    .map((post) => ({
+      url:
+        `${SITE_URL}/buying-guide/` +
+        `${post.slug}`,
+
+      lastModified:
+        post.updatedAt
+          ? new Date(post.updatedAt)
+          : new Date(),
+
+      changeFrequency: "monthly",
+
+      priority: 0.6,
+    }));
 
   // ============================================
   // Sitemap نهایی
