@@ -15,7 +15,7 @@ const BANNER_SLIDES = [
   {
     id: "b2",
     color: "#FF7A1F",
-    href: "/product/p3",
+    href: "/shop",
     img: "/slider2+.jpg",
     mobileImg: "/slider2-mobile.jpg",
   },
@@ -89,9 +89,8 @@ export default function BannerCarousel() {
           {BANNER_SLIDES.map((slide, index) => (
             <button
               key={slide.id}
-              onClick={() =>
-                router.push(slide.href)
-              }
+              onClick={() => router.push(slide.href)}
+              aria-label={"مشاهده " + (index + 1)}
               style={{
                 position: "relative",
                 flex: "0 0 100%",
@@ -111,15 +110,9 @@ export default function BannerCarousel() {
                 src={slide.img}
                 mobileSrc={slide.mobileImg}
                 alt=""
-                // فقط اسلاید اول LCP است؛ آن را فوری بگیر.
-                // اسلایدهای بعدی تا زمان نیاز lazy باشند.
                 priority={index === 0}
-                loading={
-                  index === 0 ? "eager" : "lazy"
-                }
-                fetchPriority={
-                  index === 0 ? "high" : "low"
-                }
+                loading={index === 0 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "low"}
                 style={{
                   width: "100%",
                   height: "100%",
