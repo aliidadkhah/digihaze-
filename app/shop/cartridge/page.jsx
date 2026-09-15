@@ -1,9 +1,10 @@
 import ShopContent from "@/components/ShopContent";
 import { getProducts } from "@/lib/products";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
+import { SITE_NAME } from "@/lib/site";
 
 export const metadata = {
-  title: "خرید کارتریج پاد | قیمت و مشخصات کارتریج | دیجی هیز",
+  title: `خرید کارتریج پاد | قیمت و مشخصات کارتریج | ${SITE_NAME}`,
   description:
     "خرید کارتریج پاد با بررسی مشخصات، برند، مدل و قیمت. مشاهده انواع کارتریج و محصولات مرتبط در دیجی هیز.",
   alternates: {
