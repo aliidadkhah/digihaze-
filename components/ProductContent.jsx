@@ -483,7 +483,7 @@ export default function ProductContent({ product, related }) {
                 >
                   <SiteImage
                     src={im}
-                    alt=""
+                    alt={`${product.name} - تصویر ${i + 1}`}
                     style={{
                       width: "100%",
                       height: "100%",

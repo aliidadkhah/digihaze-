@@ -11,6 +11,7 @@ const BANNER_SLIDES = [
     href: "/shop/salt-nicotine",
     img: "/slider.jpg",
     mobileImg: "/slider-mobile.jpg",
+    alt: "خرید سالت نیکوتین از دیجی هیز",
   },
   {
     id: "b2",
@@ -18,6 +19,7 @@ const BANNER_SLIDES = [
     href: "/shop",
     img: "/slider2+.jpg",
     mobileImg: "/slider2-mobile.jpg",
+    alt: "فروشگاه پاد و ویپ دیجی هیز",
   },
   {
     id: "b3",
@@ -25,6 +27,7 @@ const BANNER_SLIDES = [
     href: "/shop",
     img: "/slider3.jpg",
     mobileImg: "/slider3-mobile.jpg",
+    alt: "محصولات دیجی هیز",
   },
 ];
 
@@ -109,7 +112,7 @@ export default function BannerCarousel() {
               <SiteImage
                 src={slide.img}
                 mobileSrc={slide.mobileImg}
-                alt=""
+                alt={slide.alt}
                 priority={index === 0}
                 loading={index === 0 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : "low"}

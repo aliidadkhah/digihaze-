@@ -47,10 +47,25 @@ export default function CategoryBar({ categories = CATEGORIES }) {
       Math.max(maxRight, PANEL_EDGE_MARGIN)
     );
 
-    setPanelPos({
+    const next = {
       top: rect.bottom + 6,
       right,
       width,
+    };
+
+    setPanelPos((prev) => {
+      if (
+        prev &&
+        prev.top === next.top &&
+        prev.right === next.right &&
+        prev.width === next.width
+      ) {
+        // مختصات فرقی نکرده؛ همون state قبلی رو نگه می‌داریم
+        // تا رندر اضافه‌ای اتفاق نیفته.
+        return prev;
+      }
+
+      return next;
     });
   };
 
@@ -124,32 +139,28 @@ export default function CategoryBar({ categories = CATEGORIES }) {
   }, []);
 
   useEffect(() => {
-    const handleResize = () => {
-      if (openId) {
-        computePanelPos(openId);
-      }
+    if (!openId) return;
+
+    // به‌جای اینکه فقط به scroll/resize گوش بدیم (که خیلی
+    // از جابه‌جایی‌های لایوت رو نمی‌بینن — مثلاً بسته‌شدن
+    // نوار اعلان بالای سایت، یا دیرلود‌شدن عکس‌ها)، تا وقتی
+    // پنل بازه هر فریم موقعیتش رو با موقعیت واقعی آیتم
+    // هماهنگ می‌کنیم. این یعنی پنل همیشه دقیقاً زیر آیتم باز
+    // می‌مونه، مهم نیست چی باعث جابه‌جایی شده باشه.
+
+    let frameId;
+
+    const track = () => {
+      computePanelPos(openId);
+      frameId = requestAnimationFrame(track);
     };
 
-    const handleScroll = () => {
-      if (openId) {
-        computePanelPos(openId);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleScroll, true);
+    frameId = requestAnimationFrame(track);
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        handleResize
-      );
-
-      window.removeEventListener(
-        "scroll",
-        handleScroll,
-        true
-      );
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+      }
     };
   }, [openId]);
 
