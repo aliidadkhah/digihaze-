@@ -45,6 +45,10 @@ export default function AboutGlobe({
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(width, heightPx);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
+      // مدل از متریال‌های Emissive با شدت بالا استفاده می‌کنه (افکت هولوگرافیک)؛
+      // بدون تون‌مپینگ این نورها به سفید ساده clip می‌شن و تکسچر دیده نمی‌شه.
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.85;
       container.appendChild(renderer.domElement);
 
       // نور
