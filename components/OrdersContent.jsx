@@ -209,7 +209,8 @@ export default function OrdersContent() {
                     }}
                   >
                     <span>
-                      {product?.name || it.product_id} × {it.qty}
+                      {product?.name || it.product_id}
+                      {it.variant ? ` (${it.variant})` : ""} × {it.qty}
                     </span>
                     <span style={{ whiteSpace: "nowrap" }}>{money(it.price * it.qty)}</span>
                   </div>

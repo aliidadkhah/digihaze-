@@ -91,10 +91,12 @@ marginBottom: 25,
   >
     {cart.map((item) => {
       const product = item.product;
+      const selectedColor = product.selectedColor;
+      const itemKey = `${product.id}-${selectedColor?.id || "base"}`;
 
       return (
         <div
-          key={product.id}
+          key={itemKey}
           style={{
             display: "flex",
             alignItems: "center",
@@ -140,6 +142,32 @@ marginBottom: 25,
               {product.name}
             </div>
 
+            {selectedColor && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 4,
+                  fontSize: 12,
+                  color: "var(--text-mut)",
+                }}
+              >
+                <span
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    background: selectedColor.hex,
+                    border: "1px solid var(--surface2)",
+                    display: "inline-block",
+                    flexShrink: 0,
+                  }}
+                />
+                <span>رنگ/مدل: {selectedColor.name}</span>
+              </div>
+            )}
+
             <div
               style={{
                 color: "var(--text-mut)",
@@ -153,7 +181,7 @@ marginBottom: 25,
           <button
             type="button"
             onClick={() =>
-              updateQty(product.id, item.qty + 1)
+              updateQty(product.id, item.qty + 1, selectedColor?.id || null)
             }
             style={qtyBtnStyle}
           >
@@ -173,7 +201,7 @@ marginBottom: 25,
           <button
             type="button"
             onClick={() =>
-              updateQty(product.id, item.qty - 1)
+              updateQty(product.id, item.qty - 1, selectedColor?.id || null)
             }
             style={qtyBtnStyle}
           >
@@ -183,7 +211,7 @@ marginBottom: 25,
           <button
             type="button"
             onClick={() =>
-              removeItem(product.id)
+              removeItem(product.id, selectedColor?.id || null)
             }
             style={{
               background: "none",

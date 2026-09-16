@@ -136,6 +136,9 @@ export default function Providers({ children }) {
 
 
 
+  // شناسه‌ی رنگ/مدل انتخاب‌شده‌ی یک آیتم سبد (اگر محصول رنگ نداشته باشد، null)
+  const variantKey = (product) => product?.selectedColor?.id || null;
+
   const addToCart = (product, qty = 1) => {
 
 
@@ -143,7 +146,9 @@ export default function Providers({ children }) {
 
 
       const found = prev.find(
-        i=>i.product.id === product.id
+        i=>
+          i.product.id === product.id &&
+          variantKey(i.product) === variantKey(product)
       );
 
 
@@ -151,7 +156,10 @@ export default function Providers({ children }) {
 
         return prev.map(i=>
 
-          i.product.id === product.id
+          (
+            i.product.id === product.id &&
+            variantKey(i.product) === variantKey(product)
+          )
 
           ?
 
@@ -205,7 +213,7 @@ export default function Providers({ children }) {
 
 
 
-  const updateQty = (id, qty)=>{
+  const updateQty = (id, qty, variantId = null)=>{
 
 
     setCart(prev=>
@@ -216,7 +224,7 @@ export default function Providers({ children }) {
       ?
 
       prev.filter(
-        i=>i.product.id !== id
+        i=>!(i.product.id === id && variantKey(i.product) === variantId)
       )
 
 
@@ -224,7 +232,7 @@ export default function Providers({ children }) {
 
       prev.map(i=>
 
-        i.product.id === id
+        (i.product.id === id && variantKey(i.product) === variantId)
 
         ?
 
@@ -250,13 +258,13 @@ export default function Providers({ children }) {
 
 
 
-  const removeItem=(id)=>{
+  const removeItem=(id, variantId = null)=>{
 
 
     setCart(prev=>
 
       prev.filter(
-        i=>i.product.id !== id
+        i=>!(i.product.id === id && variantKey(i.product) === variantId)
       )
 
     );

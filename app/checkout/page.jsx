@@ -223,6 +223,8 @@ export default function CheckoutPage() {
             productId:
               item.product.id,
             qty: item.qty,
+            variant:
+              item.product.selectedColor?.name || null,
           })),
         }),
       }
@@ -383,6 +385,8 @@ export default function CheckoutPage() {
                 productId:
                   item.product.id,
                 qty: item.qty,
+                variant:
+                  item.product.selectedColor?.name || null,
               })),
             }),
           }
@@ -1685,7 +1689,7 @@ function OrderSummary({
       >
         {cart.map((item) => (
           <div
-            key={item.product.id}
+            key={`${item.product.id}-${item.product.selectedColor?.id || "base"}`}
             style={{
               display: "flex",
               justifyContent:
@@ -1699,8 +1703,11 @@ function OrderSummary({
             }}
           >
             <span>
-              {item.product.name} ×{" "}
-              {item.qty}
+              {item.product.name}
+              {item.product.selectedColor?.name
+                ? ` (${item.product.selectedColor.name})`
+                : ""}{" "}
+              × {item.qty}
             </span>
 
             <span

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CATEGORIES } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
+import SiteImage from "./SiteImage";
 
 export default function CategoryBar({ categories = CATEGORIES }) {
   const pathname = usePathname();
@@ -370,7 +371,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                           panelPos.width < 300
                             ? "1fr"
                             : "1fr 1fr",
-                        gap: "0px 18px",
+                        gap: "4px 18px",
                       }}
                     >
                       {it.subcategories.map(
@@ -388,28 +389,85 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                                 setPanelPos(null);
                               }}
                               style={{
-                                display: "block",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
                                 padding:
-                                  "5px 10px",
+                                  "6px 10px",
                                 lineHeight: 1.4,
                                 borderRadius: 8,
-                                fontFamily:
-                                  "Vazirmatn, sans-serif",
-                                fontSize: 13.5,
-                                fontWeight:
-                                  subActive
-                                    ? 700
-                                    : 500,
-                                color:
-                                  subActive
-                                    ? "#9B5CFF"
-                                    : "var(--text-hi)",
                                 textDecoration:
                                   "none",
                               }}
                               className="category-bar-sub-item"
                             >
-                              {s.label}
+                              {s.logo ? (
+                                <SiteImage
+                                  src={s.logo}
+                                  alt={s.label}
+                                  style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: "50%",
+                                    objectFit: "cover",
+                                    flexShrink: 0,
+                                    background:
+                                      "var(--surface2)",
+                                  }}
+                                />
+                              ) : (
+                                <span
+                                  style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: "50%",
+                                    background:
+                                      "var(--surface2)",
+                                    flexShrink: 0,
+                                  }}
+                                />
+                              )}
+
+                              <span
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  minWidth: 0,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontFamily:
+                                      "Vazirmatn, sans-serif",
+                                    fontSize: 13.5,
+                                    fontWeight:
+                                      subActive
+                                        ? 700
+                                        : 500,
+                                    color:
+                                      subActive
+                                        ? "#9B5CFF"
+                                        : "var(--text-hi)",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                  }}
+                                >
+                                  {s.nameFa || s.label}
+                                </span>
+
+                                {s.nameFa && (
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      color: "var(--text-mut)",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {s.label}
+                                  </span>
+                                )}
+                              </span>
                             </Link>
                           );
                         }

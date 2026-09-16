@@ -165,6 +165,10 @@ export async function POST(req) {
         product_name: product.name,
         qty,
         price,
+        variant:
+          typeof item.variant === "string" && item.variant.trim()
+            ? item.variant.trim().slice(0, 120)
+            : null,
       });
     }
 
@@ -210,6 +214,7 @@ export async function POST(req) {
       product_id: item.product_id,
       qty: item.qty,
       price: item.price,
+      variant: item.variant || null,
     }));
 
     const { error: itemsError } = await supabaseAdmin

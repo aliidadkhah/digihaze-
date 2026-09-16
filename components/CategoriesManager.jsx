@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ListTree, Loader2, Check, Plus, X } from "lucide-react";
+import { ListTree, Loader2, Check, Plus, X, UploadCloud } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { IMAGES_BUCKET } from "@/lib/images";
 import { CATEGORIES, applySubcategoryOverrides } from "@/lib/data";
+import SiteImage from "./SiteImage";
 
 function slugify(label, existingIds) {
   let base = String(label || "")
@@ -45,10 +47,58 @@ export default function CategoriesManager() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [logoBusyKey, setLogoBusyKey] = useState(null); // "catId:subId"
+  const [logoBump, setLogoBump] = useState(0);
 
   const getToken = async () => {
     const { data } = await supabase.auth.getSession();
     return data?.session?.access_token;
+  };
+
+  // لوگوی برند رو توی همون باکت عکس‌های سایت آپلود می‌کنه و آدرسش رو
+  // روی همون زیردسته ذخیره می‌کنه (بعد از «ذخیره دسته‌بندی‌ها» ثابت می‌مونه)
+  const uploadLogo = async (catId, subId, file) => {
+    if (!file) return;
+    const key = `${catId}:${subId}`;
+    setLogoBusyKey(key);
+    setError("");
+
+    const filename = `brand-logos/${catId}-${subId}`;
+    const { error: uploadError } = await supabase.storage
+      .from(IMAGES_BUCKET)
+      .upload(filename, file, {
+        upsert: true,
+        cacheControl: "60",
+        contentType: file.type || "image/png",
+      });
+
+    setLogoBusyKey(null);
+    if (uploadError) {
+      setError("آپلود لوگو ناموفق بود");
+      console.error("Logo upload error:", uploadError);
+      return;
+    }
+
+    const { data } = supabase.storage
+      .from(IMAGES_BUCKET)
+      .getPublicUrl(filename);
+
+    // برای اینکه کش مرورگر عکس قدیمی رو نشون نده
+    const logoUrl = `${data.publicUrl}?v=${Date.now()}`;
+
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id !== catId
+          ? c
+          : {
+              ...c,
+              subcategories: c.subcategories.map((s) =>
+                s.id === subId ? { ...s, logo: logoUrl } : s
+              ),
+            }
+      )
+    );
+    setLogoBump((b) => b + 1);
   };
 
   useEffect(() => {
@@ -75,7 +125,10 @@ export default function CategoriesManager() {
         const id = slugify(label, existingIds);
         return {
           ...c,
-          subcategories: [...c.subcategories, { id, label }],
+          subcategories: [
+            ...c.subcategories,
+            { id, label, nameFa: "", logo: null },
+          ],
         };
       })
     );
@@ -112,6 +165,21 @@ export default function CategoriesManager() {
     );
   };
 
+  const renameSubFa = (catId, subId, nameFa) => {
+    setCategories((prev) =>
+      prev.map((c) =>
+        c.id !== catId
+          ? c
+          : {
+              ...c,
+              subcategories: c.subcategories.map((s) =>
+                s.id === subId ? { ...s, nameFa } : s
+              ),
+            }
+      )
+    );
+  };
+
   const save = async () => {
     setSaving(true);
     setSaved(false);
@@ -123,6 +191,8 @@ export default function CategoriesManager() {
         payload[c.id] = c.subcategories.map((s) => ({
           id: s.id,
           label: s.label.trim(),
+          nameFa: (s.nameFa || "").trim(),
+          logo: s.logo || null,
         }));
       });
 
@@ -195,9 +265,10 @@ export default function CategoriesManager() {
           margin: 0,
         }}
       >
-        هر زیردسته باید دقیقاً با مقدار «برند» که موقع افزودن محصول ثبت
-        می‌کنی یکی باشه (فرقی نمی‌کنه بزرگ یا کوچیک باشه)، وگرنه فیلترش
-        محصولی رو نشون نمی‌ده.
+        فیلد «نام برند (لاتین)» باید دقیقاً با مقدار «برند» که موقع افزودن
+        محصول ثبت می‌کنی یکی باشه (فرقی نمی‌کنه بزرگ یا کوچیک باشه)، وگرنه
+        فیلترش محصولی رو نشون نمی‌ده. «نام فارسی» و لوگو فقط برای نمایش به
+        مشتری هستن و روی فیلتر تاثیری ندارن.
       </p>
 
       {categories.map((cat) => (
@@ -259,43 +330,133 @@ export default function CategoriesManager() {
               </p>
             )}
 
-            {cat.subcategories.map((s) => (
-              <div
-                key={s.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                <input
-                  style={inputStyle}
-                  value={s.label}
-                  onChange={(e) =>
-                    renameSub(cat.id, s.id, e.target.value)
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => removeSub(cat.id, s.id)}
+            {cat.subcategories.map((s) => {
+              const logoKey = `${cat.id}:${s.id}`;
+              const logoInputId = `logo-upload-${logoKey}`;
+              const logoBusy = logoBusyKey === logoKey;
+
+              return (
+                <div
+                  key={s.id}
                   style={{
-                    background: "var(--surface2)",
-                    border: "none",
-                    borderRadius: 10,
-                    width: 34,
-                    height: 34,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    color: "#ff6b6b",
-                    flexShrink: 0,
+                    gap: 8,
                   }}
                 >
-                  <X size={15} />
-                </button>
-              </div>
-            ))}
+                  {/* لوگو */}
+                  <label
+                    htmlFor={logoInputId}
+                    title="آپلود لوگو"
+                    style={{
+                      position: "relative",
+                      width: 34,
+                      height: 34,
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      background: "var(--bg)",
+                      border: "1px solid var(--surface2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {s.logo ? (
+                      <SiteImage
+                        key={s.logo + logoBump}
+                        src={s.logo}
+                        alt={s.label}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <UploadCloud
+                        size={14}
+                        color="var(--text-mut)"
+                      />
+                    )}
+
+                    {logoBusy && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        <Loader2
+                          size={14}
+                          color="#fff"
+                          className="spin"
+                        />
+                      </div>
+                    )}
+
+                    <input
+                      id={logoInputId}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) =>
+                        uploadLogo(
+                          cat.id,
+                          s.id,
+                          e.target.files?.[0]
+                        )
+                      }
+                    />
+                  </label>
+
+                  {/* نام فارسی */}
+                  <input
+                    style={inputStyle}
+                    placeholder="نام فارسی (مثلا: نستی)"
+                    value={s.nameFa || ""}
+                    onChange={(e) =>
+                      renameSubFa(cat.id, s.id, e.target.value)
+                    }
+                  />
+
+                  {/* نام لاتین / برند */}
+                  <input
+                    style={inputStyle}
+                    placeholder="نام برند لاتین (مثلا: Nasty)"
+                    value={s.label}
+                    onChange={(e) =>
+                      renameSub(cat.id, s.id, e.target.value)
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => removeSub(cat.id, s.id)}
+                    style={{
+                      background: "var(--surface2)",
+                      border: "none",
+                      borderRadius: 10,
+                      width: 34,
+                      height: 34,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      color: "#ff6b6b",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>

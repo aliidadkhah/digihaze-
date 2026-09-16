@@ -28,12 +28,29 @@ export default function ProductCard({ product }) {
   // اگر available مشخص نشده باشد، محصول را موجود در نظر می‌گیریم
   const isAvailable = product.available !== false;
 
-  // پیدا کردن محصول در سبد خرید
+  const hasColors = product.colors?.length > 0;
+
+  // رنگ/مدل انتخاب‌شده روی همین کارت (پیش‌فرض: اولین رنگ)
+  const [selectedColor, setSelectedColor] = useState(
+    hasColors ? product.colors[0] : null
+  );
+
+  // پیدا کردن محصول (با همین رنگ انتخاب‌شده) در سبد خرید
   const cartItem = cart.find(
-    (item) => item.product.id === product.id
+    (item) =>
+      item.product.id === product.id &&
+      (item.product.selectedColor?.id || null) ===
+        (selectedColor?.id || null)
   );
 
   const qty = cartItem ? cartItem.qty : 0;
+
+  const handleAdd = () => {
+    addToCart(
+      hasColors ? { ...product, selectedColor } : product,
+      1
+    );
+  };
 
   return (
     <div
@@ -300,6 +317,62 @@ export default function ProductCard({ product }) {
             padding: "10px 14px 16px",
           }}
         >
+          {/* انتخاب رنگ/مدل - قبل از افزودن به سبد باید مشخص باشه کدوم اضافه می‌شه */}
+          {isAvailable && hasColors && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 6,
+                marginBottom: 8,
+              }}
+            >
+              {product.colors.map((c) => {
+                const isSelected = selectedColor?.id === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedColor(c);
+                    }}
+                    title={c.name}
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: "50%",
+                      background: c.hex,
+                      border: isSelected
+                        ? "2px solid var(--text-hi)"
+                        : "2px solid var(--surface2)",
+                      boxShadow: isSelected
+                        ? "0 0 0 2px var(--surface)"
+                        : "none",
+                      cursor: "pointer",
+                      padding: 0,
+                      flexShrink: 0,
+                    }}
+                  />
+                );
+              })}
+
+              {selectedColor?.name && (
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: "var(--text-mut)",
+                    fontFamily: "Vazirmatn",
+                  }}
+                >
+                  {selectedColor.name}
+                </span>
+              )}
+            </div>
+          )}
+
           {!isAvailable ? (
             /* ناموجود */
             <button
@@ -322,7 +395,10 @@ export default function ProductCard({ product }) {
           ) : qty === 0 ? (
             /* ADD TO CART */
             <button
-              onClick={() => addToCart(product, 1)}
+              onClick={(e) => {
+                e.preventDefault();
+                handleAdd();
+              }}
               className="brand-gradient-btn"
               style={{
                 width: "100%",
@@ -360,7 +436,9 @@ export default function ProductCard({ product }) {
             >
               {/* DELETE */}
               <button
-                onClick={() => removeItem(product.id)}
+                onClick={() =>
+                  removeItem(product.id, selectedColor?.id || null)
+                }
                 aria-label="حذف از سبد خرید"
                 style={{
                   width: 42,
@@ -381,7 +459,11 @@ export default function ProductCard({ product }) {
               {/* MINUS */}
               <button
                 onClick={() =>
-                  updateQty(product.id, qty - 1)
+                  updateQty(
+                    product.id,
+                    qty - 1,
+                    selectedColor?.id || null
+                  )
                 }
                 aria-label="کاهش تعداد"
                 style={{
@@ -416,7 +498,10 @@ export default function ProductCard({ product }) {
 
               {/* PLUS */}
               <button
-                onClick={() => addToCart(product, 1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAdd();
+                }}
                 aria-label="افزایش تعداد"
                 style={{
                   width: 38,

@@ -309,7 +309,7 @@ export default function AdminPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
                 {(o.order_items || []).map((it) => (
                   <div key={it.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-lo)" }}>
-                    <span>{it.product_id}</span>
+                    <span>{it.product_name || it.product_id}{it.variant ? ` (${it.variant})` : ""}</span>
                     <span>× {it.qty}</span>
                   </div>
                 ))}
