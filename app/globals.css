@@ -324,6 +324,17 @@ SALE SCROLL
   cursor:grab;
   scrollbar-color: var(--neon-blue, #4F7FFF) var(--surface2);
   scrollbar-width: thin;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+.sale-scroll * {
+  -webkit-user-drag:none;
+  user-drag:none;
+}
+
+.sale-scroll img {
+  pointer-events:none;
 }
 
 .sale-scroll:active {
