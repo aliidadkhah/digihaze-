@@ -9,7 +9,6 @@ import {
   FloatingBottle,
   SpaceField,
   HaloHorizon,
-  LightBeams,
 } from "./visuals";
 
 import ProductCard from "./ProductCard";
@@ -375,13 +374,6 @@ export default function HomeContent() {
         }}
       >
         <Reveal>
-          <div
-            className="beam-box"
-            style={{
-              borderRadius: 24,
-            }}
-          >
-          <LightBeams />
           <Link
             href="/shop?discount=1"
             aria-label="مشاهده محصولات تخفیف‌دار"
@@ -411,7 +403,6 @@ export default function HomeContent() {
               }}
             />
           </Link>
-          </div>
         </Reveal>
       </section>
 
@@ -420,13 +411,14 @@ export default function HomeContent() {
       ========================= */}
 
       <section
-        className="sale-section site-section site-section-alt"
+        className="sale-section site-section"
         aria-labelledby="sale-title"
         style={{
           width: "100%",
           margin: 0,
           padding:
             "44px 0 54px",
+          background: "#000000",
           borderBottom:
             "1px solid var(--border-soft)",
         }}
