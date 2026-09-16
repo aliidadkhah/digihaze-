@@ -321,15 +321,31 @@ SALE SCROLL
   max-width:100%;
   overflow-x:auto;
   overflow-y:hidden;
+  cursor:grab;
+  scrollbar-color: var(--neon-blue, #4F7FFF) var(--surface2);
+  scrollbar-width: thin;
+}
+
+.sale-scroll:active {
+  cursor:grabbing;
 }
 
 .sale-scroll::-webkit-scrollbar {
-  height:6px;
+  height:8px;
+}
+
+.sale-scroll::-webkit-scrollbar-track {
+  background:var(--surface2);
+  border-radius:10px;
 }
 
 .sale-scroll::-webkit-scrollbar-thumb {
-  background:var(--surface2);
+  background:var(--neon-blue, #4F7FFF);
   border-radius:10px;
+}
+
+.sale-scroll::-webkit-scrollbar-thumb:hover {
+  background:#6d97ff;
 }
 
 
@@ -950,8 +966,6 @@ CHECKOUT MOBILE
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(65% 55% at 22% 20%, rgba(79, 127, 255, 0.16), transparent 72%),
-    radial-gradient(60% 50% at 82% 65%, rgba(0, 255, 209, 0.1), transparent 72%),
     radial-gradient(75% 65% at 50% 100%, rgba(155, 92, 255, 0.16), transparent 75%);
 }
 
