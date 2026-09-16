@@ -77,7 +77,7 @@ export default function ScrollProgressLine() {
           transformOrigin: "100% 0", // چون سایت RTL هست، پر شدن از راست به چپه
           transform: "scaleX(0)",
           background:
-            "linear-gradient(90deg, #FF7A1F, #00FFD1, #0A84FF)",
+            "linear-gradient(90deg, #FF7A1F, #9B5CFF, #4F7FFF)",
         }}
       />
       <span
@@ -90,8 +90,8 @@ export default function ScrollProgressLine() {
           width: 8,
           height: 8,
           borderRadius: "50%",
-          background: "#00FFD1",
-          boxShadow: "0 0 8px 2px #00FFD1",
+          background: "#9B5CFF",
+          boxShadow: "0 0 8px 2px #9B5CFF",
         }}
       />
     </div>

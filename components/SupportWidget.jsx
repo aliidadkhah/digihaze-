@@ -200,7 +200,7 @@ export default function SupportWidget() {
               fontWeight: 700,
               fontSize: 12,
               color: "#fff",
-              background: "linear-gradient(135deg, #00FFD1, #0A84FF)",
+              background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
               padding: "4px 12px",
               borderRadius: 999,
               boxShadow: "0 6px 18px rgba(47,134,255,0.35)",
@@ -219,7 +219,7 @@ export default function SupportWidget() {
             height: 60,
             borderRadius: "50%",
             border: "none",
-            background: "linear-gradient(135deg, #00FFD1, #0A84FF)",
+            background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
             color: "#fff",
             display: "flex",
             alignItems: "center",
@@ -279,7 +279,7 @@ export default function SupportWidget() {
                 width: 43,
                 height: 43,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #00FFD1, #0A84FF)",
+                background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -305,7 +305,7 @@ export default function SupportWidget() {
                 style={{
                   fontFamily: "Vazirmatn",
                   fontSize: 11,
-                  color: "#00FFD1",
+                  color: "#9B5CFF",
                   marginTop: 3,
                 }}
               >
@@ -338,7 +338,7 @@ export default function SupportWidget() {
                       height: 52,
                       margin: "0 auto 12px",
                       borderRadius: "50%",
-                      background: "linear-gradient(135deg, #00FFD1, #0A84FF)",
+                      background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
                       color: "#fff",
                       display: "flex",
                       alignItems: "center",
@@ -402,7 +402,7 @@ export default function SupportWidget() {
                         cursor: "pointer",
                       }}
                     >
-                      <ChevronLeft size={16} color="#0A84FF" />
+                      <ChevronLeft size={16} color="#4F7FFF" />
                       {label}
                     </button>
                   ))}
@@ -418,7 +418,7 @@ export default function SupportWidget() {
                       border: "none",
                       borderRadius: 14,
                       padding: "12px 15px",
-                      background: "linear-gradient(135deg, #00FFD1, #0A84FF)",
+                      background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
                       color: "#fff",
                       fontFamily: "Vazirmatn",
                       fontWeight: 700,
@@ -456,7 +456,7 @@ export default function SupportWidget() {
                         ? "15px 15px 4px 15px"
                         : "15px 15px 15px 4px",
                       background: isCustomer
-                        ? "linear-gradient(135deg, #00FFD1, #0A84FF)"
+                        ? "linear-gradient(135deg, #9B5CFF, #4F7FFF)"
                         : "var(--surface)",
                       color: isCustomer
                         ? "#fff"
@@ -601,7 +601,7 @@ export default function SupportWidget() {
                   background:
                     sending || !message.trim()
                       ? "var(--border-soft)"
-                      : "linear-gradient(135deg, #00FFD1, #0A84FF)",
+                      : "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
                   color: "#fff",
                   display: "flex",
                   alignItems: "center",

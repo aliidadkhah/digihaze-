@@ -32,7 +32,7 @@ export default function ContactInfoCards() {
         >
           <Icon
             size={40}
-            style={{ color: 'var(--color-primary, #0A84FF)' }}
+            style={{ color: 'var(--color-primary, #4F7FFF)' }}
             className="mb-4"
           />
           <h3 className="text-lg font-bold text-white mb-2">{title}</h3>

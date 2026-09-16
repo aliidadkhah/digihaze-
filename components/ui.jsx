@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react";
 
-export function Badge({ children, bg = "#0A84FF" }) {
+export function Badge({ children, bg = "var(--neon-blue)" }) {
   return (
     <span
       style={{
@@ -28,8 +28,8 @@ export function Stars({ rating, size = 14 }) {
         <Star
           key={i}
           size={size}
-          fill={i <= Math.round(rating) ? "#B6FF1A" : "none"}
-          stroke={i <= Math.round(rating) ? "#B6FF1A" : "var(--text-lo)"}
+          fill={i <= Math.round(rating) ? "#FFB020" : "none"}
+          stroke={i <= Math.round(rating) ? "#FFB020" : "var(--text-lo)"}
         />
       ))}
     </span>

@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabaseClient";
 
 // رنگ‌های موجود در پالت سایت
 const COLOR_OPTIONS = [
-  { id: "#0A84FF", label: "آبی" },
-  { id: "#00FFD1", label: "فیروزه‌ای" },
+  { id: "#4F7FFF", label: "آبی" },
+  { id: "#9B5CFF", label: "فیروزه‌ای" },
   { id: "#FF7A1F", label: "نارنجی" },
   { id: "#B6FF1A", label: "سبز لیمویی" },
 ];
@@ -36,7 +36,7 @@ const labelStyle = {
 
 export default function AnnouncementManager() {
   const [text, setText] = useState("");
-  const [color, setColor] = useState("#0A84FF");
+  const [color, setColor] = useState("#4F7FFF");
   const [active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,7 +53,7 @@ export default function AnnouncementManager() {
       .then((res) => res.json())
       .then((data) => {
         setText(data.announcement_text || "");
-        setColor(data.announcement_color || "#0A84FF");
+        setColor(data.announcement_color || "#4F7FFF");
         setActive(!!data.announcement_active);
       })
       .catch(() => setError("خطا در دریافت تنظیمات"))
@@ -111,7 +111,7 @@ export default function AnnouncementManager() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <Megaphone size={18} color="#0A84FF" />
+        <Megaphone size={18} color="#4F7FFF" />
         <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
           اطلاعیه بالای سایت
         </span>
@@ -220,7 +220,7 @@ export default function AnnouncementManager() {
           display: "flex",
           alignItems: "center",
           gap: 6,
-          background: saved ? "#00FFD1" : "#0A84FF",
+          background: saved ? "#9B5CFF" : "#4F7FFF",
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",

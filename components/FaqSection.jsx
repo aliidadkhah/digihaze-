@@ -227,7 +227,7 @@ export default function FaqSection() {
     >
       <Reveal>
         <div style={{ textAlign: "center", marginBottom: 34 }}>
-          <Badge bg="#0A84FF">راهنمای خرید</Badge>
+          <Badge bg="#4F7FFF">راهنمای خرید</Badge>
 
           <h2
             style={{
@@ -282,7 +282,7 @@ export default function FaqSection() {
                     width: 6,
                     height: 6,
                     borderRadius: "50%",
-                    background: "#00FFD1",
+                    background: "#9B5CFF",
                     flexShrink: 0,
                   }}
                 />
@@ -324,7 +324,7 @@ export default function FaqSection() {
               fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 13,
-              color: "#0A84FF",
+              color: "#4F7FFF",
               cursor: "pointer",
             }}
           >

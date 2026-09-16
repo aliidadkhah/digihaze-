@@ -413,7 +413,7 @@ export default function ProductsManager() {
             display: "flex",
             alignItems: "center",
             gap: 6,
-            background: "#0A84FF",
+            background: "#4F7FFF",
             color: "#fff",
             border: "none",
             borderRadius: 10,
@@ -521,7 +521,7 @@ export default function ProductsManager() {
                     fontSize: 11,
                     fontFamily: "Vazirmatn",
                     fontWeight: 700,
-                    color: p.available ? "#00FFD1" : "#ff6b6b",
+                    color: p.available ? "#9B5CFF" : "#ff6b6b",
                   }}
                 >
                   {p.available ? "موجود" : "ناموجود"}
@@ -696,13 +696,13 @@ export default function ProductsManager() {
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <input
                     type="color"
-                    value={form.color || "#0A84FF"}
+                    value={form.color || "#4F7FFF"}
                     onChange={(e) => update("color", e.target.value)}
                     style={{ width: 40, height: 38, border: "none", borderRadius: 8, background: "none", cursor: "pointer" }}
                   />
                   <input
                     style={{ ...inputStyle, flex: 1 }}
-                    placeholder="#0A84FF"
+                    placeholder="#4F7FFF"
                     value={form.color}
                     onChange={(e) => update("color", e.target.value)}
                   />
@@ -731,7 +731,7 @@ export default function ProductsManager() {
                     ...inputStyle,
                     display: "flex",
                     alignItems: "center",
-                    color: form.discount > 0 ? "#00FFD1" : "var(--text-mut)",
+                    color: form.discount > 0 ? "#9B5CFF" : "var(--text-mut)",
                     fontWeight: 700,
                     background: "var(--surface2)",
                   }}
@@ -1200,7 +1200,7 @@ export default function ProductsManager() {
                 type="submit"
                 disabled={saving}
                 style={{
-                  background: "#0A84FF",
+                  background: "#4F7FFF",
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 24px",

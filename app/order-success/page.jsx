@@ -126,7 +126,7 @@ export default function OrderSuccessPage() {
         <button
           onClick={() => router.push("/shop")}
           style={{
-            background: "#00FFD1",
+            background: "#9B5CFF",
             border: "none",
             borderRadius: 12,
             padding: "12px 28px",
@@ -182,7 +182,7 @@ export default function OrderSuccessPage() {
         <button
           onClick={() => router.push("/checkout")}
           style={{
-            background: "#00FFD1",
+            background: "#9B5CFF",
             border: "none",
             borderRadius: 12,
             padding: "12px 28px",
@@ -247,8 +247,8 @@ export default function OrderSuccessPage() {
               height: 72,
               margin: "0 auto 18px",
               borderRadius: "50%",
-              background: "#00FFD120",
-              color: "#00FFD1",
+              background: "#9B5CFF20",
+              color: "#9B5CFF",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -455,18 +455,18 @@ export default function OrderSuccessPage() {
               style={{
                 background: isPendingConfirmation
                   ? "#FF7A1F15"
-                  : "#00FFD115",
+                  : "#9B5CFF15",
                 border: `1px solid ${
                   isPendingConfirmation
                     ? "#FF7A1F40"
-                    : "#00FFD140"
+                    : "#9B5CFF40"
                 }`,
                 borderRadius: 14,
                 padding: 15,
                 textAlign: "center",
                 color: isPendingConfirmation
                   ? "#FF7A1F"
-                  : "#00FFD1",
+                  : "#9B5CFF",
                 fontSize: 13,
                 fontWeight: 700,
                 marginBottom: 20,
@@ -511,7 +511,7 @@ export default function OrderSuccessPage() {
                       display: "flex",
                       alignItems: "center",
                       gap: 8,
-                      color: "#00FFD1",
+                      color: "#9B5CFF",
                       fontSize: 13,
                       textDecoration: "none",
                       wordBreak: "break-all",
@@ -539,7 +539,7 @@ export default function OrderSuccessPage() {
           onClick={() => router.push("/shop")}
           style={{
             width: "100%",
-            background: "#00FFD1",
+            background: "#9B5CFF",
             color: "#061014",
             border: "none",
             borderRadius: 12,
@@ -595,7 +595,7 @@ const tabBtnStyle = {
 };
 
 const tabBtnActive = {
-  background: "#00FFD115",
-  borderColor: "#00FFD155",
-  color: "#00FFD1",
+  background: "#9B5CFF15",
+  borderColor: "#9B5CFF55",
+  color: "#9B5CFF",
 };

@@ -175,7 +175,7 @@ export default function CategoriesManager() {
           gap: 8,
         }}
       >
-        <ListTree size={18} color="#0A84FF" />
+        <ListTree size={18} color="#4F7FFF" />
         <span
           style={{
             fontFamily: "Vazirmatn",
@@ -320,7 +320,7 @@ export default function CategoriesManager() {
               type="button"
               onClick={() => addSub(cat.id)}
               style={{
-                background: "#0A84FF18",
+                background: "#4F7FFF18",
                 border: "none",
                 borderRadius: 10,
                 width: 34,
@@ -329,7 +329,7 @@ export default function CategoriesManager() {
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                color: "#0A84FF",
+                color: "#4F7FFF",
                 flexShrink: 0,
               }}
             >
@@ -363,7 +363,7 @@ export default function CategoriesManager() {
           display: "flex",
           alignItems: "center",
           gap: 6,
-          background: saved ? "#00FFD1" : "#0A84FF",
+          background: saved ? "#9B5CFF" : "#4F7FFF",
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",

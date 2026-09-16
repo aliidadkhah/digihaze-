@@ -48,7 +48,7 @@ marginBottom: 20,
       style={{
         display: "inline-block",
         marginTop: 20,
-        background: "#00FFD1",
+        background: "#9B5CFF",
         color: "#000",
         padding: "12px 30px",
         borderRadius: 12,
@@ -193,7 +193,7 @@ marginBottom: 25,
           >
             <Trash2
               size={18}
-              color="#0A84FF"
+              color="#4F7FFF"
             />
           </button>
         </div>
@@ -231,7 +231,7 @@ marginBottom: 25,
         textAlign: "center",
         padding: 14,
         borderRadius: 12,
-        background: "#00FFD1",
+        background: "#9B5CFF",
         color: "#000",
         fontWeight: 800,
         textDecoration: "none",

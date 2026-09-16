@@ -42,7 +42,7 @@ function stripHtml(html) {
 // اطلاعات دسته‌بندی محصول (عنوان و رنگ) برای بردکرامب و چیپ دسته
 function getCategoryInfo(categoryId) {
   const found = CATEGORIES.find((c) => c.id === categoryId);
-  return found || { id: categoryId, label: categoryId || "محصولات", color: "#0A84FF" };
+  return found || { id: categoryId, label: categoryId || "محصولات", color: "#4F7FFF" };
 }
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو هم درست نشون می‌دهد
@@ -164,9 +164,9 @@ function ReviewForm({ onSubmit }) {
       {error && (
         <div
           style={{
-            color: "#0A84FF",
+            color: "#4F7FFF",
             fontSize: 12,
-            background: "#0A84FF22",
+            background: "#4F7FFF22",
             borderRadius: 8,
             padding: "6px 10px",
           }}
@@ -179,7 +179,7 @@ function ReviewForm({ onSubmit }) {
         type="submit"
         style={{
           alignSelf: "flex-start",
-          background: "#0A84FF",
+          background: "#4F7FFF",
           color: "var(--ink)",
           border: "none",
           borderRadius: 10,
@@ -743,8 +743,8 @@ export default function ProductContent({ product, related }) {
               style={{
                 flex: 1,
                 background: added
-                  ? "#00FFD1"
-                  : "#0A84FF",
+                  ? "#9B5CFF"
+                  : "#4F7FFF",
                 color: "var(--ink)",
                 border: "none",
                 borderRadius: 12,
@@ -821,7 +821,7 @@ export default function ProductContent({ product, related }) {
                   >
                     <Check
                       size={14}
-                      color={product.color || "#0A84FF"}
+                      color={product.color || "#4F7FFF"}
                       style={{ flexShrink: 0, marginTop: 2 }}
                     />
                     <span>{feat}</span>
@@ -839,8 +839,8 @@ export default function ProductContent({ product, related }) {
               display: "flex",
               alignItems: "flex-start",
               gap: 10,
-              background: "#00FFD10f",
-              border: "1px solid #00FFD155",
+              background: "#9B5CFF0f",
+              border: "1px solid #9B5CFF55",
               borderRadius: 14,
               padding: "13px 16px",
               marginBottom: 14,
@@ -848,7 +848,7 @@ export default function ProductContent({ product, related }) {
           >
             <ShieldCheck
               size={20}
-              color="#00FFD1"
+              color="#9B5CFF"
               style={{ flexShrink: 0, marginTop: 1 }}
             />
 
@@ -993,7 +993,7 @@ export default function ProductContent({ product, related }) {
                       : "var(--text-mut)",
                   borderBottom:
                     tab === t.id
-                      ? "2px solid #0A84FF"
+                      ? "2px solid #4F7FFF"
                       : "2px solid transparent",
                   cursor: "pointer",
                 }}
@@ -1062,7 +1062,7 @@ export default function ProductContent({ product, related }) {
                     fontFamily: "Vazirmatn",
                     fontWeight: 700,
                     fontSize: 12.5,
-                    color: "#0A84FF",
+                    color: "#4F7FFF",
                     cursor: "pointer",
                   }}
                 >
@@ -1334,7 +1334,7 @@ export default function ProductContent({ product, related }) {
           line-height: 1.6;
           margin: 32px 0 16px;
           padding-right: 14px;
-          border-right: 4px solid #0A84FF;
+          border-right: 4px solid #4F7FFF;
         }
         .rich-content h1 { font-size: 21px; }
         .rich-content h2 { font-size: 19px; }
@@ -1364,7 +1364,7 @@ export default function ProductContent({ product, related }) {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #0A84FF;
+          background: #4F7FFF;
         }
         .rich-content ol {
           counter-reset: rc-item;
@@ -1380,8 +1380,8 @@ export default function ProductContent({ product, related }) {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #0A84FF22;
-          color: #0A84FF;
+          background: #4F7FFF22;
+          color: #4F7FFF;
           font-size: 10.5px;
           font-weight: 800;
           display: flex;
@@ -1393,7 +1393,7 @@ export default function ProductContent({ product, related }) {
           margin: 22px 0;
           padding: 14px 18px;
           background: rgba(47, 134, 255, 0.08);
-          border-right: 4px solid #0A84FF;
+          border-right: 4px solid #4F7FFF;
           border-radius: 10px;
           color: var(--text-hi);
           font-size: 0.94em;

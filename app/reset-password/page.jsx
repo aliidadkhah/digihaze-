@@ -59,7 +59,7 @@ function ResetPasswordForm() {
   if (done) {
     return (
       <div style={{ maxWidth: 380, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
-        <CheckCircle2 size={30} color="#00FFD1" style={{ margin: "0 auto 10px" }} />
+        <CheckCircle2 size={30} color="#9B5CFF" style={{ margin: "0 auto 10px" }} />
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20 }}>
           رمز عبور با موفقیت تغییر کرد
         </h1>
@@ -105,7 +105,7 @@ function ResetPasswordForm() {
           style={inputStyle}
         />
         {error && (
-          <div style={{ color: "#0A84FF", fontSize: 12.5, background: "#0A84FF22", borderRadius: 10, padding: "8px 12px" }}>
+          <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>
             {error}
           </div>
         )}
@@ -113,7 +113,7 @@ function ResetPasswordForm() {
           type="submit"
           disabled={saving}
           style={{
-            background: "#0A84FF",
+            background: "#4F7FFF",
             color: "var(--ink)",
             border: "none",
             borderRadius: 12,

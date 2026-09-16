@@ -242,7 +242,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                     fontWeight:
                       active ? 800 : 600,
                     color: active
-                      ? "#00FFD1"
+                      ? "#9B5CFF"
                       : "var(--text-lo)",
                     textDecoration: "none",
                     padding: "13px 0 13px 2px",
@@ -273,7 +273,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                         right: 0,
                         left: 0,
                         height: 2,
-                        background: "#00FFD1",
+                        background: "#9B5CFF",
                         borderRadius: 2,
                       }}
                     />
@@ -302,7 +302,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                       display: "inline-flex",
                       alignItems: "center",
                       color: active
-                        ? "#00FFD1"
+                        ? "#9B5CFF"
                         : "var(--text-lo)",
                     }}
                   >
@@ -402,7 +402,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                                     : 500,
                                 color:
                                   subActive
-                                    ? "#00FFD1"
+                                    ? "#9B5CFF"
                                     : "var(--text-hi)",
                                 textDecoration:
                                   "none",
@@ -438,7 +438,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                             "Vazirmatn, sans-serif",
                           fontSize: 13,
                           fontWeight: 700,
-                          color: "#00FFD1",
+                          color: "#9B5CFF",
                           textDecoration:
                             "none",
                         }}

@@ -118,7 +118,7 @@ export default function Navbar({ categories = CATEGORIES }) {
               className="desktop-nav-link"
               style={{
                 color: isActive(l.href)
-                  ? "#00FFD1"
+                  ? "#8DA8FF"
                   : "var(--text-hi)",
                 fontWeight: isActive(l.href)
                   ? 700
@@ -189,7 +189,7 @@ export default function Navbar({ categories = CATEGORIES }) {
             style={{
               ...iconBtnStyle,
               border: user
-                ? "1.5px solid #00FFD1"
+                ? "1.5px solid #8DA8FF"
                 : "none",
               textDecoration: "none",
             }}
@@ -198,7 +198,7 @@ export default function Navbar({ categories = CATEGORIES }) {
               size={19}
               color={
                 user
-                  ? "#00FFD1"
+                  ? "#8DA8FF"
                   : "var(--text-hi)"
               }
             />
@@ -224,7 +224,7 @@ export default function Navbar({ categories = CATEGORIES }) {
                   position: "absolute",
                   top: -4,
                   left: -4,
-                  background: "#0A84FF",
+                  background: "var(--brand-grad)",
                   color: "var(--ink)",
                   fontSize: 10,
                   fontWeight: 800,
@@ -312,7 +312,7 @@ export default function Navbar({ categories = CATEGORIES }) {
                   className="mobile-shop-button"
                   style={{
                     color: isActive(l.href)
-                      ? "#00FFD1"
+                      ? "#8DA8FF"
                       : "var(--text-hi)",
                     fontWeight: isActive(l.href)
                       ? 700
@@ -387,7 +387,7 @@ export default function Navbar({ categories = CATEGORIES }) {
                 className="mobile-nav-link"
                 style={{
                   color: isActive(l.href)
-                    ? "#00FFD1"
+                    ? "#8DA8FF"
                     : "var(--text-hi)",
                   fontWeight: isActive(l.href)
                     ? 700
@@ -444,7 +444,7 @@ export default function Navbar({ categories = CATEGORIES }) {
           right: 0;
           left: 0;
           height: 2px;
-          background: #00FFD1;
+          background: var(--brand-grad);
           border-radius: 2px;
         }
 

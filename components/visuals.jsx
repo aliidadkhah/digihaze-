@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-export function FlavorCloud({ color = "#0A84FF", size = 520, style }) {
+export function FlavorCloud({ color = "#4F7FFF", size = 520, style }) {
   return (
     <div
       aria-hidden
@@ -427,9 +427,9 @@ function useIsMobile() {
 }
 
 const MORPH_BLOBS = [
-  { color: "#0A84FF", top: "2%", side: "right", size: 380, speed: 0.16, rotSpeed: 0.05, phase: 0 },
+  { color: "#4F7FFF", top: "2%", side: "right", size: 380, speed: 0.16, rotSpeed: 0.05, phase: 0 },
   { color: "#FF7A1F", top: "55%", side: "left", size: 420, speed: 0.2, rotSpeed: -0.04, phase: 2 },
-  { color: "#00FFD1", top: "108%", side: "right", size: 340, speed: 0.14, rotSpeed: 0.07, phase: 4 },
+  { color: "#9B5CFF", top: "108%", side: "right", size: 340, speed: 0.14, rotSpeed: 0.07, phase: 4 },
   { color: "#B6FF1A", top: "160%", side: "left", size: 360, speed: 0.18, rotSpeed: -0.06, phase: 1 },
 ];
 

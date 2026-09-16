@@ -51,8 +51,8 @@ export default function ProductCard({ product }) {
           hover && isAvailable
             ? `0 20px 44px -10px ${product.color}88, 0 0 0 1px ${product.color}22, 0 0 32px -4px ${product.color}66`
             : "none",
-        "--glow": "#00bff3",
-        "--glow-2": product.color || "#00bff3",
+        "--glow": "#4F7FFF",
+        "--glow-2": product.color || "#9B5CFF",
       }}
     >
       <div
@@ -144,7 +144,7 @@ export default function ProductCard({ product }) {
                 <span
                   style={{
                     background: "var(--ink)",
-                    color: "#B6FF1A",
+                    color: "#FFB020",
                     fontSize: 12,
                     fontWeight: 800,
                     borderRadius: 999,
@@ -323,10 +323,10 @@ export default function ProductCard({ product }) {
             /* ADD TO CART */
             <button
               onClick={() => addToCart(product, 1)}
+              className="brand-gradient-btn"
               style={{
                 width: "100%",
-                background: "var(--text-hi)",
-                color: "var(--bg)",
+                color: "#fff",
                 border: "none",
                 borderRadius: 12,
                 padding: "10px 0",

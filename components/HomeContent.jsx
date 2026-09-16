@@ -28,7 +28,7 @@ export default function HomeContent() {
   );
 
   const [heroColor, setHeroColor] =
-    useState("#0A84FF");
+    useState("#9B5CFF");
 
   const heroRef = useRef(null);
 
@@ -107,7 +107,7 @@ export default function HomeContent() {
               animationDelay: "0.05s",
             }}
           >
-            <Badge bg="#00FFD1">
+            <Badge bg="var(--neon-blue)">
               هر پاف یک طعم تازه 🌫️
             </Badge>
           </div>
@@ -129,10 +129,10 @@ export default function HomeContent() {
           >
              دیجی هیز؛ فروشگاه پاد، سالت نیکوتین و کارتریج{" "}
             <span
+              className="brand-gradient-text"
               style={{
-                color: "#0A84FF",
                 textShadow:
-                  "0 0 34px #0A84FFaa",
+                  "0 0 34px #9B5CFFaa",
               }}
             >
               
@@ -197,12 +197,10 @@ export default function HomeContent() {
           >
             <Link
               href="/shop"
-              className="pulse-btn"
+              className="pulse-btn brand-gradient-btn"
               style={{
-                background:
-                  "#0A84FF",
                 color:
-                  "var(--ink)",
+                  "#fff",
                 border: "none",
                 borderRadius: 14,
                 padding:
@@ -289,7 +287,7 @@ export default function HomeContent() {
                   className="glow-box"
                   style={{
                     borderRadius: 16,
-                    "--glow": "#00bff3",
+                    "--glow": "#4F7FFF",
                     "--glow-2": c.color,
                   }}
                 >
@@ -473,7 +471,7 @@ export default function HomeContent() {
               href="/shop"
               style={{
                 color:
-                  "#00FFD1",
+                  "var(--neon-blue)",
                 fontFamily:
                   "Vazirmatn",
                 fontSize: 13,
@@ -566,7 +564,7 @@ export default function HomeContent() {
             href="/shop"
             style={{
               color:
-                "#00FFD1",
+                "var(--neon-blue)",
               fontFamily:
                 "Vazirmatn",
               fontSize: 13,

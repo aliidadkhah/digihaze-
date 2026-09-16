@@ -20,7 +20,7 @@ export default function ContactContent() {
             ].map((it, i) => (
               <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 22 }}>
                 <div style={{ background: "var(--surface2)", borderRadius: 12, padding: 10 }}>
-                  <it.icon size={17} color="#00FFD1" />
+                  <it.icon size={17} color="#9B5CFF" />
                 </div>
                 <div>
                   <div style={{ color: "var(--text-mut)", fontSize: 12, marginBottom: 3 }}>{it.label}</div>
@@ -44,7 +44,7 @@ export default function ContactContent() {
             <textarea placeholder="پیام شما" required rows={5} style={{ ...inputStyle, resize: "vertical" }} />
             <button
               type="submit"
-              style={{ background: sent ? "#00FFD1" : "#0A84FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer", transition: "background 0.25s ease" }}
+              style={{ background: sent ? "#9B5CFF" : "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer", transition: "background 0.25s ease" }}
             >
               {sent ? "پیام شما ارسال شد ✓" : "ارسال پیام"}
             </button>

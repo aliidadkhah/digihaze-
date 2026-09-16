@@ -41,8 +41,8 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         <span
           style={{
             display: "inline-block",
-            background: "#0A84FF18",
-            color: "#0A84FF",
+            background: "#4F7FFF18",
+            color: "#4F7FFF",
             fontSize: 12,
             fontWeight: 800,
             borderRadius: 999,
@@ -188,7 +188,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           line-height: 1.6;
           margin: 34px 0 16px;
           padding-right: 14px;
-          border-right: 4px solid #0A84FF;
+          border-right: 4px solid #4F7FFF;
         }
         .post-content h1 { font-size: 22px; }
         .post-content h2 { font-size: 20px; }
@@ -218,7 +218,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #0A84FF;
+          background: #4F7FFF;
         }
         .post-content ol {
           counter-reset: pc-item;
@@ -234,8 +234,8 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #0A84FF22;
-          color: #0A84FF;
+          background: #4F7FFF22;
+          color: #4F7FFF;
           font-size: 10.5px;
           font-weight: 800;
           display: flex;
@@ -247,7 +247,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           margin: 22px 0;
           padding: 14px 18px;
           background: rgba(47, 134, 255, 0.08);
-          border-right: 4px solid #0A84FF;
+          border-right: 4px solid #4F7FFF;
           border-radius: 10px;
           color: var(--text-hi);
           font-size: 0.94em;

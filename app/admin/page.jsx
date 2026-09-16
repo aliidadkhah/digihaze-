@@ -11,7 +11,7 @@ import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 import CategoriesManager from "@/components/CategoriesManager";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
-const STATUS_COLORS = { pending: "#FF7A1F", paid: "#00FFD1", failed: "#0A84FF", cancelled: "var(--text-faint)" };
+const STATUS_COLORS = { pending: "#FF7A1F", paid: "#9B5CFF", failed: "#4F7FFF", cancelled: "var(--text-faint)" };
 const SHIPPING_LABELS = { post: "پست", tipax: "تیپاکس", chapar: "چاپار" };
 
 export default function AdminPage() {
@@ -135,13 +135,13 @@ export default function AdminPage() {
         <form onSubmit={login} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input type="email" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
           <input type="password" placeholder="رمز عبور" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-          {loginError && <div style={{ color: "#0A84FF", fontSize: 12.5, background: "#0A84FF22", borderRadius: 10, padding: "8px 12px" }}>{loginError}</div>}
+          {loginError && <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>{loginError}</div>}
           {resetSent && (
-            <div style={{ color: "#00FFD1", fontSize: 12.5, background: "#00FFD122", borderRadius: 10, padding: "8px 12px" }}>
+            <div style={{ color: "#9B5CFF", fontSize: 12.5, background: "#9B5CFF22", borderRadius: 10, padding: "8px 12px" }}>
               اگه این ایمیل توی سیستم ثبت باشه، لینک ریست پسورد براش ارسال شد. صندوق ورودی (و اسپم) رو چک کن.
             </div>
           )}
-          <button type="submit" style={{ background: "#0A84FF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, cursor: "pointer" }}>
+          <button type="submit" style={{ background: "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, cursor: "pointer" }}>
             ورود
           </button>
           <button
@@ -353,7 +353,7 @@ const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadiu
 const tabBtnStyle = (active) => ({
   background: "transparent",
   border: "none",
-  borderBottom: active ? "2px solid #0A84FF" : "2px solid transparent",
+  borderBottom: active ? "2px solid #4F7FFF" : "2px solid transparent",
   color: active ? "var(--text-hi)" : "var(--text-mut)",
   fontFamily: "Vazirmatn",
   fontWeight: 700,

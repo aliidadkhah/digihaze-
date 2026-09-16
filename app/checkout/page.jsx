@@ -1002,7 +1002,7 @@ export default function CheckoutPage() {
 
             <Landmark
               size={40}
-              color="#00FFD1"
+              color="#9B5CFF"
               style={{
                 margin:
                   "0 auto 16px",
@@ -1151,7 +1151,7 @@ export default function CheckoutPage() {
         .edit-link {
           background: none;
           border: none;
-          color: #00FFD1;
+          color: #9B5CFF;
           font-family: Vazirmatn, sans-serif;
           font-size: 12.5px;
           font-weight: 700;
@@ -1221,8 +1221,8 @@ export default function CheckoutPage() {
         }
 
         .option-item.selected {
-          border-color: #00FFD1 !important;
-          background: #00FFD110 !important;
+          border-color: #9B5CFF !important;
+          background: #9B5CFF10 !important;
         }
 
         /* مهم‌ترین قسمت */
@@ -1280,7 +1280,7 @@ export default function CheckoutPage() {
 
         .option-price {
           font-size: 12px;
-          color: #00FFD1;
+          color: #9B5CFF;
           font-weight: 800;
           white-space: nowrap;
           flex-shrink: 0;
@@ -1341,7 +1341,7 @@ export default function CheckoutPage() {
         }
 
         .input:focus {
-          border-color: #00FFD1;
+          border-color: #9B5CFF;
         }
 
         /* ================================= */
@@ -1446,7 +1446,7 @@ export default function CheckoutPage() {
         }
 
         .copied {
-          color: #00FFD1;
+          color: #9B5CFF;
           font-family: Vazirmatn, sans-serif;
           font-size: 11px;
           font-weight: 900;
@@ -1471,7 +1471,7 @@ export default function CheckoutPage() {
 
           border: none;
 
-          background: #00FFD1;
+          background: #9B5CFF;
 
           color: #061014;
 

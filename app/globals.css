@@ -10,10 +10,12 @@
   --border-soft: #2e3f78;
   --text-faint: #6b608f;
   --ink: #000410;
-  --neon-blue: #0A84FF;
+  --neon-blue: #4F7FFF;
   --neon-teal: #00FFD1;
   --neon-orange: #FF7A1F;
   --neon-lime: #B6FF1A;
+  --neon-purple: #9B5CFF;
+  --brand-grad: linear-gradient(135deg, #4F7FFF 0%, #9B5CFF 100%);
 }
 
 :root[data-theme="light"] {
@@ -181,15 +183,15 @@ KEYFRAMES
 
 @keyframes btnPulse {
   0% {
-    box-shadow:0 0 0 0 #0A84FF55;
+    box-shadow:0 0 0 0 #9B5CFF55;
   }
 
   70% {
-    box-shadow:0 0 0 16px #0A84FF00;
+    box-shadow:0 0 0 16px #9B5CFF00;
   }
 
   100% {
-    box-shadow:0 0 0 0 #0A84FF00;
+    box-shadow:0 0 0 0 #9B5CFF00;
   }
 }
 
@@ -206,7 +208,7 @@ ANIMATIONS
 
 
 .pulse-btn {
-  box-shadow:0 0 0 0 #0A84FF66;
+  box-shadow:0 0 0 0 #9B5CFF66;
   animation:btnPulse 2.4s ease-out infinite;
 }
 
@@ -222,10 +224,33 @@ SECTION SEPARATION
 .site-section-alt {
   background: linear-gradient(
     180deg,
-    rgba(10,132,255,0.05),
-    rgba(0,255,209,0.03) 40%,
+    rgba(79,127,255,0.06),
+    rgba(155,92,255,0.04) 40%,
     transparent
   );
+}
+
+/* ==============================
+BRAND GRADIENT HELPERS
+============================== */
+
+.brand-gradient-text {
+  background: var(--brand-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-gradient-btn {
+  background: var(--brand-grad);
+  box-shadow: 0 10px 28px -10px rgba(155, 92, 255, 0.55);
+  transition: filter 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.brand-gradient-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(155, 92, 255, 0.7);
 }
 
 /* ==============================
@@ -687,14 +712,14 @@ CHECKOUT MOBILE
    ========================================================= */
 
 :root {
-  --glow: #00bff3;
-  --glow-2: #00bff3;
+  --glow: #4F7FFF;
+  --glow-2: #9B5CFF;
   --glass-tint: 255, 255, 255;
 }
 
 :root[data-theme="light"] {
-  --glow: #00bff3;
-  --glow-2: #FF8A3D;
+  --glow: #4F7FFF;
+  --glow-2: #9B5CFF;
   --glass-tint: 255, 255, 255;
 }
 
@@ -854,9 +879,9 @@ CHECKOUT MOBILE
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(10, 132, 255, 0.5),
-    rgba(255, 122, 31, 0.5),
-    rgba(0, 255, 209, 0.45),
+    rgba(79, 127, 255, 0.55),
+    rgba(155, 92, 255, 0.55),
+    rgba(0, 255, 209, 0.4),
     transparent
   );
   opacity: 0.85;
@@ -924,9 +949,9 @@ CHECKOUT MOBILE
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(65% 55% at 22% 20%, rgba(47, 134, 255, 0.14), transparent 72%),
-    radial-gradient(60% 50% at 82% 65%, rgba(0, 191, 243, 0.1), transparent 72%),
-    radial-gradient(75% 65% at 50% 100%, rgba(120, 60, 255, 0.12), transparent 75%);
+    radial-gradient(65% 55% at 22% 20%, rgba(79, 127, 255, 0.16), transparent 72%),
+    radial-gradient(60% 50% at 82% 65%, rgba(0, 255, 209, 0.1), transparent 72%),
+    radial-gradient(75% 65% at 50% 100%, rgba(155, 92, 255, 0.16), transparent 75%);
 }
 
 /* سه لایه ستاره با سرعت‌های متفاوت */
@@ -964,9 +989,9 @@ CHECKOUT MOBILE
   background: radial-gradient(
     ellipse 42% 100% at 50% var(--beam-origin, 100%),
     rgba(255, 255, 255, 0.85) 0%,
-    rgba(210, 220, 255, 0.45) 26%,
-    rgba(0, 191, 243, 0.22) 48%,
-    rgba(120, 90, 255, 0.12) 68%,
+    rgba(220, 220, 255, 0.45) 26%,
+    rgba(79, 127, 255, 0.24) 48%,
+    rgba(155, 92, 255, 0.16) 68%,
     transparent 85%
   );
   filter: blur(18px);
@@ -1021,9 +1046,9 @@ CHECKOUT MOBILE
   border-radius: 50%;
   background: radial-gradient(
     closest-side,
-    rgba(0, 191, 243, 0.32) 0%,
-    rgba(120, 80, 255, 0.22) 42%,
-    rgba(120, 80, 255, 0.08) 68%,
+    rgba(79, 127, 255, 0.34) 0%,
+    rgba(155, 92, 255, 0.24) 42%,
+    rgba(155, 92, 255, 0.08) 68%,
     transparent 82%
   );
   filter: blur(30px);

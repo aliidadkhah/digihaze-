@@ -215,7 +215,7 @@ export default function ReturnPolicyContent() {
                 fontWeight: 700,
               }}
             >
-              <Mail size={16} color="#00FFD1" />
+              <Mail size={16} color="#9B5CFF" />
               info@digihaze.ir
             </a>
 
@@ -235,7 +235,7 @@ export default function ReturnPolicyContent() {
                 fontWeight: 700,
               }}
             >
-              <Phone size={16} color="#00FFD1" />
+              <Phone size={16} color="#9B5CFF" />
               09020951384
             </a>
           </div>

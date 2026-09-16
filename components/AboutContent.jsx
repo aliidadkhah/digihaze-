@@ -25,7 +25,7 @@ export default function AboutContent() {
         ].map((s, i) => (
           <Reveal key={i} delay={0.1 * i}>
             <div style={{ background: "var(--surface)", borderRadius: 14, padding: "22px 14px", textAlign: "center" }}>
-              <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22, color: "#00FFD1" }}>{s.n}</div>
+              <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22, color: "#9B5CFF" }}>{s.n}</div>
               <div style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 6 }}>{s.l}</div>
             </div>
           </Reveal>

@@ -16,8 +16,8 @@ const STATUS_LABELS = {
 
 const STATUS_COLORS = {
   pending: "#FF7A1F",
-  paid: "#00FFD1",
-  failed: "#0A84FF",
+  paid: "#9B5CFF",
+  failed: "#4F7FFF",
   cancelled: "var(--text-faint)",
 };
 
@@ -79,7 +79,7 @@ export default function OrdersContent() {
         <button
           onClick={() => router.push("/auth")}
           style={{
-            background: "#00FFD1",
+            background: "#9B5CFF",
             color: "var(--ink)",
             border: "none",
             borderRadius: 12,
