@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTheme } from "./Providers";
 
 export function FlavorCloud({ color = "#4F7FFF", size = 520, style }) {
   return (
@@ -323,6 +324,9 @@ export function VaporParticles({ color }) {
 
 /* signature hero visual: a recognizable pod-vape device, not a bottle */
 export function FloatingBottle({ color }) {
+  const themeCtx = useTheme();
+  const isLight = themeCtx?.theme === "light";
+
   return (
     <div
       style={{
@@ -338,9 +342,11 @@ export function FloatingBottle({ color }) {
           position: "absolute",
           inset: -30,
           borderRadius: "50%",
-          background: `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, transparent 70%)`,
+          background: isLight
+            ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, transparent 70%)`
+            : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, transparent 70%)`,
           filter: "blur(18px)",
-          mixBlendMode: "screen",
+          mixBlendMode: isLight ? "multiply" : "screen",
           animation: "pulseGlow 2.8s ease-in-out infinite",
         }}
       />
@@ -348,12 +354,18 @@ export function FloatingBottle({ color }) {
         viewBox="0 0 120 230"
         width="130"
         height="240"
-        style={{ position: "relative", display: "block", filter: `drop-shadow(0 24px 30px ${color}55)` }}
+        style={{
+          position: "relative",
+          display: "block",
+          filter: isLight
+            ? `drop-shadow(0 18px 22px ${color}88)`
+            : `drop-shadow(0 24px 30px ${color}55)`,
+        }}
       >
         <defs>
           <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#2a2050" />
-            <stop offset="100%" stopColor="#150f2c" />
+            <stop offset="0%" stopColor={isLight ? "#3a3160" : "#2a2050"} />
+            <stop offset="100%" stopColor={isLight ? "#221a40" : "#150f2c"} />
           </linearGradient>
           <linearGradient id="winGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={color} stopOpacity="0.85" />
@@ -371,7 +383,6 @@ export function FloatingBottle({ color }) {
         <rect x="35" y="118" width="50" height="37" rx="7" fill="url(#winGrad)" />
         <circle cx="60" cy="176" r="10" fill="#0b0818" stroke={color} strokeWidth="2" />
         <circle cx="60" cy="176" r="4" fill={color} />
-        <rect x="26" y="190" width="68" height="16" rx="6" fill="#0b0818" />
       </svg>
       {[0, 1, 2].map((i) => (
         <span
@@ -383,7 +394,7 @@ export function FloatingBottle({ color }) {
             width: 8,
             height: 8,
             borderRadius: "50%",
-            background: `${color}99`,
+            background: isLight ? `${color}cc` : `${color}99`,
             filter: "blur(2px)",
             animation: `riseUp ${3.5 + i}s ease-in ${i * 0.9}s infinite`,
           }}
