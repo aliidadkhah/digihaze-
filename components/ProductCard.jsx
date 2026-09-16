@@ -37,6 +37,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div
+      className={isAvailable ? "glow-box" : ""}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
@@ -44,32 +45,31 @@ export default function ProductCard({ product }) {
         display: "flex",
         flexDirection: "column",
         borderRadius: 18,
-        transition:
-          "transform 0.25s ease, box-shadow 0.3s ease",
-        transform:
-          hover && isAvailable
-            ? "translateY(-6px)"
-            : "translateY(0)",
+        willChange: "transform",
+        transition: "box-shadow 0.3s ease",
         boxShadow:
           hover && isAvailable
             ? `0 20px 44px -10px ${product.color}88, 0 0 0 1px ${product.color}22, 0 0 32px -4px ${product.color}66`
             : "none",
-        willChange: "transform",
+        "--glow": "#00bff3",
+        "--glow-2": product.color || "#00bff3",
       }}
     >
       <div
+        className={isAvailable ? "glow-box-body" : ""}
         style={{
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          background: "var(--surface)",
           borderRadius: 18,
           overflow: "hidden",
-          border: `1px solid ${
-            hover && isAvailable ? `${product.color}aa` : "var(--surface2)"
-          }`,
           position: "relative",
-          transition: "border-color 0.25s ease",
+          ...(isAvailable
+            ? {}
+            : {
+                background: "var(--surface)",
+                border: "1px solid var(--surface2)",
+              }),
         }}
       >
         {/* PRODUCT LINK */}
