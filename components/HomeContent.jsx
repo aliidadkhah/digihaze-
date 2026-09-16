@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 
-import { Badge, Reveal } from "./ui";
+import { Reveal } from "./ui";
 import {
   FloatingBottle,
   SpaceField,
@@ -135,17 +135,6 @@ export default function HomeContent() {
           <FloatingBottle
             color={heroColor}
           />
-
-          <div
-            className="hero-reveal"
-            style={{
-              animationDelay: "0.05s",
-            }}
-          >
-            <Badge bg="var(--neon-blue)">
-              هر پاف یک طعم تازه 🌫️
-            </Badge>
-          </div>
 
           <h1
             id="home-title"
