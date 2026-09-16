@@ -541,6 +541,8 @@ export default function HomeContent() {
               gap: 16,
               overflowX:
                 "auto",
+              paddingTop:
+                18,
               paddingBottom:
                 10,
             }}
