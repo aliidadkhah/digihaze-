@@ -26,8 +26,11 @@
   "type": "module",
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.54.1",
+    "@types/node": "22.20.3",
+    "@types/react": "19.3.0",
     "@vitejs/plugin-react": "^6.1.0",
     "@vitejs/plugin-rsc": "^0.5.34",
+    "typescript": "7.0.2",
     "vite": "^8.2.2",
     "wrangler": "^4.127.0"
   }
