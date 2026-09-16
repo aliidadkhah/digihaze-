@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function FlavorCloud({ color = "#0A84FF", size = 520, style }) {
   return (
@@ -19,6 +19,267 @@ export function FlavorCloud({ color = "#0A84FF", size = 520, style }) {
         ...style,
       }}
     />
+  );
+}
+
+/* ---------------------------------------------------------
+   فضا + ستاره‌های دنباله‌دار (canvas)
+   --------------------------------------------------------- */
+
+export function SpaceField({ density = 1, comets = true }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const reduced =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let stars = [];
+    let shooters = [];
+    let raf = null;
+    let last = 0;
+    let nextShooter = 800;
+    let visible = true;
+
+    const rand = (min, max) => min + Math.random() * (max - min);
+
+    const buildStars = () => {
+      const area = width * height;
+      const count = Math.min(
+        260,
+        Math.round((area / 9000) * density)
+      );
+
+      stars = Array.from({ length: count }).map(() => {
+        const layer = Math.random();
+        const depth = layer < 0.6 ? 0.35 : layer < 0.9 ? 0.7 : 1;
+
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          r: depth * rand(0.45, 1.25),
+          depth,
+          alpha: rand(0.25, 0.9),
+          twinkleSpeed: rand(0.6, 2.1),
+          phase: Math.random() * Math.PI * 2,
+          hue:
+            Math.random() < 0.12
+              ? "255, 190, 130"
+              : Math.random() < 0.2
+              ? "175, 210, 255"
+              : "255, 255, 255",
+        };
+      });
+    };
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildStars();
+    };
+
+    const spawnShooter = () => {
+      /* از بالا-راست به سمت پایین-چپ */
+      const angle = rand(0.28, 0.46); // رادیان، شیب ملایم
+      const speed = rand(620, 1000);
+
+      shooters.push({
+        x: rand(width * 0.35, width * 1.15),
+        y: rand(-height * 0.1, height * 0.55),
+        vx: -Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        len: rand(90, 220),
+        life: 0,
+        ttl: rand(0.9, 1.6),
+        width: rand(1.1, 2.1),
+        warm: Math.random() < 0.25,
+      });
+    };
+
+    const drawStars = (t) => {
+      for (const s of stars) {
+        const tw =
+          0.55 + 0.45 * Math.sin(t * s.twinkleSpeed + s.phase);
+
+        ctx.globalAlpha = s.alpha * tw;
+        ctx.fillStyle = `rgb(${s.hue})`;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        /* درخشش ملایم فقط برای ستاره‌های نزدیک */
+        if (s.depth > 0.85) {
+          ctx.globalAlpha = s.alpha * tw * 0.28;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * 3.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    const drawShooter = (s) => {
+      const fade =
+        s.life < 0.18
+          ? s.life / 0.18
+          : Math.max(0, 1 - (s.life - 0.18) / (s.ttl - 0.18));
+
+      const mag = Math.hypot(s.vx, s.vy) || 1;
+      const tailX = s.x - (s.vx / mag) * s.len;
+      const tailY = s.y - (s.vy / mag) * s.len;
+
+      const head = s.warm ? "255, 205, 150" : "235, 245, 255";
+
+      const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
+      grad.addColorStop(0, `rgba(${head}, 0)`);
+      grad.addColorStop(0.65, `rgba(${head}, ${0.35 * fade})`);
+      grad.addColorStop(1, `rgba(255, 255, 255, ${0.95 * fade})`);
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = s.width;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(s.x, s.y);
+      ctx.stroke();
+
+      /* سر درخشان */
+      const glow = ctx.createRadialGradient(
+        s.x,
+        s.y,
+        0,
+        s.x,
+        s.y,
+        s.width * 6
+      );
+      glow.addColorStop(0, `rgba(255, 255, 255, ${0.9 * fade})`);
+      glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.width * 6, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
+    const frame = (now) => {
+      raf = requestAnimationFrame(frame);
+      if (!visible) return;
+
+      if (!last) last = now;
+      let dt = (now - last) / 1000;
+      last = now;
+      if (dt > 0.05) dt = 0.05;
+
+      const t = now / 1000;
+
+      ctx.clearRect(0, 0, width, height);
+
+      /* حرکت آرام ستاره‌ها (پارالاکس) */
+      if (!reduced) {
+        for (const s of stars) {
+          s.x -= s.depth * 5 * dt;
+          s.y += s.depth * 2.2 * dt;
+
+          if (s.x < -4) {
+            s.x = width + 4;
+            s.y = Math.random() * height;
+          }
+          if (s.y > height + 4) {
+            s.y = -4;
+            s.x = Math.random() * width;
+          }
+        }
+      }
+
+      drawStars(reduced ? 0 : t);
+
+      if (comets && !reduced) {
+        nextShooter -= dt * 1000;
+        if (nextShooter <= 0) {
+          spawnShooter();
+          nextShooter = rand(1400, 4200);
+        }
+
+        shooters = shooters.filter((s) => s.life < s.ttl);
+
+        for (const s of shooters) {
+          s.life += dt;
+          s.x += s.vx * dt;
+          s.y += s.vy * dt;
+          drawShooter(s);
+        }
+      }
+    };
+
+    resize();
+
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(resize)
+        : null;
+    if (ro) ro.observe(canvas);
+    else window.addEventListener("resize", resize);
+
+    const io =
+      typeof IntersectionObserver !== "undefined"
+        ? new IntersectionObserver(
+            (entries) => {
+              visible = entries[0].isIntersecting;
+              if (visible) last = 0;
+            },
+            { threshold: 0 }
+          )
+        : null;
+    if (io) io.observe(canvas);
+
+    raf = requestAnimationFrame(frame);
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", resize);
+      if (io) io.disconnect();
+    };
+  }, [density, comets]);
+
+  return (
+    <div className="space-field" aria-hidden>
+      <div className="space-deep" />
+      <canvas ref={canvasRef} />
+    </div>
+  );
+}
+
+/* افق نورانی سیاره — پشت وکتور ویپ */
+export function HaloHorizon({ style }) {
+  return (
+    <div className="halo-wrap" aria-hidden style={style}>
+      <div className="halo-bloom" />
+      <div className="halo-planet" />
+    </div>
+  );
+}
+
+/* ستون نور بالا و پایین یک باکس */
+export function LightBeams() {
+  return (
+    <>
+      <span className="beam beam-top" aria-hidden />
+      <span className="beam beam-bottom" aria-hidden />
+    </>
   );
 }
 
