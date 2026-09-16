@@ -39,11 +39,13 @@ export default function HomeContent() {
   });
 
   const handleDragStart = (e) => {
+    if (e.pointerType && e.pointerType !== "mouse") return;
     const el = saleScrollRef.current;
     if (!el) return;
+    el.setPointerCapture?.(e.pointerId);
     dragState.current.isDown = true;
     dragState.current.moved = false;
-    dragState.current.startX = e.pageX - el.offsetLeft;
+    dragState.current.startX = e.clientX;
     dragState.current.scrollLeft = el.scrollLeft;
   };
 
@@ -51,13 +53,16 @@ export default function HomeContent() {
     const el = saleScrollRef.current;
     if (!el || !dragState.current.isDown) return;
     e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = x - dragState.current.startX;
+    const walk = e.clientX - dragState.current.startX;
     if (Math.abs(walk) > 4) dragState.current.moved = true;
     el.scrollLeft = dragState.current.scrollLeft - walk;
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e) => {
+    const el = saleScrollRef.current;
+    if (el && e?.pointerId != null) {
+      el.releasePointerCapture?.(e.pointerId);
+    }
     dragState.current.isDown = false;
   };
 
@@ -525,10 +530,10 @@ export default function HomeContent() {
           <div
             ref={saleScrollRef}
             className="sale-scroll"
-            onMouseDown={handleDragStart}
-            onMouseMove={handleDragMove}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
+            onPointerDown={handleDragStart}
+            onPointerMove={handleDragMove}
+            onPointerUp={handleDragEnd}
+            onPointerCancel={handleDragEnd}
             onClickCapture={handleSaleClickCapture}
             style={{
               display:
@@ -538,8 +543,6 @@ export default function HomeContent() {
                 "auto",
               paddingBottom:
                 10,
-              scrollSnapType:
-                "x mandatory",
             }}
           >
             {saleItems.map(
@@ -553,8 +556,6 @@ export default function HomeContent() {
                   style={{
                     minWidth: 190,
                     maxWidth: 190,
-                    scrollSnapAlign:
-                      "start",
                   }}
                 >
                   <ProductCard
