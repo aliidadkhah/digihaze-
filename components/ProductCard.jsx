@@ -408,16 +408,16 @@ export default function ProductCard({ product }) {
                 padding: "10px 0",
                 fontFamily: "Vazirmatn",
                 fontWeight: 700,
-                fontSize: 13,
+                fontSize: 11.5,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 8,
+                gap: 6,
                 whiteSpace: "nowrap",
               }}
             >
-              <ShoppingCart size={17} />
+              <ShoppingCart size={14} color="#fff" />
               افزودن به سبد خرید
             </button>
           ) : (
