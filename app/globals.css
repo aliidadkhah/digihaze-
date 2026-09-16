@@ -697,3 +697,421 @@ CHECKOUT MOBILE
     transition: none !important;
   }
 }
+
+
+/* =========================================================
+   DIGIHAZE — GLOW / GLASS / SPACE DESIGN LAYER
+   ========================================================= */
+
+:root {
+  --glow: #00bff3;
+  --glow-2: #00bff3;
+  --glass-tint: 255, 255, 255;
+}
+
+:root[data-theme="light"] {
+  --glow: #00bff3;
+  --glow-2: #FF8A3D;
+  --glass-tint: 255, 255, 255;
+}
+
+
+/* ---------------------------------------------------------
+   1) GLOW BOX  (باکس با نور نارنجی)
+   --------------------------------------------------------- */
+
+.glow-box {
+  position: relative;
+  border-radius: 20px;
+  isolation: isolate;
+  transition:
+    transform 0.28s cubic-bezier(.2,.7,.3,1),
+    filter 0.28s ease;
+}
+
+/* هاله‌ی نور پشت باکس */
+.glow-box::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(75% 60% at 50% 115%, var(--glow) 0%, transparent 62%),
+    radial-gradient(70% 55% at 50% -15%, var(--glow-2) 0%, transparent 60%);
+  filter: blur(26px);
+  opacity: 0.42;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+  pointer-events: none;
+}
+
+.glow-box:hover::before {
+  opacity: 1;
+  filter: blur(34px);
+  inset: -6px;
+}
+
+.glow-box:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 26px 56px -12px color-mix(in srgb, var(--glow-2) 75%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--glow-2) 35%, transparent),
+    0 0 46px -2px color-mix(in srgb, var(--glow-2) 65%, transparent);
+}
+
+/* بدنه‌ی باکس */
+.glow-box-body {
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(var(--glass-tint), 0.05), rgba(var(--glass-tint), 0.015)),
+    var(--surface);
+  border: 1px solid color-mix(in srgb, var(--glow) 26%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--glass-tint), 0.08),
+    inset 0 -14px 26px -18px var(--glow),
+    inset -10px 0 22px -20px var(--glow-2),
+    0 18px 38px -18px rgba(0, 0, 0, 0.85);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.35s ease;
+}
+
+.glow-box:hover .glow-box-body {
+  border-color: color-mix(in srgb, var(--glow-2) 70%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--glass-tint), 0.16),
+    inset 0 -26px 48px -16px var(--glow),
+    inset -18px 0 40px -18px var(--glow-2),
+    0 0 0 1px color-mix(in srgb, var(--glow-2) 40%, transparent),
+    0 30px 58px -16px rgba(0, 0, 0, 0.9);
+}
+
+/* براقی شیشه‌ای که روی باکس می‌لغزد */
+.glow-box-body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  right: -60%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(var(--glass-tint), 0.1) 45%,
+    rgba(var(--glass-tint), 0.16) 50%,
+    transparent
+  );
+  transform: skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+.glow-box:hover .glow-box-body::after {
+  animation: glowSheen 0.9s ease forwards;
+}
+
+@keyframes glowSheen {
+  0% {
+    right: -60%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    right: 115%;
+    opacity: 0;
+  }
+}
+
+/* حالت روشن: نور ملایم‌تر */
+:root[data-theme="light"] .glow-box::before {
+  opacity: 0.2;
+}
+
+:root[data-theme="light"] .glow-box-body {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -14px 26px -20px var(--glow),
+    0 14px 30px -18px rgba(90, 60, 20, 0.35);
+}
+
+
+/* ---------------------------------------------------------
+   2) GLASS NAVBAR  (نوار بالای سایت — گلس‌مورفیسم)
+   --------------------------------------------------------- */
+
+.glass-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background:
+    linear-gradient(180deg, rgba(var(--glass-tint), 0.08), rgba(var(--glass-tint), 0.02)),
+    color-mix(in srgb, var(--bg) 58%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(165%);
+  backdrop-filter: blur(20px) saturate(165%);
+  border-bottom: 1px solid rgba(var(--glass-tint), 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--glass-tint), 0.1),
+    0 10px 34px -20px rgba(0, 0, 0, 0.9);
+}
+
+/* خط نئونی نازک زیر نوار */
+.glass-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(10, 132, 255, 0.5),
+    rgba(255, 122, 31, 0.5),
+    rgba(0, 255, 209, 0.45),
+    transparent
+  );
+  opacity: 0.85;
+}
+
+:root[data-theme="light"] .glass-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.55)),
+    color-mix(in srgb, var(--bg) 40%, transparent);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 28px -22px rgba(0, 0, 0, 0.5);
+}
+
+/* دکمه‌های آیکونی داخل نوار هم شیشه‌ای شوند */
+.glass-nav .navbar-actions button,
+.glass-nav .navbar-actions a {
+  background: rgba(var(--glass-tint), 0.07) !important;
+  border: 1px solid rgba(var(--glass-tint), 0.1);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-nav .navbar-actions button:hover,
+.glass-nav .navbar-actions a:hover {
+  background: rgba(var(--glass-tint), 0.14) !important;
+  border-color: color-mix(in srgb, var(--glow) 45%, transparent);
+}
+
+:root[data-theme="light"] .glass-nav .navbar-actions button,
+:root[data-theme="light"] .glass-nav .navbar-actions a {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+
+/* ---------------------------------------------------------
+   3) SPACE + SHOOTING STARS  (فضا و ستاره‌های دنباله‌دار)
+   --------------------------------------------------------- */
+
+.space-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 82%,
+    transparent 100%
+  );
+}
+
+/* عمق فضا */
+.space-field .space-deep {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(65% 55% at 22% 20%, rgba(47, 134, 255, 0.14), transparent 72%),
+    radial-gradient(60% 50% at 82% 65%, rgba(0, 191, 243, 0.1), transparent 72%),
+    radial-gradient(75% 65% at 50% 100%, rgba(120, 60, 255, 0.12), transparent 75%);
+}
+
+/* سه لایه ستاره با سرعت‌های متفاوت */
+/* بوم ستاره‌ها (canvas) */
+.space-field canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+:root[data-theme="light"] .space-field {
+  opacity: 0.3;
+}
+
+
+/* ---------------------------------------------------------
+   4) LIGHT BEAM  (ستون نور آرام بالا و پایین باکس)
+   --------------------------------------------------------- */
+
+.beam-box {
+  position: relative;
+}
+
+.beam-box .beam {
+  position: absolute;
+  left: 50%;
+  width: 200px;
+  height: 190px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 3;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 42% 100% at 50% var(--beam-origin, 100%),
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(210, 220, 255, 0.45) 26%,
+    rgba(0, 191, 243, 0.22) 48%,
+    rgba(120, 90, 255, 0.12) 68%,
+    transparent 85%
+  );
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  animation: beamBreath 7s ease-in-out infinite;
+}
+
+.beam-box .beam.beam-top {
+  top: -150px;
+  --beam-origin: 100%;
+}
+
+.beam-box .beam.beam-bottom {
+  bottom: -150px;
+  --beam-origin: 0%;
+  animation-delay: 3.5s;
+}
+
+@keyframes beamBreath {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   5) HALO HORIZON  (افق نورانی سیاره پشت وکتور)
+   --------------------------------------------------------- */
+
+.halo-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  width: min(760px, 120vw);
+  height: 260px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* درخشش نرم افق — بدون هیچ شکل توپری، فقط نور */
+.halo-wrap .halo-bloom {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(0, 191, 243, 0.32) 0%,
+    rgba(120, 80, 255, 0.22) 42%,
+    rgba(120, 80, 255, 0.08) 68%,
+    transparent 82%
+  );
+  filter: blur(30px);
+  mix-blend-mode: screen;
+  animation: haloBreath 9s ease-in-out infinite;
+}
+
+/* یک خط نازک نورانی روی افق برای حس عمق */
+.halo-wrap .halo-planet {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 62%;
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(210, 220, 255, 0.55) 30%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(210, 220, 255, 0.55) 70%,
+    transparent
+  );
+  filter: blur(1px);
+  mix-blend-mode: screen;
+}
+
+@keyframes haloBreath {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   6) REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .halo-wrap .halo-bloom,
+  .beam-box .beam,
+  .glow-box-body::after {
+    animation: none !important;
+  }
+
+  .glow-box:hover {
+    transform: none;
+  }
+}
+
+/* موبایل: افکت‌ها سبک‌تر تا سرعت سایت حفظ شود */
+@media (max-width: 700px) {
+  .glow-box::before {
+    inset: 12px;
+    opacity: 0.32;
+  }
+
+  .beam-box .beam {
+    width: 130px;
+    height: 130px;
+  }
+
+  .beam-box .beam.beam-top {
+    top: -104px;
+  }
+
+  .beam-box .beam.beam-bottom {
+    bottom: -104px;
+  }
+}
