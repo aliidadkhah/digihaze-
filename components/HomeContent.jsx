@@ -119,8 +119,9 @@ export default function HomeContent() {
               fontFamily: "Vazirmatn",
               fontWeight: 800,
               fontSize:
-                "clamp(32px, 6vw, 56px)",
+                "clamp(20px, 3.2vw, 32px)",
               lineHeight: 1.25,
+              whiteSpace: "nowrap",
               margin:
                 "20px 0 16px",
               animationDelay:
