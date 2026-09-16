@@ -85,17 +85,7 @@ export default function Navbar({ categories = CATEGORIES }) {
   };
 
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 50,
-        background:
-          "color-mix(in srgb, var(--bg) 85%, transparent)",
-        backdropFilter: "blur(10px)",
-        borderBottom: "1px solid var(--surface2)",
-      }}
-    >
+    <header className="glass-nav">
       <div
         className="navbar-main"
         style={{
@@ -463,10 +453,18 @@ export default function Navbar({ categories = CATEGORIES }) {
           min-width: 0;
           max-width: 320px;
           align-items: center;
-          background: var(--surface);
-          border: 1px solid var(--surface2);
+          background: rgba(var(--glass-tint), 0.06);
+          border: 1px solid rgba(var(--glass-tint), 0.1);
           border-radius: 12px;
           overflow: hidden;
+          -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+          transition: border-color 0.25s ease, background 0.25s ease;
+        }
+
+        .nav-search-desktop:focus-within {
+          border-color: color-mix(in srgb, var(--glow) 55%, transparent);
+          background: rgba(var(--glass-tint), 0.1);
         }
 
         .search-button {
@@ -560,10 +558,12 @@ export default function Navbar({ categories = CATEGORIES }) {
           .mobile-search-form {
             display: flex;
             align-items: center;
-            background: var(--surface);
-            border: 1px solid var(--surface2);
+            background: rgba(var(--glass-tint), 0.06);
+            border: 1px solid rgba(var(--glass-tint), 0.1);
             border-radius: 12px;
             overflow: hidden;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
           }
 
           .navbar-main {
