@@ -12,6 +12,12 @@ const COLOR_OPTIONS = [
   { id: "#B6FF1A", label: "سبز لیمویی" },
 ];
 
+// رنگ‌های پیشنهادی برای متن اطلاعیه
+const TEXT_COLOR_OPTIONS = [
+  { id: "#0B0E14", label: "مشکی" },
+  { id: "#FFFFFF", label: "سفید" },
+];
+
 const inputStyle = {
   width: "100%",
   background: "var(--bg)",
@@ -37,6 +43,7 @@ const labelStyle = {
 export default function AnnouncementManager() {
   const [text, setText] = useState("");
   const [color, setColor] = useState("#4F7FFF");
+  const [textColor, setTextColor] = useState("#0B0E14");
   const [active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,6 +61,7 @@ export default function AnnouncementManager() {
       .then((data) => {
         setText(data.announcement_text || "");
         setColor(data.announcement_color || "#4F7FFF");
+        setTextColor(data.announcement_text_color || "#0B0E14");
         setActive(!!data.announcement_active);
       })
       .catch(() => setError("خطا در دریافت تنظیمات"))
@@ -75,6 +83,7 @@ export default function AnnouncementManager() {
         body: JSON.stringify({
           announcement_text: text,
           announcement_color: color,
+          announcement_text_color: textColor,
           announcement_active: active,
         }),
       });
@@ -156,6 +165,48 @@ export default function AnnouncementManager() {
         </div>
       </div>
 
+      <div>
+        <label style={labelStyle}>رنگ نوشته اطلاعیه</label>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {TEXT_COLOR_OPTIONS.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setTextColor(c.id)}
+              title={c.label}
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                background: c.id,
+                border:
+                  textColor.toLowerCase() === c.id.toLowerCase()
+                    ? "3px solid var(--text-hi)"
+                    : "1px solid var(--surface2)",
+                cursor: "pointer",
+              }}
+            />
+          ))}
+
+          <input
+            type="color"
+            value={textColor}
+            onChange={(e) => setTextColor(e.target.value)}
+            title="انتخاب رنگ دلخواه"
+            style={{
+              width: 34,
+              height: 34,
+              padding: 0,
+              border: "1px solid var(--surface2)",
+              borderRadius: "50%",
+              overflow: "hidden",
+              cursor: "pointer",
+              background: "transparent",
+            }}
+          />
+        </div>
+      </div>
+
       <label
         style={{
           display: "flex",
@@ -182,7 +233,7 @@ export default function AnnouncementManager() {
           <div
             style={{
               background: color,
-              color: "var(--ink)",
+              color: textColor,
               borderRadius: 10,
               padding: "10px 16px",
               textAlign: "center",
