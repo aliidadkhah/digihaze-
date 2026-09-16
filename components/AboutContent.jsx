@@ -1,10 +1,14 @@
 "use client";
 
 import { Badge, Reveal } from "./ui";
+import AboutGlobe from "./AboutGlobe";
 
 export default function AboutContent() {
   return (
     <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 20px 80px" }}>
+      <Reveal style={{ marginBottom: 36 }}>
+        <AboutGlobe />
+      </Reveal>
       <Reveal>
         <Badge bg="#FF7A1F">داستان ما</Badge>
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره دیجی هیز</h1>
