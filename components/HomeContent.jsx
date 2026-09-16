@@ -5,10 +5,8 @@ import Link from "next/link";
 
 import { Badge, Reveal } from "./ui";
 import {
-  VaporParticles,
   FloatingBottle,
   SpaceField,
-  HaloHorizon,
 } from "./visuals";
 
 import ProductCard from "./ProductCard";
@@ -82,12 +80,6 @@ export default function HomeContent() {
         }}
       >
         <SpaceField />
-
-        <HaloHorizon />
-
-        <VaporParticles
-          color={heroColor}
-        />
 
         <div
           style={{
@@ -200,6 +192,10 @@ export default function HomeContent() {
               href="/shop"
               className="pulse-btn brand-gradient-btn"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
                 color:
                   "#fff",
                 border: "none",
@@ -220,6 +216,10 @@ export default function HomeContent() {
             <Link
               href="/about"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
                 background:
                   "transparent",
                 color:
