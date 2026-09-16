@@ -48,6 +48,7 @@ export default function AnnouncementBar() {
   }
 
   const color = settings.announcement_color || "#4F7FFF";
+  const textColor = settings.announcement_text_color || "#0B0E14";
 
   const close = () => {
     setDismissed(true);
@@ -62,7 +63,7 @@ export default function AnnouncementBar() {
     <div
       style={{
         background: color,
-        color: "var(--ink)",
+        color: textColor,
         position: "relative",
       }}
     >
