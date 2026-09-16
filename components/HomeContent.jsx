@@ -411,16 +411,13 @@ export default function HomeContent() {
       ========================= */}
 
       <section
-        className="sale-section site-section"
+        className="sale-section site-section site-section-alt"
         aria-labelledby="sale-title"
         style={{
           width: "100%",
           margin: 0,
           padding:
             "44px 0 54px",
-          background: "#000000",
-          borderBottom:
-            "1px solid var(--border-soft)",
         }}
       >
         <div
