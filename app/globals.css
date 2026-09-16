@@ -242,15 +242,16 @@ BRAND GRADIENT HELPERS
 }
 
 .brand-gradient-btn {
-  background: var(--brand-grad);
-  box-shadow: 0 10px 28px -10px rgba(155, 92, 255, 0.55);
+  background: #4F7FFF;
+  color: #fff;
+  box-shadow: 0 10px 28px -10px rgba(79, 127, 255, 0.55);
   transition: filter 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .brand-gradient-btn:hover {
   filter: brightness(1.08);
   transform: translateY(-2px);
-  box-shadow: 0 16px 36px -10px rgba(155, 92, 255, 0.7);
+  box-shadow: 0 16px 36px -10px rgba(79, 127, 255, 0.7);
 }
 
 /* ==============================
