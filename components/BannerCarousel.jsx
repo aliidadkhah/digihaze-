@@ -73,7 +73,7 @@ export default function BannerCarousel() {
           overflow: "hidden",
           border: "none",
           borderRadius: 0,
-          aspectRatio: "21 / 3",
+          aspectRatio: "21 / 4",
           boxSizing: "border-box",
         }}
       >
@@ -168,13 +168,13 @@ export default function BannerCarousel() {
       <style>{`
         @media (max-width: 768px) {
           .banner-slider {
-            aspect-ratio: 16 / 5 !important;
+            aspect-ratio: 16 / 4.5 !important;
           }
         }
 
         @media (max-width: 480px) {
           .banner-slider {
-            aspect-ratio: 16 / 6 !important;
+            aspect-ratio: 16 / 5.5 !important;
           }
         }
       `}</style>
