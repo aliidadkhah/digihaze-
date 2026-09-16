@@ -7,6 +7,9 @@ import { Badge, Reveal } from "./ui";
 import {
   VaporParticles,
   FloatingBottle,
+  SpaceField,
+  HaloHorizon,
+  LightBeams,
 } from "./visuals";
 
 import ProductCard from "./ProductCard";
@@ -79,6 +82,10 @@ export default function HomeContent() {
           textAlign: "center",
         }}
       >
+        <SpaceField />
+
+        <HaloHorizon />
+
         <VaporParticles
           color={heroColor}
         />
@@ -279,6 +286,14 @@ export default function HomeContent() {
                 key={c.id}
                 delay={0.08 * i}
               >
+                <div
+                  className="glow-box"
+                  style={{
+                    borderRadius: 16,
+                    "--glow": "#00bff3",
+                    "--glow-2": c.color,
+                  }}
+                >
                 <Link
                   href={`/shop/${c.id}`}
                   onMouseEnter={() =>
@@ -287,48 +302,17 @@ export default function HomeContent() {
                     )
                   }
                   aria-label={`مشاهده ${c.label}`}
-                  className="category-card-link"
+                  className="category-card-link glow-box-body"
                   style={{
                     display: "block",
                     width: "100%",
-                    background:
-                      "var(--surface)",
-                    border:
-                      "1px solid var(--surface2)",
                     borderRadius: 16,
-                    overflow: "hidden",
                     cursor:
                       "pointer",
-                    transition:
-                      "border-color 0.25s ease, transform 0.25s ease, box-shadow 0.3s ease",
                     textDecoration:
                       "none",
                     boxSizing:
                       "border-box",
-                  }}
-                  onMouseOver={(
-                    e
-                  ) => {
-                    e.currentTarget.style.borderColor =
-                      `${c.color}cc`;
-
-                    e.currentTarget.style.transform =
-                      "translateY(-4px)";
-
-                    e.currentTarget.style.boxShadow =
-                      `0 18px 36px -12px ${c.color}88, 0 0 26px -4px ${c.color}66`;
-                  }}
-                  onMouseOut={(
-                    e
-                  ) => {
-                    e.currentTarget.style.borderColor =
-                      "var(--surface2)";
-
-                    e.currentTarget.style.transform =
-                      "translateY(0)";
-
-                    e.currentTarget.style.boxShadow =
-                      "none";
                   }}
                 >
                   <div
@@ -369,6 +353,7 @@ export default function HomeContent() {
                     {c.label}
                   </div>
                 </Link>
+                </div>
               </Reveal>
             )
           )}
@@ -386,9 +371,17 @@ export default function HomeContent() {
           margin: "0 auto",
           padding:
             "40px 20px 50px",
+          position: "relative",
         }}
       >
         <Reveal>
+          <div
+            className="beam-box"
+            style={{
+              borderRadius: 24,
+            }}
+          >
+          <LightBeams />
           <Link
             href="/shop?discount=1"
             aria-label="مشاهده محصولات تخفیف‌دار"
@@ -418,6 +411,7 @@ export default function HomeContent() {
               }}
             />
           </Link>
+          </div>
         </Reveal>
       </section>
 
@@ -634,10 +628,6 @@ export default function HomeContent() {
       ========================= */}
 
       <style>{`
-        .category-card-link {
-          transform: translateZ(0);
-        }
-
         .discount-banner-link {
           transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
