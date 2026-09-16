@@ -30,6 +30,44 @@ export default function HomeContent() {
 
   const heroRef = useRef(null);
 
+  const saleScrollRef = useRef(null);
+  const dragState = useRef({
+    isDown: false,
+    startX: 0,
+    scrollLeft: 0,
+    moved: false,
+  });
+
+  const handleDragStart = (e) => {
+    const el = saleScrollRef.current;
+    if (!el) return;
+    dragState.current.isDown = true;
+    dragState.current.moved = false;
+    dragState.current.startX = e.pageX - el.offsetLeft;
+    dragState.current.scrollLeft = el.scrollLeft;
+  };
+
+  const handleDragMove = (e) => {
+    const el = saleScrollRef.current;
+    if (!el || !dragState.current.isDown) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = x - dragState.current.startX;
+    if (Math.abs(walk) > 4) dragState.current.moved = true;
+    el.scrollLeft = dragState.current.scrollLeft - walk;
+  };
+
+  const handleDragEnd = () => {
+    dragState.current.isDown = false;
+  };
+
+  const handleSaleClickCapture = (e) => {
+    if (dragState.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   const [parallax, setParallax] = useState({
     x: 0,
     y: 0,
@@ -451,7 +489,7 @@ export default function HomeContent() {
                     4,
                 }}
               >
-                پیشنهادهای فروش
+                پیشنهادها
               </h2>
 
               <p
@@ -485,7 +523,13 @@ export default function HomeContent() {
           </div>
 
           <div
+            ref={saleScrollRef}
             className="sale-scroll"
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onClickCapture={handleSaleClickCapture}
             style={{
               display:
                 "flex",
