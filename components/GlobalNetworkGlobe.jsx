@@ -5,44 +5,80 @@ import { useEffect, useRef } from "react";
 /* ============================================================
    نقشه‌ی نقطه‌ای دنیا (Global Network Globe)
 
-   این یک کره‌ی نقطه‌ای «تزئینی» است، شبیه گرافیک شبکه‌ی جهانی
-   Cloudflare: خشکی‌ها با بیضی‌های ساده تقریب زده شده‌اند (نه با
-   داده‌ی جغرافیایی دقیق)، روی کانواس رسم می‌شن و به آرومی می‌چرخن.
+   این نسخه از یک نقشه‌ی واقعی زمین (بردار کشورهای دنیا، تفکیک‌شده
+   به صورت یک بیت‌مپ فشرده‌ی خشکی/دریا) استفاده می‌کنه، نه بیضی‌های
+   تقریبی. بیت‌مپ یک‌بار در پایین این فایل به صورت base64 جاسازی
+   شده (هر بیت = یک خانه‌ی ۱٫۵ درجه‌ای از عرض/طول جغرافیایی، خشکی=۱
+   دریا=۰) و در زمان اجرا decode و روی کانواس با نقطه رسم می‌شه.
 ============================================================ */
 
-const LANDMASSES = [
-  { cy: 48, cx: -100, ry: 20, rx: 32 }, // آمریکای شمالی
-  { cy: 18, cx: -92, ry: 7, rx: 6 }, // آمریکای مرکزی
-  { cy: 72, cx: -42, ry: 9, rx: 11 }, // گرینلند
-  { cy: -15, cx: -60, ry: 34, rx: 17 }, // آمریکای جنوبی
-  { cy: 52, cx: 15, ry: 13, rx: 19 }, // اروپا
-  { cy: 5, cx: 20, ry: 34, rx: 21 }, // آفریقا
-  { cy: 55, cx: 90, ry: 24, rx: 52 }, // آسیای شمالی و مرکزی
-  { cy: 20, cx: 80, ry: 14, rx: 19 }, // جنوب آسیا
-  { cy: 55, cx: 145, ry: 12, rx: 18 }, // شرق آسیا
-  { cy: -25, cx: 135, ry: 10, rx: 17 }, // استرالیا
-];
+// --- متادیتای گرید بیت‌مپ خشکی/دریا ---
+const MASK_LAT_MIN = -78.0;
+const MASK_LAT_STEP = 1.5;
+const MASK_ROWS = 105;
+const MASK_LON_MIN = -180.0;
+const MASK_LON_STEP = 1.5;
+const MASK_COLS = 240;
 
-const OCEAN_CARVES = [
-  { cy: 60, cx: -85, ry: 6, rx: 6 }, // خلیج هادسون
-  { cy: 25, cx: -92, ry: 6, rx: 8 }, // خلیج مکزیک
-  { cy: 39, cx: 18, ry: 4, rx: 12 }, // دریای مدیترانه
-  { cy: 15, cx: 90, ry: 6, rx: 8 }, // خلیج بنگال
-];
+// base64 یک بیت‌مپ فشرده از خشکی‌های دنیا (خروجی گرفته‌شده از نقشه‌ی
+// برداری واقعی کشورها، نه بیضی‌های دستی)
+const LAND_MASK_B64 =
+  "AAH////////+AADAf/////////////////////wAAAAD////////gAAAB/////////////////////gAAAAAP///9////AAAAAf///////////////////wAAAAAAAmID/+5/wAAAAP///////////////////+AAAAAAAAADwAD7wAAAAB////////8///////////gAAAAAAAAAAAA/gAAAAAADv/////+f/////////wAAAAAAAAAAAAAXAAAAAAAAAADn//+D////////wAAAAAAAAAAAAAAGAAAAAAAAAAAAf+QAf//////wAAAAAAAAAAAAAAADgAAAAAAAAAAAB4AAAAMGAAgAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAD+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+AAAAAAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAB+AAAAAAAAAAAAAAAAAAAAAAAYAAQAAAAAAAAAAAB/gAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAA/gAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAB/8AAAAAAAAAAAAAAAAAAAAAD8AAFAAAAAAAAAAAA/8AAAAAAAAAAAAAAAAAAAAAH+AAIAAAAAAAAAAAA/9AAAAAAAAQAAAAAAAAAAwAP+AAQAAAAAAAAAAAAf/gAAAAAAA/gAAAAAAAAB+A//AAAAAAAAAAAAAAAf/wAAAAAAA/wAAAAAAAAB/7//AAAAAAAAAAAAAAAf/4AAAAAAA/4AAAAAAAAB////gAAAAAAAAAAAAAAf/8AAAAAAB/8AAAAAAAAB////gAAAAAAAAAAAAAAf/8AAAAAAD/8AAAAAAAAD////gAAAAAAAAAAAAAAf/8AAAAAAD/8AAAAAAAAD////AAAAAAAAAAAAAAAf//AAAAAAD//AwAAAAAAD////AAAAAAAAAAAAAAAf//4AAAAAD//BwAAAAAAD///+AAAAAAAAAAAAAAAP//4AAAAAH//A4AAAAAAA///8AIAAAAAAAAAAAAAP//8AAAAAH//A4AAAAAAAH//4AAAAAAAAAAAAAAAf//8AAAAAP//g4AAAAAAAD//wAABgAAAAAAAAAAA///8AAAAAP//48AAAAAAAD/5gAABAAAAAAAAAAAD///+AAAAAP//8MAAAAAAAA/hgAEAAAAAAAAAAAAH///+AAAAAH//8EAAAAAAAAHhAAAAAAAAAAAAAAAH///+AAAAAH//4AAAAAAAAABxAAAAAAAAAAAAAAAP////AAAAAH//4AAAAAAAAAABCAgAAAAAAAAAAAAP////gAAAAH//4AAAAAAAAhADMAAAAAAAAAAAAAAf////gAAAAH//4AAAAAAA8AAP4AAAAAAAAAAAAAA/////gAAAAH//wAAAAAABAAAH6AAAAAAAAAAAAAA/////AAAAAP//4AAAAAAGAOAfxAAAAAAAAAAAAAAf///8AAAAAf//4AAAAAAOPMpeBAAAAAAAAAAAAAA////gAAAAA///8AAAAAAcPMDIAAAAAAAAAAAAAAAf//8AAAAAA///+AAAAAAcfoQAAAAAAAAAAAAAAAAP//4AAAAAAf///AAAAAA8fgQAAAAAAAAAAAAAAAAP//4AAAAAAf///wAAAABsHgAAAAAAAAAAAAAAAAAH//wAAAAAC////wAAAADYDwAAAAAAAAAAAAAAAAAH//gAAAB/j////4AAAAAYAgAAAAAAAAAAAAAAAAAv/8AAAAD//////8AAAgAAADgAAAAAAAAAAAAAAAB//wAAAAD//////8AAGgAiAAgAAAAAAAAAAAAAAAGD/wAAAAH//////8AAHAAjACAAAAAAAAAAAAAAAAGAwAAAAAf/////+CAAHAAngAAAAAAAAAAAAAAAAAeAAAAAAAf//////wAAPAA/gCAAAAAAAAAAAAAAAB+AAAAAAAf/////58AAPAA/gMAAAAAAAAAAAAAAAfgAAAAAAAf/////5+AAfgH/AEAAAAAAAAAAAAAAD/wMCAAAAAP/////z/wAfwH/AEAAAAAAAACAAAAAPwwAwAAAAAf/////j/4Af4H+QAAAAAAAAACAAAAAPw4MAAAAAAf/////n/8Bf+P/QAAAAAAAAAAAAAAAPgC4AAAAAAf/////v/8B////+AAAAAAAAAAAAAAAfgAIAAAAAAP/////P/4H/////kAAAAAAAAAAAAAC/wAgAAAAAAP/////f+T//////wAAAAAAAAAAAAAN/wBoAAAAAAH////+/8///////4AAAAAAAAAAAAAL/wBgAAAAAAB////+/5///////8AAAAAAAAAAAAAX//lAAAAAAAA//////////////8AAAAAAAAAAAAAX///AAAAAAAA//+Pt/////////8EAAAAAAAAAAAA////gAAAAAAA//4AA/////////4GAAAAAAAAAAAD////4AAAAAAAP/gAA/////////4CwAAAAAAAAAAH////8AAAAAAAI/wAA/////////4YcAAAAAAAAAAH////8AAAAAAAfAGEf/8///////8YcAAAAAAAAAAP////+AAAAAAA/ABM//4///////gwCAAAAAAAAAAf////+AAAAAAA/gj8f/9///////74CAAAAAAAAAAP/////wAAAAAA/4ufjD5////////4CAAAAAAAAAAf/////wAAAAAAf+d/gHx/////////DwAAAAAAAAAP/////9gAAAAAB/7/xfx/////////xAAAAAAAAAAP/////+gAAAAAB////P4/////////4AAAAAAAAAAX/////+HgAAAAH///////////////9AAAAAAAAAAv/////4jgAAAAB///////////////9gAAAAAAAAB///////6AAAAAH///////////////9AAAAAAAAAJ/////P/+AAAAAz3///////////////AMAAAAAAAL/////P/+AAAAAzA//////////////9AOAAAAgAAP////8P/4AAAAAGAsH////////////gAPAAAANAAP////gH/wAAAAAOAnv////////////4APgAAAHAD////8AP7gAAAAAEBPD////////////8ADgAAF/cv////4AHxAAAAAAAD/gf/////////////g4AAD///////8APgADwAAAAD/H//////////////5PwAB////////BAeAHwAAAAB/n/////////////////CCf///////3P+AP4AD4AAf7/f//////////////+/n////////4B7gf/AN4AAH9/D///////////////4B/////////E/Af/wAAAAD//9v//v///////////gD/////3ED3H4AP//gAAAA//gAhzv/////////+/AA/4ABAH8Of/4A///gAAAAD4AAAHv////////+AAAAAAAA9/x0/+AB///4AAAAAAABwDvf////wH8AAAAAAAAAfgZ/b4AB///+AAAAAAAAwAA////xwDAAAAAAAAAAAGAt/gAD///+AAAAAAAAMAAD//4AAPmAAAAAAAAAHRDvfgP////+AAAAAAAAB8AAA/4AAAAAAAAAAAAAAGAcX4/////+AAADmAAAAAAAAAAAAAAAAA";
 
-function inEllipse(lat, lon, e) {
-  const dy = (lat - e.cy) / e.ry;
-  const dx = (lon - e.cx) / e.rx;
-  return dx * dx + dy * dy <= 1;
+// decode سبک base64 -> Uint8Array که هم روی مرورگر و هم روی سرور
+// (بدون وابستگی به atob یا Buffer) کار می‌کنه
+function decodeBase64(b64) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  const lookup = new Uint8Array(256);
+  for (let i = 0; i < chars.length; i++) lookup[chars.charCodeAt(i)] = i;
+
+  const clean = b64.replace(/=+$/, "");
+  const len = clean.length;
+  const bytesLen = Math.floor((len * 6) / 8);
+  const bytes = new Uint8Array(bytesLen);
+
+  let bitBuffer = 0;
+  let bitCount = 0;
+  let byteIndex = 0;
+  for (let i = 0; i < len; i++) {
+    bitBuffer = (bitBuffer << 6) | lookup[clean.charCodeAt(i)];
+    bitCount += 6;
+    if (bitCount >= 8) {
+      bitCount -= 8;
+      bytes[byteIndex++] = (bitBuffer >> bitCount) & 0xff;
+    }
+  }
+  return bytes;
 }
 
+let landMaskBytes = null;
+function getLandMaskBytes() {
+  if (!landMaskBytes) landMaskBytes = decodeBase64(LAND_MASK_B64);
+  return landMaskBytes;
+}
+
+function getBit(bytes, index) {
+  const byte = bytes[index >> 3];
+  return (byte >> (7 - (index & 7))) & 1;
+}
+
+// آیا نقطه‌ی (lat, lon) روی خشکیه؟ نزدیک‌ترین خانه‌ی گرید رو چک می‌کنه
 function isLand(lat, lon) {
-  if (!LANDMASSES.some((e) => inEllipse(lat, lon, e))) return false;
-  if (OCEAN_CARVES.some((e) => inEllipse(lat, lon, e))) return false;
-  return true;
+  const bytes = getLandMaskBytes();
+
+  let row = Math.round((lat - MASK_LAT_MIN) / MASK_LAT_STEP);
+  if (row < 0) row = 0;
+  if (row > MASK_ROWS - 1) row = MASK_ROWS - 1;
+
+  let normLon = ((lon - MASK_LON_MIN) % 360 + 360) % 360;
+  let col = Math.round(normLon / MASK_LON_STEP) % MASK_COLS;
+
+  const index = row * MASK_COLS + col;
+  return getBit(bytes, index) === 1;
 }
 
-function buildDots(step = 4) {
+function buildDots(step = 3) {
   const dots = [];
   for (let lat = -78; lat <= 78; lat += step) {
     // نزدیک قطب‌ها نقاط کمتری بذاریم چون دایره‌ی عرضی کوچیک‌تره
@@ -123,7 +159,7 @@ export default function GlobalNetworkGlobe({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    if (!dotsRef.current) dotsRef.current = buildDots(4);
+    if (!dotsRef.current) dotsRef.current = buildDots(3);
 
     const reduced =
       typeof window !== "undefined" &&
