@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { User, PackageCheck } from "lucide-react";
 
 /* ============================================================
    نقشه‌ی نقطه‌ای دنیا (Global Network Globe)
@@ -56,34 +55,6 @@ function buildDots(step = 4) {
 }
 
 /* ---------------------------------------------------------
-   گره‌ی روی کره (آیکون مشتری / انبار)
---------------------------------------------------------- */
-function NodePin({ icon, color, big, style }) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        transform: "translate(-50%, -50%)",
-        width: big ? 42 : 32,
-        height: big ? 42 : 32,
-        borderRadius: "50%",
-        background: "#0b0818",
-        border: `2px solid ${color}`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color,
-        boxShadow: big ? `0 0 22px ${color}77` : `0 0 10px ${color}33`,
-        zIndex: 3,
-        ...style,
-      }}
-    >
-      {icon}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------
    باکس آماری با کادر خط‌چین
 --------------------------------------------------------- */
 function StatCallout({ title, text, color, className }) {
@@ -117,6 +88,7 @@ function StatCallout({ title, text, color, className }) {
           fontSize: 13,
           lineHeight: 1.9,
           color: "var(--text-lo)",
+          textAlign: "justify",
         }}
       >
         {text}
@@ -263,51 +235,6 @@ export default function GlobalNetworkGlobe({
 
       <div ref={wrapRef} className="gng-globe" style={{ height }}>
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0 }} />
-
-        <NodePin
-          icon={<User size={16} />}
-          color={color}
-          style={{ top: "20%", left: "31%" }}
-        />
-        <NodePin
-          icon={<User size={16} />}
-          color={color}
-          style={{ top: "50%", left: "47%" }}
-        />
-        <NodePin
-          icon={<PackageCheck size={17} />}
-          color={color}
-          big
-          style={{ top: "27%", left: "60%" }}
-        />
-
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        >
-          <path
-            d="M 31 20 Q 46 21 60 27"
-            fill="none"
-            stroke={color}
-            strokeWidth="0.45"
-            strokeOpacity="0.6"
-          />
-          <path
-            d="M 60 27 Q 54 39 47 50"
-            fill="none"
-            stroke={color}
-            strokeWidth="0.45"
-            strokeOpacity="0.6"
-          />
-        </svg>
       </div>
 
       <StatCallout className="gng-box" color={color} {...rightStat} />
