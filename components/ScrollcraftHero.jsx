@@ -15,55 +15,6 @@ const STATS = [
 ];
 
 /* =========================================================
-   پیشرفت اسکرول داخل یک سکشن بلند (section = تایم‌لاین)
-========================================================= */
-function useSectionProgress(ref) {
-  const [progress, setProgress] = useState(0);
-  const reducedRef = useRef(false);
-
-  useEffect(() => {
-    reducedRef.current =
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const el = ref.current;
-    if (!el) return;
-
-    let raf = null;
-
-    const measure = () => {
-      raf = null;
-      if (reducedRef.current) {
-        setProgress(1);
-        return;
-      }
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const total = rect.height - vh;
-      const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
-      setProgress(p);
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(measure);
-    };
-
-    measure();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [ref]);
-
-  return progress;
-}
-
-/* =========================================================
    شمارنده‌ی عدد (وقتی وارد دید می‌شود اجرا می‌شود)
 ========================================================= */
 function useCountUp(target, active, duration = 1300) {
@@ -115,12 +66,12 @@ function StatItem({ value, suffix, label, active }) {
 }
 
 /* =========================================================
-   تیتر با ریویل کلمه‌به‌کلمه (ماسک) هماهنگ با اسکرول
+   تیتر با ریویل کلمه‌به‌کلمه — یک‌بار، زمان‌محور (نه وابسته به اسکرول)
+   هر کلمه با یک تأخیر ثابت (ms) ظاهر می‌شود، نرم و بدون پرش
 ========================================================= */
-function ScrollWords({ words, progress, startAt = 0, stagger = 0.03, span = 0.16, gradient = false }) {
+function RevealWords({ words, revealed, startDelay = 0, stepDelay = 55, gradient = false }) {
   return words.map((w, i) => {
-    const wp = Math.min(1, Math.max(0, (progress - (startAt + i * stagger)) / span));
-    const eased = 1 - Math.pow(1 - wp, 3);
+    const delay = startDelay + i * stepDelay;
     return (
       <span
         key={i}
@@ -135,9 +86,9 @@ function ScrollWords({ words, progress, startAt = 0, stagger = 0.03, span = 0.16
           className={gradient ? "brand-gradient-text" : undefined}
           style={{
             display: "inline-block",
-            transform: `translateY(${(1 - eased) * 100}%)`,
-            opacity: 0.15 + eased * 0.85,
-            transition: "transform 0.05s linear, opacity 0.05s linear",
+            transform: revealed ? "translateY(0)" : "translateY(100%)",
+            opacity: revealed ? 1 : 0,
+            transition: `transform 0.6s cubic-bezier(.22,1,.36,1) ${delay}ms, opacity 0.5s ease ${delay}ms`,
             textShadow: gradient ? "0 0 34px #9B5CFFaa" : undefined,
           }}
         >
@@ -149,7 +100,8 @@ function ScrollWords({ words, progress, startAt = 0, stagger = 0.03, span = 0.16
 }
 
 /* =========================================================
-   دستگاه ویپ سیگنچر — همون افکت بالا‌پایین رفتن نسخه‌ی اول
+   دستگاه ویپ سیگنچر — همیشه پررنگ، جلوی ستاره‌های دنباله‌دار
+   (مستقل از هر انیمیشن fade، هرگز کم‌رنگ نمی‌شود)
 ========================================================= */
 function FloatingDevice({ color = "#9B5CFF" }) {
   return (
@@ -223,70 +175,103 @@ function FloatingDevice({ color = "#9B5CFF" }) {
 }
 
 /* =========================================================
-   هیروی سبک Scrollcraft — اسکرول = تایم‌لاین
-   سکشن بلند (220vh) با محتوای sticky در 100vh
+   هیروی سبک Scrollcraft
+   بدون اسکرول‌جک؛ ورود یک‌بار و زمان‌محور، دقیقاً 100vh
+   بلافاصله بعدش سکشن دسته‌بندی شروع می‌شود (بدون فاصله‌ی اضافه)
 ========================================================= */
 export default function ScrollcraftHero() {
   const sectionRef = useRef(null);
-  const progress = useSectionProgress(sectionRef);
+  const [revealed, setRevealed] = useState(false);
+  const [scrolledPast, setScrolledPast] = useState(false);
 
-  const introP = Math.min(1, progress / 0.12);
-  const statsActive = progress > 0.22;
-  const ctaP = Math.min(1, Math.max(0, (progress - 0.25) / 0.65));
-  const cueOpacity = Math.max(0, 1 - progress / 0.06);
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduced) {
+      setRevealed(true);
+      return;
+    }
+
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setRevealed(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setRevealed(true);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolledPast(window.scrollY > 60);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <section
       ref={sectionRef}
       aria-labelledby="home-title"
-      style={{ position: "relative", height: "125vh" }}
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
     >
+      <SpaceField />
+
+      {/* لایه‌ی عمق ثابت */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "radial-gradient(circle at 50% 38%, transparent, #000410 62%)",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* محتوای متنی */}
       <div
         style={{
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          position: "relative",
+          zIndex: 3,
+          maxWidth: 760,
+          margin: "0 auto",
+          padding: "70px 20px",
+          textAlign: "center",
         }}
       >
-        <SpaceField />
+        {/* وکتور ویپ — همیشه پررنگ و همیشه جلوی ستاره‌های دنباله‌دار */}
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <FloatingDevice color="#9B5CFF" />
+        </div>
 
-        {/* لایه‌ی عمق: با اسکرول کمی روشن‌تر می‌شود */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `radial-gradient(circle at 50% 38%, transparent, #000410 ${78 - progress * 26}%)`,
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* محتوای متنی */}
         <div
           style={{
-            position: "relative",
-            zIndex: 3,
-            maxWidth: 760,
-            margin: "0 auto",
-            padding: "0 20px",
-            textAlign: "center",
+            opacity: revealed ? 1 : 0,
+            transform: revealed ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.5s ease, transform 0.5s ease",
           }}
         >
-          {/* وکتور ویپ — همیشه پررنگ و همیشه جلوی ستاره‌های دنباله‌دار */}
-          <div style={{ position: "relative", zIndex: 2 }}>
-            <FloatingDevice color="#9B5CFF" />
-          </div>
-
-          <div
-            style={{
-              opacity: 0.35 + introP * 0.65,
-              transform: `translateY(${(1 - introP) * 36}px)`,
-            }}
-          >
           <span
             style={{
               display: "inline-block",
@@ -315,20 +300,18 @@ export default function ScrollcraftHero() {
               margin: "0 0 16px",
             }}
           >
-            <ScrollWords
+            <RevealWords
               words={["دیجی", "هیز؛", "فروشگاه"]}
-              progress={progress}
-              startAt={0.01}
-              stagger={0.014}
-              span={0.08}
+              revealed={revealed}
+              startDelay={80}
+              stepDelay={55}
             />
             <br />
-            <ScrollWords
+            <RevealWords
               words={["پاد،", "سالت", "نیکوتین", "و", "کارتریج"]}
-              progress={progress}
-              startAt={0.05}
-              stagger={0.014}
-              span={0.08}
+              revealed={revealed}
+              startDelay={240}
+              stepDelay={55}
               gradient
             />
           </h1>
@@ -339,6 +322,8 @@ export default function ScrollcraftHero() {
               fontSize: 16,
               lineHeight: 1.9,
               marginBottom: 30,
+              opacity: revealed ? 1 : 0,
+              transition: "opacity 0.6s ease 0.5s",
             }}
           >
             محصولات را ببینید، مشخصات و قیمت را بررسی کنید و از میان
@@ -352,13 +337,13 @@ export default function ScrollcraftHero() {
               justifyContent: "center",
               flexWrap: "wrap",
               marginBottom: 30,
-              opacity: statsActive ? 1 : 0,
-              transform: statsActive ? "translateY(0)" : "translateY(16px)",
-              transition: "opacity .6s ease, transform .6s ease",
+              opacity: revealed ? 1 : 0,
+              transform: revealed ? "translateY(0)" : "translateY(16px)",
+              transition: "opacity .6s ease .62s, transform .6s ease .62s",
             }}
           >
             {STATS.map((s) => (
-              <StatItem key={s.label} {...s} active={statsActive} />
+              <StatItem key={s.label} {...s} active={revealed} />
             ))}
           </div>
 
@@ -368,8 +353,9 @@ export default function ScrollcraftHero() {
               gap: 14,
               justifyContent: "center",
               flexWrap: "wrap",
-              opacity: 0.25 + ctaP * 0.75,
-              transform: `translateY(${(1 - ctaP) * 18}px)`,
+              opacity: revealed ? 1 : 0,
+              transform: revealed ? "translateY(0)" : "translateY(18px)",
+              transition: "opacity .6s ease .74s, transform .6s ease .74s",
             }}
           >
             <Link
@@ -412,31 +398,30 @@ export default function ScrollcraftHero() {
               درباره ما
             </Link>
           </div>
-          </div>
         </div>
+      </div>
 
-        {/* نشانه‌ی اسکرول */}
-        <div
-          aria-hidden
-          style={{
-            position: "absolute",
-            bottom: 26,
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 4,
-            opacity: cueOpacity,
-            transition: "opacity .2s linear",
-            color: "var(--text-mut)",
-            fontFamily: "Vazirmatn",
-            fontSize: 12,
-          }}
-        >
-          اسکرول کنید
-          <ChevronDown size={18} className="sc-bounce" />
-        </div>
+      {/* نشانه‌ی اسکرول */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          bottom: 26,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 4,
+          opacity: scrolledPast ? 0 : 1,
+          transition: "opacity .3s ease",
+          color: "var(--text-mut)",
+          fontFamily: "Vazirmatn",
+          fontSize: 12,
+        }}
+      >
+        اسکرول کنید
+        <ChevronDown size={18} className="sc-bounce" />
       </div>
 
       <style>{`
