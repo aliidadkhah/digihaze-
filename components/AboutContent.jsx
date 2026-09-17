@@ -9,11 +9,11 @@ export default function AboutContent() {
       <Reveal>
         <Badge bg="#FF7A1F">داستان ما</Badge>
         <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره دیجی هیز</h1>
-        <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 18 }}>
+        <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 18, textAlign: "justify" }}>
           دیجی هیز از دل علاقه به دنیای طعم‌ها شکل گرفت. هدف ما اینه که تجربه‌ی خرید پاد و سالت و لوازم جانبی ویپینگ رو ساده، مطمئن و
           لذت‌بخش کنیم؛ با تضمین اصالت کالا، بسته‌بندی مناسب و پشتیبانی واقعی قبل و بعد از خرید.
         </p>
-        <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 30 }}>
+        <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 30, textAlign: "justify" }}>
           همه محصولات موجود در فروشگاه از برندهای معتبر تهیه می‌شن و پیش از قرارگیری در سایت، از نظر کیفیت و تاریخ تولید
           بررسی می‌شن. فروش محصولات صرفاً به افراد بالای ۱۸ سال انجام می‌شود.
         </p>
