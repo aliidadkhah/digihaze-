@@ -230,16 +230,16 @@ export default function ScrollcraftHero() {
   const sectionRef = useRef(null);
   const progress = useSectionProgress(sectionRef);
 
-  const introP = Math.min(1, progress / 0.16);
-  const statsActive = progress > 0.3;
-  const ctaP = Math.min(1, Math.max(0, (progress - 0.36) / 0.14));
+  const introP = Math.min(1, progress / 0.12);
+  const statsActive = progress > 0.22;
+  const ctaP = Math.min(1, Math.max(0, (progress - 0.25) / 0.65));
   const cueOpacity = Math.max(0, 1 - progress / 0.06);
 
   return (
     <section
       ref={sectionRef}
       aria-labelledby="home-title"
-      style={{ position: "relative", height: "150vh" }}
+      style={{ position: "relative", height: "125vh" }}
     >
       <div
         style={{
@@ -274,12 +274,19 @@ export default function ScrollcraftHero() {
             margin: "0 auto",
             padding: "0 20px",
             textAlign: "center",
-            opacity: 0.35 + introP * 0.65,
-            transform: `translateY(${(1 - introP) * 36}px)`,
           }}
         >
-          <FloatingDevice color="#9B5CFF" />
+          {/* وکتور ویپ — همیشه پررنگ و همیشه جلوی ستاره‌های دنباله‌دار */}
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <FloatingDevice color="#9B5CFF" />
+          </div>
 
+          <div
+            style={{
+              opacity: 0.35 + introP * 0.65,
+              transform: `translateY(${(1 - introP) * 36}px)`,
+            }}
+          >
           <span
             style={{
               display: "inline-block",
@@ -404,6 +411,7 @@ export default function ScrollcraftHero() {
             >
               درباره ما
             </Link>
+          </div>
           </div>
         </div>
 
