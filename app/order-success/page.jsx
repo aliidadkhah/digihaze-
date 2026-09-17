@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { money } from "@/lib/data";
+import { useCart } from "@/components/Providers";
 import { Truck, Package, ExternalLink } from "lucide-react";
 
 const SHIPPING_LABELS = {
@@ -13,6 +14,8 @@ const SHIPPING_LABELS = {
 
 export default function OrderSuccessPage() {
   const router = useRouter();
+
+  const { clearCart } = useCart();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -93,6 +96,25 @@ export default function OrderSuccessPage() {
 
     return () => clearInterval(pollRef.current);
   }, [order]);
+
+  // سبد خرید را همین‌جا خالی می‌کنیم، نه فقط در صفحه‌ی چک‌اوت.
+  // برای سفارش‌های کارت‌به‌کارت، چک‌اوت زودتر این کار را کرده،
+  // ولی برای پرداخت از درگاه زیبال، کاربر کل صفحه را ترک کرده و
+  // به این صفحه با یک بارگذاری تازه (و state خالی) برمی‌گردد؛
+  // چون سبد در localStorage نگه داشته می‌شود، تنها جایی که مطمئناً
+  // بعد از موفقیت سفارش اجرا می‌شود همین‌جاست. اگر پرداخت درگاه
+  // ناموفق بوده، سبد را دست‌نخورده نگه می‌داریم تا کاربر بتواند
+  // دوباره تلاش کند.
+  useEffect(() => {
+    if (!order) return;
+
+    const isFailedGatewayOrder =
+      order.payment_method === "gateway" && order.status === "failed";
+
+    if (!isFailedGatewayOrder) {
+      clearCart();
+    }
+  }, [order]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
