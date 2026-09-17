@@ -96,7 +96,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           alt={post.title}
           style={{
             width: "100%",
-            maxHeight: 420,
+            aspectRatio: "16/10",
             objectFit: "cover",
             borderRadius: 16,
             marginBottom: 28,
