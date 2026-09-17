@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, Reveal } from "./ui";
+import GlobalNetworkGlobe from "./GlobalNetworkGlobe";
 
 export default function AboutContent() {
   return (
@@ -31,6 +32,23 @@ export default function AboutContent() {
           </Reveal>
         ))}
       </div>
+
+      <Reveal delay={0.15}>
+        <div style={{ marginTop: 56 }}>
+          <h2
+            style={{
+              fontFamily: "Vazirmatn",
+              fontWeight: 800,
+              fontSize: 20,
+              textAlign: "center",
+              marginBottom: 30,
+            }}
+          >
+            حضور در سراسر ایران
+          </h2>
+          <GlobalNetworkGlobe />
+        </div>
+      </Reveal>
     </div>
   );
 }
