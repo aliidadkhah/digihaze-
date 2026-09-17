@@ -157,8 +157,8 @@ function FloatingDevice({ color = "#9B5CFF" }) {
       aria-hidden
       style={{
         position: "relative",
-        width: 100,
-        height: 190,
+        width: 130,
+        height: 240,
         margin: "0 auto 6px",
         animation: "scFloatY 4.5s ease-in-out infinite",
       }}
@@ -166,7 +166,7 @@ function FloatingDevice({ color = "#9B5CFF" }) {
       <div
         style={{
           position: "absolute",
-          inset: -26,
+          inset: -30,
           borderRadius: "50%",
           background: `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, transparent 70%)`,
           filter: "blur(18px)",
@@ -176,8 +176,8 @@ function FloatingDevice({ color = "#9B5CFF" }) {
       />
       <svg
         viewBox="0 0 120 230"
-        width="100"
-        height="190"
+        width="130"
+        height="240"
         style={{
           position: "relative",
           display: "block",
@@ -230,16 +230,16 @@ export default function ScrollcraftHero() {
   const sectionRef = useRef(null);
   const progress = useSectionProgress(sectionRef);
 
-  const introP = Math.min(1, progress / 0.32);
-  const statsActive = progress > 0.5;
-  const ctaP = Math.min(1, Math.max(0, (progress - 0.72) / 0.22));
+  const introP = Math.min(1, progress / 0.16);
+  const statsActive = progress > 0.3;
+  const ctaP = Math.min(1, Math.max(0, (progress - 0.36) / 0.14));
   const cueOpacity = Math.max(0, 1 - progress / 0.06);
 
   return (
     <section
       ref={sectionRef}
       aria-labelledby="home-title"
-      style={{ position: "relative", height: "230vh" }}
+      style={{ position: "relative", height: "150vh" }}
     >
       <div
         style={{
@@ -311,17 +311,17 @@ export default function ScrollcraftHero() {
             <ScrollWords
               words={["دیجی", "هیز؛", "فروشگاه"]}
               progress={progress}
-              startAt={0.02}
-              stagger={0.028}
-              span={0.15}
+              startAt={0.01}
+              stagger={0.014}
+              span={0.08}
             />
             <br />
             <ScrollWords
               words={["پاد،", "سالت", "نیکوتین", "و", "کارتریج"]}
               progress={progress}
-              startAt={0.1}
-              stagger={0.028}
-              span={0.15}
+              startAt={0.05}
+              stagger={0.014}
+              span={0.08}
               gradient
             />
           </h1>
