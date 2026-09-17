@@ -1,13 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 
 import { Reveal } from "./ui";
-import {
-  FloatingBottle,
-  SpaceField,
-} from "./visuals";
+import ScrollcraftHero from "./ScrollcraftHero";
 
 import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
@@ -24,11 +21,6 @@ export default function HomeContent() {
   const saleItems = products.filter(
     (p) => p.discount > 0
   );
-
-  const [heroColor, setHeroColor] =
-    useState("#9B5CFF");
-
-  const heroRef = useRef(null);
 
   const saleScrollRef = useRef(null);
   const dragState = useRef({
@@ -73,32 +65,6 @@ export default function HomeContent() {
     }
   };
 
-  const [parallax, setParallax] = useState({
-    x: 0,
-    y: 0,
-  });
-
-  const handleMouseMove = (e) => {
-    if (!heroRef.current) return;
-
-    const rect =
-      heroRef.current.getBoundingClientRect();
-
-    setParallax({
-      x:
-        ((e.clientX - rect.left) /
-          rect.width -
-          0.5) *
-        30,
-
-      y:
-        ((e.clientY - rect.top) /
-          rect.height -
-          0.5) *
-        30,
-    });
-  };
-
   return (
     <div>
       {/* =========================
@@ -108,172 +74,11 @@ export default function HomeContent() {
       <BannerCarousel />
 
       {/* =========================
-          HERO
+          HERO — Scrollcraft style
+          (اسکرول = تایم‌لاین، سکشن بلند با sticky)
       ========================= */}
 
-      <section
-        ref={heroRef}
-        onMouseMove={handleMouseMove}
-        aria-labelledby="home-title"
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          padding: "90px 20px 70px",
-          textAlign: "center",
-        }}
-      >
-        <SpaceField />
-
-        <div
-          style={{
-            position: "relative",
-            zIndex: 2,
-            maxWidth: 760,
-            margin: "0 auto",
-          }}
-        >
-          <FloatingBottle
-            color={heroColor}
-          />
-
-          <h1
-            id="home-title"
-            className="hero-reveal"
-            style={{
-              fontFamily: "Vazirmatn",
-              fontWeight: 800,
-              fontSize:
-                "clamp(20px, 3.2vw, 32px)",
-              lineHeight: 1.25,
-              whiteSpace: "nowrap",
-              margin:
-                "20px 0 16px",
-              animationDelay:
-                "0.16s",
-            }}
-          >
-             دیجی هیز؛ فروشگاه پاد، سالت نیکوتین و کارتریج{" "}
-            <span
-              className="brand-gradient-text"
-              style={{
-                textShadow:
-                  "0 0 34px #9B5CFFaa",
-              }}
-            >
-              
-            </span>{" "}
-            
-          </h1>
-
-          {/* =========================
-              SEO INTRO
-          ========================= */}
-
-          <p
-            className="hero-reveal"
-            style={{
-              color:
-                "var(--text-hi)",
-              fontSize: 18,
-              fontWeight: 700,
-              lineHeight: 1.8,
-              margin:
-                "0 0 12px",
-              animationDelay:
-                "0.22s",
-            }}
-          >
-          </p>
-
-          <p
-            className="hero-reveal"
-            style={{
-              color:
-                "var(--text-lo)",
-              fontSize: 16,
-              lineHeight: 1.9,
-              marginBottom: 30,
-              animationDelay:
-                "0.28s",
-            }}
-          >
-            در دیجی هیز می‌توانید
-            محصولات مختلف پاد،
-            سالت نیکوتین و
-            کارتریج را مشاهده کنید،
-            مشخصات و قیمت محصولات
-            را بررسی کنید و از میان
-            دسته‌بندی‌های مختلف،
-            محصول موردنظر خود را
-            پیدا کنید.
-          </p>
-
-          <div
-            className="hero-reveal"
-            style={{
-              display: "flex",
-              gap: 14,
-              justifyContent:
-                "center",
-              flexWrap: "wrap",
-              animationDelay:
-                "0.4s",
-            }}
-          >
-            <Link
-              href="/shop"
-              className="pulse-btn brand-gradient-btn"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                color:
-                  "#fff",
-                border: "none",
-                borderRadius: 14,
-                padding:
-                  "14px 30px",
-                fontFamily:
-                  "Vazirmatn",
-                fontWeight: 800,
-                fontSize: 15,
-                textDecoration:
-                  "none",
-              }}
-            >
-              مشاهده فروشگاه
-            </Link>
-
-            <Link
-              href="/about"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                background:
-                  "transparent",
-                color:
-                  "var(--text-hi)",
-                border:
-                  "1px solid var(--border-soft)",
-                borderRadius: 14,
-                padding:
-                  "14px 30px",
-                fontFamily:
-                  "Vazirmatn",
-                fontWeight: 700,
-                fontSize: 15,
-                textDecoration:
-                  "none",
-              }}
-            >
-              درباره ما
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ScrollcraftHero />
 
       {/* =========================
           CATEGORY STRIP
@@ -326,11 +131,6 @@ export default function HomeContent() {
                 >
                 <Link
                   href={`/shop/${c.id}`}
-                  onMouseEnter={() =>
-                    setHeroColor(
-                      c.color
-                    )
-                  }
                   aria-label={`مشاهده ${c.label}`}
                   className="category-card-link glow-box-body"
                   style={{
