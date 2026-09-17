@@ -35,7 +35,6 @@ function withDefaults(data) {
   return {
     announcement_text: data?.announcement_text || "",
     announcement_color: data?.announcement_color || "#2F86FF",
-    announcement_text_color: data?.announcement_text_color || "#0B0E14",
     announcement_active: !!data?.announcement_active,
     shipping_methods_enabled: {
       ...DEFAULT_SHIPPING_METHODS,
@@ -55,7 +54,7 @@ export async function GET() {
   const { data, error } = await supabaseAdmin
     .from("settings")
     .select(
-      "announcement_text, announcement_color, announcement_text_color, announcement_active, shipping_methods_enabled, payment_methods_enabled, categories_subcategories"
+      "announcement_text, announcement_color, announcement_active, shipping_methods_enabled, payment_methods_enabled, categories_subcategories"
     )
     .eq("id", 1)
     .maybeSingle();
@@ -88,7 +87,7 @@ export async function PATCH(request) {
     const { data: current } = await supabaseAdmin
       .from("settings")
       .select(
-        "announcement_text, announcement_color, announcement_text_color, announcement_active, shipping_methods_enabled, payment_methods_enabled, categories_subcategories"
+        "announcement_text, announcement_color, announcement_active, shipping_methods_enabled, payment_methods_enabled, categories_subcategories"
       )
       .eq("id", 1)
       .maybeSingle();
@@ -103,10 +102,6 @@ export async function PATCH(request) {
         body.announcement_color !== undefined
           ? body.announcement_color
           : current?.announcement_color || "#2F86FF",
-      announcement_text_color:
-        body.announcement_text_color !== undefined
-          ? body.announcement_text_color
-          : current?.announcement_text_color || "#0B0E14",
       announcement_active:
         body.announcement_active !== undefined
           ? !!body.announcement_active
@@ -139,7 +134,7 @@ export async function PATCH(request) {
 
     if (body.categories_subcategories) {
       // انتظار داریم شکلش اینجوری باشه:
-      // { "pod-system": [{ id, label }, ...], ... }
+      // { "pod-system": [{ id, label, nameFa, logo }, ...], ... }
       const clean = {};
       for (const [catId, subs] of Object.entries(
         body.categories_subcategories
@@ -149,6 +144,8 @@ export async function PATCH(request) {
           .map((s) => ({
             id: String(s?.id || "").trim(),
             label: String(s?.label || "").trim(),
+            nameFa: String(s?.nameFa || "").trim(),
+            logo: s?.logo || null,
           }))
           .filter((s) => s.id && s.label);
       }
