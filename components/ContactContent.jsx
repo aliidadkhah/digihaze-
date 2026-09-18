@@ -14,7 +14,7 @@ export default function ContactContent() {
         <Reveal>
           <div>
             {[
-              { icon: Phone, label: "تلفن تماس", value: "09020961384" },
+              { icon: Phone, label: "تلفن تماس", value: "09020951384" },
               { icon: Mail, label: "ایمیل", value: "info@digihaze.ir" },
               { icon: MapPin, label: "آدرس", value: "تبریز، مرزداران، بهارستان" },
             ].map((it, i) => (
