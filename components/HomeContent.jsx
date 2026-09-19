@@ -32,9 +32,12 @@ export default function HomeContent() {
 
   const handleDragStart = (e) => {
     if (e.pointerType && e.pointerType !== "mouse") return;
-    // اگر کلیک روی دکمه/لینک/سوییچ رنگ باشد، درگ فعال نشود
-    // تا افزودن به سبد و انتخاب رنگ داخل کارت‌های محصول کار کند
-    if (e.target.closest?.("button, a, select, input, textarea")) return;
+    // قبلاً اگر شروع کلیک روی دکمه/لینک/سوییچ رنگ بود، درگ کلاً غیرفعال
+    // می‌شد — اما چون تقریباً کل کارت محصول داخل یک <Link> است، این باعث
+    // می‌شد درگ تقریباً هیچ‌جای کارت کار نکند. الان از هرجای کارت هم
+    // می‌شود درگ کرد؛ تشخیص «کلیک واقعی» در مقابل «درگ» بر اساس مقدار
+    // جابه‌جایی (moved) در handleDragMove انجام می‌شود، و در صورت درگ،
+    // handleSaleClickCapture کلیک روی دکمه/لینک زیرین را متوقف می‌کند.
     const el = saleScrollRef.current;
     if (!el) return;
     el.setPointerCapture?.(e.pointerId);
