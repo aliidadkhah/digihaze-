@@ -101,7 +101,7 @@ export default function HomeContent() {
           id="shop-categories-title"
           style={{
             fontFamily:
-              "Vazirmatn",
+              "var(--font-primary)",
             fontWeight: 800,
             fontSize: 22,
             marginBottom: 20,
@@ -172,7 +172,7 @@ export default function HomeContent() {
                   <div
                     style={{
                       fontFamily:
-                        "Vazirmatn",
+                        "var(--font-primary)",
                       fontWeight: 700,
                       fontSize: 14,
                       color:
@@ -279,7 +279,7 @@ export default function HomeContent() {
                 id="sale-title"
                 style={{
                   fontFamily:
-                    "Vazirmatn",
+                    "var(--font-primary)",
                   fontWeight: 800,
                   fontSize: 22,
                   marginBottom:
@@ -309,7 +309,7 @@ export default function HomeContent() {
                 color:
                   "var(--neon-blue)",
                 fontFamily:
-                  "Vazirmatn",
+                  "var(--font-primary)",
                 fontSize: 13,
                 textDecoration:
                   "none",
@@ -392,7 +392,7 @@ export default function HomeContent() {
             id="featured-title"
             style={{
               fontFamily:
-                "Vazirmatn",
+                "var(--font-primary)",
               fontWeight: 800,
               fontSize: 22,
             }}
@@ -406,7 +406,7 @@ export default function HomeContent() {
               color:
                 "var(--neon-blue)",
               fontFamily:
-                "Vazirmatn",
+                "var(--font-primary)",
               fontSize: 13,
               textDecoration:
                 "none",

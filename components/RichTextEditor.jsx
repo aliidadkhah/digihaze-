@@ -176,7 +176,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           border: "1px solid var(--surface2)",
           borderRadius: 10,
           padding: "10px 12px",
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontSize: 13.5,
           color: "var(--text-hi)",
           outline: "none",

@@ -97,7 +97,7 @@ export function Countdown({ target, color = "#B6FF1A" }) {
             border: `1px solid ${color}55`,
             borderRadius: 8,
             padding: "4px 8px",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 13,
             minWidth: 30,
@@ -117,7 +117,7 @@ export const inputStyle = {
   borderRadius: 12,
   padding: "13px 16px",
   color: "var(--text-hi)",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 13.5,
   outline: "none",
 };

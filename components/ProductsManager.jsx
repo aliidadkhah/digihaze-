@@ -125,7 +125,7 @@ const inputStyle = {
   border: "1px solid var(--surface2)",
   borderRadius: 10,
   padding: "10px 12px",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 13.5,
   color: "var(--text-hi)",
   outline: "none",
@@ -133,7 +133,7 @@ const inputStyle = {
 
 const labelStyle = {
   display: "block",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 12.5,
   fontWeight: 700,
   color: "var(--text-mut)",
@@ -407,7 +407,7 @@ export default function ProductsManager() {
           gap: 12,
         }}
       >
-        <p style={{ color: "var(--text-mut)", fontSize: 13, fontFamily: "Vazirmatn" }}>
+        <p style={{ color: "var(--text-mut)", fontSize: 13, fontFamily: "var(--font-primary)" }}>
           {products.length} محصول
         </p>
 
@@ -422,7 +422,7 @@ export default function ProductsManager() {
             border: "none",
             borderRadius: 10,
             padding: "10px 16px",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
@@ -433,7 +433,7 @@ export default function ProductsManager() {
       </div>
 
       {loading && (
-        <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "Vazirmatn" }}>
+        <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "var(--font-primary)" }}>
           در حال بارگذاری محصولات...
         </p>
       )}
@@ -447,7 +447,7 @@ export default function ProductsManager() {
             padding: "12px 14px",
             fontSize: 13,
             marginBottom: 16,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           {error}
@@ -457,7 +457,7 @@ export default function ProductsManager() {
       {!loading && !error && products.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-mut)" }}>
           <Package size={36} color="var(--text-faint)" style={{ margin: "0 auto 14px" }} />
-          <p style={{ fontSize: 14, fontFamily: "Vazirmatn" }}>هنوز هیچ محصولی اضافه نشده.</p>
+          <p style={{ fontSize: 14, fontFamily: "var(--font-primary)" }}>هنوز هیچ محصولی اضافه نشده.</p>
         </div>
       )}
 
@@ -502,7 +502,7 @@ export default function ProductsManager() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 800,
                   fontSize: 13.5,
                   color: "var(--text-hi)",
@@ -514,16 +514,16 @@ export default function ProductsManager() {
                 {p.name}
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 3, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "var(--font-primary)" }}>
                   {p.category || "بدون دسته"}
                 </span>
-                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "var(--font-primary)" }}>
                   {money(p.price || 0)}
                 </span>
                 <span
                   style={{
                     fontSize: 11,
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     color: p.available ? "#9B5CFF" : "#ff6b6b",
                   }}
@@ -612,7 +612,7 @@ export default function ProductsManager() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h2 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 17, color: "var(--text-hi)" }}>
+              <h2 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 17, color: "var(--text-hi)" }}>
                 {form.id ? "ویرایش محصول" : "افزودن محصول جدید"}
               </h2>
               <button
@@ -775,7 +775,7 @@ export default function ProductsManager() {
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontSize: 13,
                 color: "var(--text-hi)",
                 cursor: "pointer",
@@ -908,7 +908,7 @@ export default function ProductsManager() {
                     border: "none",
                     borderRadius: 8,
                     padding: "6px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 12,
                     color: "var(--text-hi)",
                     cursor: "pointer",
@@ -973,7 +973,7 @@ export default function ProductsManager() {
                     border: "none",
                     borderRadius: 8,
                     padding: "6px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 12,
                     color: "var(--text-hi)",
                     cursor: "pointer",
@@ -987,7 +987,7 @@ export default function ProductsManager() {
             {/* ویژگی‌های مهم */}
             <div>
               <label style={labelStyle}>ویژگی‌های مهم محصول</label>
-              <p style={{ color: "var(--text-mut)", fontSize: 11.5, fontFamily: "Vazirmatn", marginTop: -2, marginBottom: 8 }}>
+              <p style={{ color: "var(--text-mut)", fontSize: 11.5, fontFamily: "var(--font-primary)", marginTop: -2, marginBottom: 8 }}>
                 این‌ها به صورت خلاصه، زیر دکمه «افزودن به سبد خرید» نمایش داده می‌شوند (مثلا: «۱۸ ماه گارانتی»، «ارسال رایگان»)
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1017,7 +1017,7 @@ export default function ProductsManager() {
                     border: "none",
                     borderRadius: 8,
                     padding: "6px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 12,
                     color: "var(--text-hi)",
                     cursor: "pointer",
@@ -1111,7 +1111,7 @@ export default function ProductsManager() {
                     />
                   </label>
                 )}
-                <span style={{ fontSize: 12, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                <span style={{ fontSize: 12, color: "var(--text-mut)", fontFamily: "var(--font-primary)" }}>
                   عکسی که در تب «درباره برند» نمایش داده می‌شود
                 </span>
               </div>
@@ -1166,7 +1166,7 @@ export default function ProductsManager() {
                     border: "none",
                     borderRadius: 8,
                     padding: "6px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 12,
                     color: "var(--text-hi)",
                     cursor: "pointer",
@@ -1185,7 +1185,7 @@ export default function ProductsManager() {
                   borderRadius: 10,
                   padding: "10px 14px",
                   fontSize: 13,
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                 }}
               >
                 {saveError}
@@ -1201,7 +1201,7 @@ export default function ProductsManager() {
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 20px",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   color: "var(--text-hi)",
@@ -1218,7 +1218,7 @@ export default function ProductsManager() {
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 24px",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   color: "#fff",

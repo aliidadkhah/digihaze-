@@ -380,7 +380,7 @@ export function FloatingBottle({ color }) {
         <rect x="42" y="18" width="36" height="8" rx="2" fill={color} />
         <rect x="18" y="26" width="84" height="164" rx="20" fill="url(#bodyGrad)" stroke={`${color}88`} strokeWidth="2" />
         <rect x="32" y="44" width="56" height="30" rx="6" fill="#0b0818" stroke={`${color}55`} strokeWidth="1.5" />
-        <text x="60" y="64" textAnchor="middle" fontSize="12" fontFamily="Vazirmatn" fontWeight="800" fill={color}>
+        <text x="60" y="64" textAnchor="middle" fontSize="12" fontFamily="var(--font-primary)" fontWeight="800" fill={color}>
           70W
         </text>
         <rect x="30" y="86" width="60" height="74" rx="10" fill="#0b0818" stroke={`${color}66`} strokeWidth="1.5" />

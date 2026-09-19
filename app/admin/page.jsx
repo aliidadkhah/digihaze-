@@ -164,7 +164,7 @@ export default function AdminPage() {
       <div style={{ maxWidth: 380, margin: "0 auto", padding: "80px 20px" }}>
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <Lock size={30} color="var(--text-mut)" style={{ margin: "0 auto 10px" }} />
-          <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20 }}>ورود به پنل مدیریت</h1>
+          <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 20 }}>ورود به پنل مدیریت</h1>
         </div>
         <form onSubmit={login} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input type="email" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
@@ -175,7 +175,7 @@ export default function AdminPage() {
               اگه این ایمیل توی سیستم ثبت باشه، لینک ریست پسورد براش ارسال شد. صندوق ورودی (و اسپم) رو چک کن.
             </div>
           )}
-          <button type="submit" style={{ background: "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, cursor: "pointer" }}>
+          <button type="submit" style={{ background: "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, cursor: "pointer" }}>
             ورود
           </button>
           <button
@@ -186,7 +186,7 @@ export default function AdminPage() {
               background: "transparent",
               border: "none",
               color: "var(--text-mut)",
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontSize: 12.5,
               cursor: "pointer",
               opacity: resetSending ? 0.6 : 1,
@@ -217,7 +217,7 @@ export default function AdminPage() {
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
-        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 24 }}>
+        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 24 }}>
           {tab === "orders"
             ? `سفارش‌ها (${orders.length})`
             : tab === "images"
@@ -321,7 +321,7 @@ export default function AdminPage() {
                   <select
                     value={o.status}
                     onChange={(e) => changeStatus(o.id, e.target.value)}
-                    style={{ background: "var(--surface2)", color: STATUS_COLORS[o.status] || "var(--text-hi)", border: "none", borderRadius: 8, padding: "6px 10px", fontFamily: "Vazirmatn", fontSize: 12, fontWeight: 700 }}
+                    style={{ background: "var(--surface2)", color: STATUS_COLORS[o.status] || "var(--text-hi)", border: "none", borderRadius: 8, padding: "6px 10px", fontFamily: "var(--font-primary)", fontSize: 12, fontWeight: 700 }}
                   >
                     {Object.entries(STATUS_LABELS).map(([k, label]) => (
                       <option key={k} value={k}>{label}</option>
@@ -403,14 +403,14 @@ export default function AdminPage() {
   );
 }
 
-const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "Vazirmatn", outline: "none", width: "100%", boxSizing: "border-box" };
-const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadius: 10, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--text-hi)", fontFamily: "Vazirmatn", fontSize: 13 };
+const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "var(--font-primary)", outline: "none", width: "100%", boxSizing: "border-box" };
+const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadius: 10, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--text-hi)", fontFamily: "var(--font-primary)", fontSize: 13 };
 const tabBtnStyle = (active) => ({
   background: "transparent",
   border: "none",
   borderBottom: active ? "2px solid #4F7FFF" : "2px solid transparent",
   color: active ? "var(--text-hi)" : "var(--text-mut)",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontWeight: 700,
   fontSize: 13.5,
   padding: "0 4px 10px",

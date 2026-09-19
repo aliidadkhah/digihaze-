@@ -146,7 +146,7 @@ export default function Footer() {
                 fontSize: 13,
                 padding: "5px 0",
                 textDecoration: "none",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
               }}
             >
               {l.label}
@@ -176,7 +176,7 @@ export default function Footer() {
                 fontSize: 13,
                 padding: "5px 0",
                 textDecoration: "none",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
               }}
             >
               {c.label}

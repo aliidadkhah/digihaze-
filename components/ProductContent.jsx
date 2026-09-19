@@ -184,7 +184,7 @@ function ReviewForm({ onSubmit }) {
           border: "none",
           borderRadius: 10,
           padding: "9px 20px",
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontWeight: 700,
           fontSize: 13,
           cursor: "pointer",
@@ -309,7 +309,7 @@ export default function ProductContent({ product, related }) {
           flexWrap: "wrap",
           gap: 6,
           marginBottom: 20,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontSize: 12.5,
           color: "var(--text-mut)",
         }}
@@ -366,7 +366,7 @@ export default function ProductContent({ product, related }) {
 
           <span
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontSize: 13,
               fontWeight: 700,
             }}
@@ -512,7 +512,7 @@ export default function ProductContent({ product, related }) {
 
           <h1
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 26,
               marginBottom: 12,
@@ -554,7 +554,7 @@ export default function ProductContent({ product, related }) {
           >
             <span
               style={{
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 800,
                 fontSize: 26,
               }}
@@ -594,7 +594,7 @@ export default function ProductContent({ product, related }) {
               >
                 <span
                   style={{
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     fontSize: 14,
                   }}
@@ -648,7 +648,7 @@ export default function ProductContent({ product, related }) {
                           "var(--text-hi)",
                         cursor: "pointer",
                         fontFamily:
-                          "Vazirmatn",
+                          "var(--font-primary)",
                         fontSize: 12.5,
                         fontWeight:
                           isSelected
@@ -719,7 +719,7 @@ export default function ProductContent({ product, related }) {
                 style={{
                   width: 40,
                   textAlign: "center",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                 }}
               >
@@ -749,7 +749,7 @@ export default function ProductContent({ product, related }) {
                 border: "none",
                 borderRadius: 12,
                 padding: "14px 0",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 800,
                 fontSize: 14,
                 cursor: "pointer",
@@ -789,7 +789,7 @@ export default function ProductContent({ product, related }) {
             >
               <div
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   marginBottom: 10,
@@ -815,7 +815,7 @@ export default function ProductContent({ product, related }) {
                       gap: 7,
                       fontSize: 12.5,
                       color: "var(--text-lo)",
-                      fontFamily: "Vazirmatn",
+                      fontFamily: "var(--font-primary)",
                       lineHeight: 1.7,
                     }}
                   >
@@ -855,7 +855,7 @@ export default function ProductContent({ product, related }) {
             <div>
               <div
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   color: "var(--text-hi)",
@@ -867,7 +867,7 @@ export default function ProductContent({ product, related }) {
               <p
                 style={{
                   margin: 0,
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontSize: 12,
                   color: "var(--text-mut)",
                   lineHeight: 1.8,
@@ -903,7 +903,7 @@ export default function ProductContent({ product, related }) {
                     border: `1px solid ${categoryInfo.color}55`,
                     borderRadius: 999,
                     padding: "5px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 11.5,
                     fontWeight: 700,
                   }}
@@ -923,7 +923,7 @@ export default function ProductContent({ product, related }) {
                     border: "1px solid var(--surface2)",
                     borderRadius: 999,
                     padding: "5px 12px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 11.5,
                     fontWeight: 500,
                   }}
@@ -981,7 +981,7 @@ export default function ProductContent({ product, related }) {
                   background: "none",
                   border: "none",
                   paddingBottom: 12,
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight:
                     tab === t.id
                       ? 700
@@ -1059,7 +1059,7 @@ export default function ProductContent({ product, related }) {
                     border: "1px solid var(--surface2)",
                     borderRadius: 999,
                     padding: "8px 18px",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     fontSize: 12.5,
                     color: "#4F7FFF",
@@ -1312,7 +1312,7 @@ export default function ProductContent({ product, related }) {
           direction: rtl;
           text-align: justify;
           text-align-last: right;
-          font-family: "Vazirmatn", sans-serif;
+          font-family: "var(--font-primary)", sans-serif;
         }
         .rich-content > *:first-child {
           margin-top: 0;
@@ -1328,7 +1328,7 @@ export default function ProductContent({ product, related }) {
         .rich-content h1,
         .rich-content h2,
         .rich-content h3 {
-          font-family: "Vazirmatn", sans-serif;
+          font-family: "var(--font-primary)", sans-serif;
           font-weight: 800;
           color: var(--text-hi);
           line-height: 1.6;
@@ -1427,7 +1427,7 @@ export default function ProductContent({ product, related }) {
         >
           <h2
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 20,
               marginBottom: 20,

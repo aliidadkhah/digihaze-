@@ -31,7 +31,7 @@ const inputStyle = {
   border: "1px solid var(--surface2)",
   borderRadius: 10,
   padding: "9px 12px",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 13,
   color: "var(--text-hi)",
   outline: "none",
@@ -221,7 +221,7 @@ export default function CategoriesManager() {
         style={{
           color: "var(--text-mut)",
           fontSize: 13.5,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
         }}
       >
         در حال بارگذاری دسته‌بندی‌ها...
@@ -248,7 +248,7 @@ export default function CategoriesManager() {
         <ListTree size={18} color="#4F7FFF" />
         <span
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 15,
           }}
@@ -261,7 +261,7 @@ export default function CategoriesManager() {
         style={{
           color: "var(--text-mut)",
           fontSize: 12.5,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           margin: 0,
         }}
       >
@@ -300,7 +300,7 @@ export default function CategoriesManager() {
             />
             <span
               style={{
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 700,
                 fontSize: 14,
               }}
@@ -322,7 +322,7 @@ export default function CategoriesManager() {
                 style={{
                   color: "var(--text-faint)",
                   fontSize: 12.5,
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   margin: 0,
                 }}
               >
@@ -508,7 +508,7 @@ export default function CategoriesManager() {
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           {error}
@@ -528,7 +528,7 @@ export default function CategoriesManager() {
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontWeight: 700,
           fontSize: 13,
           color: "var(--ink)",

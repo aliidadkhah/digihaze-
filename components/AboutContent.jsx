@@ -8,7 +8,7 @@ export default function AboutContent() {
     <div style={{ maxWidth: 780, margin: "0 auto", padding: "60px 20px 80px" }}>
       <Reveal>
         <Badge bg="#FF7A1F">داستان ما</Badge>
-        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره دیجی هیز</h1>
+        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 30, margin: "18px 0 20px" }}>درباره دیجی هیز</h1>
         <p style={{ color: "var(--text-lo)", fontSize: 15, lineHeight: 2.1, marginBottom: 18, textAlign: "justify" }}>
           دیجی هیز از دل علاقه به دنیای طعم‌ها شکل گرفت. هدف ما اینه که تجربه‌ی خرید پاد و سالت و لوازم جانبی ویپینگ رو ساده، مطمئن و
           لذت‌بخش کنیم؛ با تضمین اصالت کالا، بسته‌بندی مناسب و پشتیبانی واقعی قبل و بعد از خرید.
@@ -26,7 +26,7 @@ export default function AboutContent() {
         ].map((s, i) => (
           <Reveal key={i} delay={0.1 * i}>
             <div style={{ background: "var(--surface)", borderRadius: 14, padding: "22px 14px", textAlign: "center" }}>
-              <div style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22, color: "#9B5CFF" }}>{s.n}</div>
+              <div style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 22, color: "#9B5CFF" }}>{s.n}</div>
               <div style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 6 }}>{s.l}</div>
             </div>
           </Reveal>
@@ -37,7 +37,7 @@ export default function AboutContent() {
         <div style={{ marginTop: 56 }}>
           <h2
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 20,
               textAlign: "center",

@@ -1,5 +1,7 @@
 import "./globals.css";
 
+import localFont from "next/font/local";
+
 import Providers from "@/components/Providers";
 import ProductsProvider from "@/components/ProductsProvider";
 import AnnouncementBar from "@/components/AnnouncementBar";
@@ -16,6 +18,13 @@ import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
 } from "@/lib/site";
+
+const pinar = localFont({
+  src: "./fonts/Pinar-VF.woff2",
+  weight: "300 900",
+  variable: "--font-primary",
+  display: "swap",
+});
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -149,6 +158,7 @@ export default async function RootLayout({
     <html
       lang="fa"
       dir="rtl"
+      className={pinar.variable}
     >
       <body>
 

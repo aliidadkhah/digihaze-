@@ -74,7 +74,7 @@ export default function PostCard({ post, basePath }) {
               fontWeight: 800,
               borderRadius: 999,
               padding: "4px 12px",
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
             }}
           >
             {post.category}
@@ -85,7 +85,7 @@ export default function PostCard({ post, basePath }) {
       <div style={{ padding: "16px 16px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
         <h3
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 15.5,
             lineHeight: 1.5,
@@ -121,7 +121,7 @@ export default function PostCard({ post, basePath }) {
             gap: 6,
             color: "var(--text-faint)",
             fontSize: 11.5,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           <Calendar size={13} />

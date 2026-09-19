@@ -238,7 +238,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                     position: "relative",
                     whiteSpace: "nowrap",
                     fontFamily:
-                      "Vazirmatn, sans-serif",
+                      "var(--font-primary), sans-serif",
                     fontSize: 13.5,
                     fontWeight:
                       active ? 800 : 600,
@@ -353,7 +353,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                     <div
                       style={{
                         fontFamily:
-                          "Vazirmatn, sans-serif",
+                          "var(--font-primary), sans-serif",
                         fontSize: 12.5,
                         fontWeight: 700,
                         color:
@@ -438,7 +438,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                                 <span
                                   style={{
                                     fontFamily:
-                                      "Vazirmatn, sans-serif",
+                                      "var(--font-primary), sans-serif",
                                     fontSize: 13.5,
                                     fontWeight:
                                       subActive
@@ -493,7 +493,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                           padding: "6px 10px",
                           borderRadius: 8,
                           fontFamily:
-                            "Vazirmatn, sans-serif",
+                            "var(--font-primary), sans-serif",
                           fontSize: 13,
                           fontWeight: 700,
                           color: "#9B5CFF",

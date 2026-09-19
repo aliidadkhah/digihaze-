@@ -310,7 +310,7 @@ export default function ShopContent({
             color: "var(--text-lo)",
             fontSize: 14,
             marginBottom: 26,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           {search
@@ -392,7 +392,7 @@ export default function ShopContent({
                     : "var(--text-lo)",
                   borderRadius: 999,
                   padding: "8px 18px",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: "pointer",
@@ -433,7 +433,7 @@ export default function ShopContent({
                   "1px solid var(--surface2)",
                 borderRadius: 10,
                 padding: "8px 30px 8px 28px",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontSize: 13,
                 outline: "none",
                 width: "auto",
@@ -479,7 +479,7 @@ export default function ShopContent({
             textAlign: "center",
             padding: "60px 20px",
             color: "var(--text-mut)",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           <div

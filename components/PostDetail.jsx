@@ -28,7 +28,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           gap: 6,
           color: "var(--text-mut)",
           fontSize: 13,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           textDecoration: "none",
           marginBottom: 20,
         }}
@@ -47,7 +47,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
             fontWeight: 800,
             borderRadius: 999,
             padding: "5px 14px",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             marginBottom: 14,
           }}
         >
@@ -57,7 +57,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
 
       <h1
         style={{
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontWeight: 800,
           fontSize: 26,
           lineHeight: 1.5,
@@ -76,7 +76,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           flexWrap: "wrap",
           color: "var(--text-faint)",
           fontSize: 12.5,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           marginBottom: 24,
           paddingBottom: 20,
           borderBottom: "1px solid var(--surface2)",
@@ -124,7 +124,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
                 fontSize: 11.5,
                 borderRadius: 999,
                 padding: "5px 12px",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
               }}
             >
               <TagIcon size={11} /> {tag}
@@ -137,7 +137,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         <div style={{ marginTop: 50 }}>
           <h2
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 18,
               color: "var(--text-hi)",
@@ -162,7 +162,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
 
       <style>{`
         .post-content {
-          font-family: "Vazirmatn", sans-serif;
+          font-family: "var(--font-primary)", sans-serif;
           font-size: 15.5px;
           line-height: 2.05;
           color: var(--text-lo);
@@ -182,7 +182,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         .post-content h1,
         .post-content h2,
         .post-content h3 {
-          font-family: "Vazirmatn", sans-serif;
+          font-family: "var(--font-primary)", sans-serif;
           font-weight: 800;
           color: var(--text-hi);
           line-height: 1.6;

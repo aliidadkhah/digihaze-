@@ -64,7 +64,7 @@ export default function ReturnPolicyContent() {
 
         <h1
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 30,
             margin: "18px 0 20px",
@@ -91,7 +91,7 @@ export default function ReturnPolicyContent() {
           <section style={{ marginBottom: 34 }}>
             <h2
               style={{
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 800,
                 fontSize: 19,
                 marginBottom: 14,
@@ -178,7 +178,7 @@ export default function ReturnPolicyContent() {
         >
           <h2
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 19,
               marginBottom: 12,

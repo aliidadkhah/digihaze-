@@ -90,7 +90,7 @@ export default function ImagesManager() {
         <div key={groupName} style={{ marginBottom: 26 }}>
           <h3
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 15,
               marginBottom: 12,

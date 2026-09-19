@@ -31,7 +31,7 @@ export default async function DevicePage({ searchParams }) {
       >
         <h1
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 28,
             marginBottom: 10,
@@ -43,7 +43,7 @@ export default async function DevicePage({ searchParams }) {
         <p
           style={{
             color: "var(--text-lo)",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontSize: 15,
             lineHeight: 2,
             margin: 0,
