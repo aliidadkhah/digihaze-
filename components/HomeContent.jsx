@@ -32,6 +32,9 @@ export default function HomeContent() {
 
   const handleDragStart = (e) => {
     if (e.pointerType && e.pointerType !== "mouse") return;
+    // اگر کلیک روی دکمه/لینک/سوییچ رنگ باشد، درگ فعال نشود
+    // تا افزودن به سبد و انتخاب رنگ داخل کارت‌های محصول کار کند
+    if (e.target.closest?.("button, a, select, input, textarea")) return;
     const el = saleScrollRef.current;
     if (!el) return;
     el.setPointerCapture?.(e.pointerId);

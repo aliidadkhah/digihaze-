@@ -9,6 +9,7 @@ import AnnouncementManager from "@/components/AnnouncementManager";
 import PostsManager from "@/components/PostsManager";
 import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 import CategoriesManager from "@/components/CategoriesManager";
+import { HOW_HEARD_LABELS } from "@/lib/telegram";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
 const STATUS_COLORS = { pending: "#FF7A1F", paid: "#9B5CFF", failed: "#4F7FFF", cancelled: "var(--text-faint)" };
@@ -25,6 +26,8 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
   const [savingId, setSavingId] = useState(null);
+  const [recheckingId, setRecheckingId] = useState(null);
+  const [recheckMsg, setRecheckMsg] = useState({}); // { [orderId]: "پیام نتیجه" }
   const [tab, setTab] = useState("orders"); // "orders" | "images" | "products" | "posts" | "announcement" | "shipping-payment"
   const [resetSending, setResetSending] = useState(false);
   const [resetSent, setResetSent] = useState(false);
@@ -106,6 +109,37 @@ export default function AdminPage() {
       body: JSON.stringify({ orderId, status }),
     });
     fetchOrders();
+  };
+
+  // بررسی دوباره‌ی پرداخت درگاهی که مرورگر مشتری بعد از پرداخت
+  // به callback سایت برنگشته (مثلاً تب رو بسته یا نت قطع شده)
+  // و در نتیجه سفارش pending مونده و پیام تلگرام هم نرفته
+  const recheckPayment = async (orderId) => {
+    setRecheckingId(orderId);
+    setRecheckMsg((prev) => ({ ...prev, [orderId]: "" }));
+    try {
+      const token = session.access_token;
+      const res = await fetch("/api/admin/orders/recheck-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: data.error || "خطا در بررسی" }));
+      } else if (data.alreadyPaid) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: "این سفارش از قبل پرداخت‌شده بود." }));
+      } else if (data.paid) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: "پرداخت تایید شد و پیام تلگرام فرستاده شد ✅" }));
+        fetchOrders();
+      } else {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: data.message || "زیبال این تراکنش را تایید نکرد." }));
+      }
+    } catch (e) {
+      setRecheckMsg((prev) => ({ ...prev, [orderId]: e.message || "خطایی رخ داد" }));
+    } finally {
+      setRecheckingId(null);
+    }
   };
 
   const saveTrackingLinks = async (orderId) => {
@@ -301,9 +335,30 @@ export default function AdminPage() {
                 <div>{o.customer_name} — <span dir="ltr">{o.customer_phone}</span></div>
                 <div>{o.customer_province} / {o.customer_city} — کدپستی: <span dir="ltr">{o.customer_postal_code || "—"}</span></div>
                 <div>{o.customer_address}</div>
+                {o.customer_how_heard && (
+                  <div>نحوه آشنایی: {HOW_HEARD_LABELS[o.customer_how_heard] || o.customer_how_heard}</div>
+                )}
                 <div>روش ارسال: {SHIPPING_LABELS[o.shipping_method] || o.shipping_method || "—"} • روش پرداخت: {o.payment_method === "gateway" ? "درگاه" : "کارت به کارت"}</div>
                 {o.payment_tracking_code && <div>کد پیگیری واریز: <span dir="ltr">{o.payment_tracking_code}</span></div>}
               </div>
+
+              {/* بررسی دوباره‌ی پرداخت درگاهی که برنگشته و pending مونده */}
+              {o.payment_method === "gateway" && o.status !== "paid" && (
+                <div style={{ marginBottom: 12 }}>
+                  <button
+                    onClick={() => recheckPayment(o.id)}
+                    disabled={recheckingId === o.id}
+                    style={{ ...iconTextBtn, opacity: recheckingId === o.id ? 0.6 : 1 }}
+                  >
+                    {recheckingId === o.id ? "در حال بررسی از زیبال..." : "بررسی دوباره پرداخت از درگاه"}
+                  </button>
+                  {recheckMsg[o.id] && (
+                    <div style={{ fontSize: 12, color: "var(--text-mut)", marginTop: 6 }}>
+                      {recheckMsg[o.id]}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* اقلام سفارش */}
               <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>

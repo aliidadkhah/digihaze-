@@ -12,7 +12,7 @@ import {
   ImageOff,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { uploadProductImage } from "@/lib/productImages";
+import { uploadProductImage, deleteProductImage } from "@/lib/productImages";
 import { money, CATEGORIES, resolveCategoryId, applySubcategoryOverrides } from "@/lib/data";
 import RichTextEditor from "./RichTextEditor";
 
@@ -246,11 +246,15 @@ export default function ProductsManager() {
     }
   };
 
-  const removeImage = (idx) =>
+  const removeImage = (idx) => {
+    const url = form.images[idx];
     update(
       "images",
       form.images.filter((_, i) => i !== idx)
     );
+    // از Storage هم پاک کن تا واقعاً و به‌طور کامل حذف بشه، نه فقط از لیست
+    deleteProductImage(url).catch(() => {});
+  };
 
   // ---------- رنگ‌ها ----------
   const addColor = () =>
@@ -856,7 +860,13 @@ export default function ProductsManager() {
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={(e) => addImageFile(e.target.files?.[0])}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      // خالی کردن input بعد از خوندن فایل، تا اگه دوباره
+                      // همون عکس (برای جایگزینی) انتخاب بشه، onChange دوباره اجرا بشه
+                      e.target.value = "";
+                      addImageFile(file);
+                    }}
                   />
                 </label>
               </div>
@@ -1093,7 +1103,11 @@ export default function ProductsManager() {
                       type="file"
                       accept="image/*"
                       style={{ display: "none" }}
-                      onChange={(e) => setBrandImageFile(e.target.files?.[0])}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        setBrandImageFile(file);
+                      }}
                     />
                   </label>
                 )}

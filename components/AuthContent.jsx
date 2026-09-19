@@ -86,6 +86,7 @@ export default function AuthContent() {
     province: "",
     city: "",
     postalCode: "",
+    howHeard: "",
   });
   const [profileError, setProfileError] = useState("");
 
@@ -99,7 +100,7 @@ export default function AuthContent() {
   useEffect(() => {
     if (user && !isProfileComplete(user) && searchParams.get("redirect")) {
       setStep("profile");
-      setProfileForm((f) => ({ ...f, name: user.name?.startsWith("کاربر ") ? "" : user.name || "" }));
+      setProfileForm((f) => ({ ...f, name: user.name?.startsWith("کاربر ") ? "" : user.name || "", howHeard: user.howHeard || "" }));
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -188,6 +189,7 @@ export default function AuthContent() {
       city: profileForm.city,
       address: profileForm.address.trim(),
       postalCode: profileForm.postalCode.trim(),
+      howHeard: profileForm.howHeard,
     });
 
     router.push(redirectTo);
@@ -323,6 +325,27 @@ export default function AuthContent() {
               dir="ltr"
               style={{ ...inputStyle, width: "100%" }}
             />
+          </div>
+
+          <div>
+            <label style={labelStyle}>چطور با ما آشنا شدید؟ (اختیاری)</label>
+            <div style={{ position: "relative" }}>
+              <select
+                name="howHeard"
+                value={profileForm.howHeard}
+                onChange={handleProfileChange}
+                style={selectStyle}
+              >
+                <option value="">انتخاب کنید</option>
+                <option value="instagram">اینستاگرام</option>
+                <option value="telegram">تلگرام</option>
+                <option value="google">جستجوی گوگل</option>
+                <option value="friend">معرفی دوستان و آشنایان</option>
+                <option value="ads">تبلیغات</option>
+                <option value="other">سایر</option>
+              </select>
+              <ChevronDown size={16} color="var(--text-lo)" style={selectArrowStyle} />
+            </div>
           </div>
 
           {profileError && (

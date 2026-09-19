@@ -206,6 +206,7 @@ export default function CheckoutPage() {
             city: user.city,
             postalCode:
               user.postalCode,
+            howHeard: user.howHeard || "",
           },
 
           shipping: {
@@ -375,6 +376,7 @@ export default function CheckoutPage() {
                 city: user.city,
                 postalCode:
                   user.postalCode,
+                howHeard: user.howHeard || "",
               },
 
               shipping: {

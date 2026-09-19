@@ -211,7 +211,11 @@ export default function ImagesManager() {
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={(e) => upload(slot.path, e.target.files?.[0])}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      upload(slot.path, file);
+                    }}
                   />
                 </label>
               );
