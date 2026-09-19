@@ -36,7 +36,7 @@ marginBottom: 20,
 
     <h2
       style={{
-        fontFamily: "Vazirmatn",
+        fontFamily: "var(--font-primary)",
         fontWeight: 800,
       }}
     >
@@ -73,7 +73,7 @@ padding: "40px 20px 80px",
 >
 <h1
 style={{
-fontFamily: "Vazirmatn",
+fontFamily: "var(--font-primary)",
 fontWeight: 800,
 fontSize: 26,
 marginBottom: 25,
@@ -263,7 +263,7 @@ marginBottom: 25,
         color: "#000",
         fontWeight: 800,
         textDecoration: "none",
-        fontFamily: "Vazirmatn",
+        fontFamily: "var(--font-primary)",
       }}
     >
       ادامه فرآیند خرید

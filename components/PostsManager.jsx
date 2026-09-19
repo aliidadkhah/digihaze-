@@ -68,7 +68,7 @@ const inputStyle = {
   border: "1px solid var(--surface2)",
   borderRadius: 10,
   padding: "10px 12px",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 13.5,
   color: "var(--text-hi)",
   outline: "none",
@@ -76,7 +76,7 @@ const inputStyle = {
 
 const labelStyle = {
   display: "block",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 12.5,
   fontWeight: 700,
   color: "var(--text-mut)",
@@ -265,7 +265,7 @@ export default function PostsManager() {
                 border: "none",
                 borderRadius: 10,
                 padding: "8px 14px",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 700,
                 fontSize: 12.5,
                 cursor: "pointer",
@@ -287,7 +287,7 @@ export default function PostsManager() {
             border: "none",
             borderRadius: 10,
             padding: "10px 16px",
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
@@ -298,7 +298,7 @@ export default function PostsManager() {
       </div>
 
       {loading && (
-        <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "Vazirmatn" }}>
+        <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "var(--font-primary)" }}>
           در حال بارگذاری پست‌ها...
         </p>
       )}
@@ -312,7 +312,7 @@ export default function PostsManager() {
             padding: "12px 14px",
             fontSize: 13,
             marginBottom: 16,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           {error}
@@ -322,7 +322,7 @@ export default function PostsManager() {
       {!loading && !error && visiblePosts.length === 0 && (
         <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-mut)" }}>
           <Newspaper size={36} color="var(--text-faint)" style={{ margin: "0 auto 14px" }} />
-          <p style={{ fontSize: 14, fontFamily: "Vazirmatn" }}>هنوز هیچ پستی اضافه نشده.</p>
+          <p style={{ fontSize: 14, fontFamily: "var(--font-primary)" }}>هنوز هیچ پستی اضافه نشده.</p>
         </div>
       )}
 
@@ -367,7 +367,7 @@ export default function PostsManager() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 800,
                   fontSize: 13.5,
                   color: "var(--text-hi)",
@@ -382,20 +382,20 @@ export default function PostsManager() {
                 <span
                   style={{
                     fontSize: 11,
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     color: p.type === "guide" ? "#FF7A1F" : "#4F7FFF",
                   }}
                 >
                   {TYPE_LABELS[p.type] || "بلاگ"}
                 </span>
-                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "Vazirmatn" }}>
+                <span style={{ fontSize: 11.5, color: "var(--text-mut)", fontFamily: "var(--font-primary)" }}>
                   /{p.slug}
                 </span>
                 <span
                   style={{
                     fontSize: 11,
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     display: "flex",
                     alignItems: "center",
@@ -484,7 +484,7 @@ export default function PostsManager() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h2 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 17, color: "var(--text-hi)" }}>
+              <h2 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 17, color: "var(--text-hi)" }}>
                 {form.id ? "ویرایش پست" : "افزودن پست جدید"}
               </h2>
               <button
@@ -513,7 +513,7 @@ export default function PostsManager() {
                     border: "1px solid var(--surface2)",
                     borderRadius: 10,
                     padding: "10px 0",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontWeight: 700,
                     fontSize: 13,
                     cursor: "pointer",
@@ -606,7 +606,7 @@ export default function PostsManager() {
                       background: "var(--surface2)",
                       borderRadius: 10,
                       padding: "10px 14px",
-                      fontFamily: "Vazirmatn",
+                      fontFamily: "var(--font-primary)",
                       fontSize: 12.5,
                       fontWeight: 700,
                       cursor: "pointer",
@@ -655,7 +655,7 @@ export default function PostsManager() {
                     alignItems: "center",
                     gap: 8,
                     cursor: "pointer",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 13,
                     color: "var(--text-hi)",
                   }}
@@ -678,7 +678,7 @@ export default function PostsManager() {
                   borderRadius: 10,
                   padding: "10px 14px",
                   fontSize: 12.5,
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                 }}
               >
                 {saveError}
@@ -694,7 +694,7 @@ export default function PostsManager() {
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 20px",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   color: "var(--text-hi)",
@@ -711,7 +711,7 @@ export default function PostsManager() {
                   border: "none",
                   borderRadius: 10,
                   padding: "11px 24px",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 700,
                   fontSize: 13,
                   color: "#fff",

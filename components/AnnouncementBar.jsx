@@ -83,7 +83,7 @@ export default function AnnouncementBar() {
 
         <span
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 700,
             fontSize: 12.5,
           }}

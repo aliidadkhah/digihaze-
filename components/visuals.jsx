@@ -342,11 +342,18 @@ export function FloatingBottle({ color }) {
           position: "absolute",
           inset: -30,
           borderRadius: "50%",
+          // نکته: "multiply" تو حالت لایت رو عمداً استفاده نمی‌کنیم.
+          // حتی با استاپ رنگی شفاف (به‌جای کلمه‌ی "transparent")، ترکیب
+          // multiply + blur روی این گرادیان همچنان لبه‌ی گرادیان رو تیره
+          // می‌کنه و یه هاله‌ی مشکی دور وکتور می‌سازه. چون خود گرادیان
+          // از قبل با استاپ آلفا صفر محو میشه، برای هاله‌ی نرم نیازی به
+          // بلندمود نیست؛ حالت عادی (بدون blend) این افکت رو بدون آرتیفکت
+          // تیرگی میده.
           background: isLight
-            ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, transparent 70%)`
-            : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, transparent 70%)`,
+            ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, ${color}00 70%)`
+            : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, ${color}00 70%)`,
           filter: "blur(18px)",
-          mixBlendMode: isLight ? "multiply" : "screen",
+          mixBlendMode: isLight ? "normal" : "screen",
           animation: "pulseGlow 2.8s ease-in-out infinite",
         }}
       />
@@ -376,7 +383,7 @@ export function FloatingBottle({ color }) {
         <rect x="42" y="18" width="36" height="8" rx="2" fill={color} />
         <rect x="18" y="26" width="84" height="164" rx="20" fill="url(#bodyGrad)" stroke={`${color}88`} strokeWidth="2" />
         <rect x="32" y="44" width="56" height="30" rx="6" fill="#0b0818" stroke={`${color}55`} strokeWidth="1.5" />
-        <text x="60" y="64" textAnchor="middle" fontSize="12" fontFamily="Vazirmatn" fontWeight="800" fill={color}>
+        <text x="60" y="64" textAnchor="middle" fontSize="12" fontFamily="var(--font-primary)" fontWeight="800" fill={color}>
           70W
         </text>
         <rect x="30" y="86" width="60" height="74" rx="10" fill="#0b0818" stroke={`${color}66`} strokeWidth="1.5" />

@@ -9,12 +9,12 @@ export default function ContactContent() {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "60px 20px 80px" }}>
-      <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 28, marginBottom: 30 }}>تماس با ما</h1>
+      <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 28, marginBottom: 30 }}>تماس با ما</h1>
       <div className="contact-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 34 }}>
         <Reveal>
           <div>
             {[
-              { icon: Phone, label: "تلفن تماس", value: "09020961384" },
+              { icon: Phone, label: "تلفن تماس", value: "09020951384" },
               { icon: Mail, label: "ایمیل", value: "info@digihaze.ir" },
               { icon: MapPin, label: "آدرس", value: "تبریز، مرزداران، بهارستان" },
             ].map((it, i) => (
@@ -44,7 +44,7 @@ export default function ContactContent() {
             <textarea placeholder="پیام شما" required rows={5} style={{ ...inputStyle, resize: "vertical" }} />
             <button
               type="submit"
-              style={{ background: sent ? "#9B5CFF" : "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 14, cursor: "pointer", transition: "background 0.25s ease" }}
+              style={{ background: sent ? "#9B5CFF" : "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 14, cursor: "pointer", transition: "background 0.25s ease" }}
             >
               {sent ? "پیام شما ارسال شد ✓" : "ارسال پیام"}
             </button>

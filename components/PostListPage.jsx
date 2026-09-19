@@ -8,7 +8,7 @@ export default function PostListPage({ title, description, posts, basePath }) {
         <h1
           id="posts-page-title"
           style={{
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
             fontWeight: 800,
             fontSize: 28,
             color: "var(--text-hi)",
@@ -28,7 +28,7 @@ export default function PostListPage({ title, description, posts, basePath }) {
         {posts.length === 0 ? (
           <div style={{ textAlign: "center", padding: "70px 20px", color: "var(--text-mut)" }}>
             <Newspaper size={36} color="var(--text-faint)" style={{ margin: "0 auto 14px" }} />
-            <p style={{ fontSize: 14, fontFamily: "Vazirmatn" }}>هنوز مطلبی منتشر نشده.</p>
+            <p style={{ fontSize: 14, fontFamily: "var(--font-primary)" }}>هنوز مطلبی منتشر نشده.</p>
           </div>
         ) : (
           <div

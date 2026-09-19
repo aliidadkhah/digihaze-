@@ -195,7 +195,7 @@ export default function ProductCard({ product }) {
                     color: "#fff",
                     padding: "9px 22px",
                     borderRadius: 999,
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                     fontSize: 15,
                     fontWeight: 800,
                     border: "1px solid rgba(255,255,255,0.2)",
@@ -364,7 +364,7 @@ export default function ProductCard({ product }) {
                   style={{
                     fontSize: 11,
                     color: "var(--text-mut)",
-                    fontFamily: "Vazirmatn",
+                    fontFamily: "var(--font-primary)",
                   }}
                 >
                   {selectedColor.name}
@@ -384,7 +384,7 @@ export default function ProductCard({ product }) {
                 border: "none",
                 borderRadius: 12,
                 padding: "10px 0",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: "not-allowed",
@@ -406,7 +406,7 @@ export default function ProductCard({ product }) {
                 border: "none",
                 borderRadius: 12,
                 padding: "10px 0",
-                fontFamily: "Vazirmatn",
+                fontFamily: "var(--font-primary)",
                 fontWeight: 700,
                 fontSize: 11.5,
                 cursor: "pointer",
@@ -487,7 +487,7 @@ export default function ProductCard({ product }) {
                   minWidth: 30,
                   textAlign: "center",
                   color: "var(--text-hi)",
-                  fontFamily: "Vazirmatn",
+                  fontFamily: "var(--font-primary)",
                   fontWeight: 800,
                   fontSize: 14,
                   userSelect: "none",

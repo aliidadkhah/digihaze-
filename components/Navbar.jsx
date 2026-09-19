@@ -79,7 +79,7 @@ export default function Navbar({ categories = CATEGORIES }) {
     border: "none",
     outline: "none",
     color: "var(--text-hi)",
-    fontFamily: "Vazirmatn, sans-serif",
+    fontFamily: "var(--font-primary), sans-serif",
     fontSize: 13,
     padding: "10px 12px",
   };
@@ -428,7 +428,7 @@ export default function Navbar({ categories = CATEGORIES }) {
           padding-bottom: 4px;
           white-space: nowrap;
           text-decoration: none !important;
-          font-family: Vazirmatn, sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-size: 15px;
         }
 
@@ -503,7 +503,7 @@ export default function Navbar({ categories = CATEGORIES }) {
         }
 
         .mobile-nav-link {
-          font-family: Vazirmatn, sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-size: 16px;
           text-decoration: none !important;
         }
@@ -516,7 +516,7 @@ export default function Navbar({ categories = CATEGORIES }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-family: Vazirmatn, sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-size: 16px;
           cursor: pointer;
           text-decoration: none !important;
@@ -533,7 +533,7 @@ export default function Navbar({ categories = CATEGORIES }) {
           display: flex;
           align-items: center;
           gap: 8px;
-          font-family: Vazirmatn, sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-size: 13px;
           font-weight: 400;
           color: var(--text-lo);

@@ -90,7 +90,7 @@ export default function ImagesManager() {
         <div key={groupName} style={{ marginBottom: 26 }}>
           <h3
             style={{
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 800,
               fontSize: 15,
               marginBottom: 12,
@@ -211,7 +211,11 @@ export default function ImagesManager() {
                     type="file"
                     accept="image/*"
                     style={{ display: "none" }}
-                    onChange={(e) => upload(slot.path, e.target.files?.[0])}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      upload(slot.path, file);
+                    }}
                   />
                 </label>
               );

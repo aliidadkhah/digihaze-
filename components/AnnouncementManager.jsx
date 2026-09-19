@@ -24,7 +24,7 @@ const inputStyle = {
   border: "1px solid var(--surface2)",
   borderRadius: 10,
   padding: "10px 12px",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 13.5,
   color: "var(--text-hi)",
   outline: "none",
@@ -33,7 +33,7 @@ const inputStyle = {
 
 const labelStyle = {
   display: "block",
-  fontFamily: "Vazirmatn",
+  fontFamily: "var(--font-primary)",
   fontSize: 12.5,
   fontWeight: 700,
   color: "var(--text-mut)",
@@ -100,7 +100,7 @@ export default function AnnouncementManager() {
 
   if (loading) {
     return (
-      <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "Vazirmatn" }}>
+      <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "var(--font-primary)" }}>
         در حال بارگذاری تنظیمات...
       </p>
     );
@@ -121,12 +121,12 @@ export default function AnnouncementManager() {
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <Megaphone size={18} color="#4F7FFF" />
-        <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
+        <span style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 15 }}>
           اطلاعیه بالای سایت
         </span>
       </div>
 
-      <p style={{ color: "var(--text-mut)", fontSize: 12.5, fontFamily: "Vazirmatn", margin: 0 }}>
+      <p style={{ color: "var(--text-mut)", fontSize: 12.5, fontFamily: "var(--font-primary)", margin: 0 }}>
         اگه فعال باشه، این متن بالای منوی سایت با رنگ انتخابی نمایش داده می‌شه.
       </p>
 
@@ -212,7 +212,7 @@ export default function AnnouncementManager() {
           display: "flex",
           alignItems: "center",
           gap: 8,
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontSize: 13,
           color: "var(--text-hi)",
           cursor: "pointer",
@@ -237,7 +237,7 @@ export default function AnnouncementManager() {
               borderRadius: 10,
               padding: "10px 16px",
               textAlign: "center",
-              fontFamily: "Vazirmatn",
+              fontFamily: "var(--font-primary)",
               fontWeight: 700,
               fontSize: 12.5,
             }}
@@ -255,7 +255,7 @@ export default function AnnouncementManager() {
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
-            fontFamily: "Vazirmatn",
+            fontFamily: "var(--font-primary)",
           }}
         >
           {error}
@@ -275,7 +275,7 @@ export default function AnnouncementManager() {
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",
-          fontFamily: "Vazirmatn",
+          fontFamily: "var(--font-primary)",
           fontWeight: 700,
           fontSize: 13,
           color: "var(--ink)",
