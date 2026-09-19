@@ -122,7 +122,7 @@ export default function OrderSuccessPage() {
         style={{
           padding: "80px 20px",
           textAlign: "center",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
         }}
       >
         در حال بارگذاری...
@@ -138,7 +138,7 @@ export default function OrderSuccessPage() {
           margin: "0 auto",
           padding: "80px 20px",
           textAlign: "center",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
         }}
       >
         <h1 style={{ fontWeight: 900, marginBottom: 15 }}>
@@ -152,7 +152,7 @@ export default function OrderSuccessPage() {
             border: "none",
             borderRadius: 12,
             padding: "12px 28px",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             cursor: "pointer",
           }}
@@ -182,7 +182,7 @@ export default function OrderSuccessPage() {
           margin: "0 auto",
           padding: "80px 20px",
           textAlign: "center",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
         }}
       >
         <h1 style={{ fontWeight: 900, marginBottom: 15 }}>
@@ -208,7 +208,7 @@ export default function OrderSuccessPage() {
             border: "none",
             borderRadius: 12,
             padding: "12px 28px",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             cursor: "pointer",
           }}
@@ -245,7 +245,7 @@ export default function OrderSuccessPage() {
         maxWidth: 700,
         margin: "0 auto",
         padding: "50px 20px 100px",
-        fontFamily: "var(--font-primary)",
+        fontFamily: "Vazirmatn",
       }}
     >
       <div
@@ -566,7 +566,7 @@ export default function OrderSuccessPage() {
             border: "none",
             borderRadius: 12,
             padding: "14px",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             fontSize: 14,
             cursor: "pointer",
@@ -609,7 +609,7 @@ const tabBtnStyle = {
   border: "1px solid var(--surface2)",
   borderRadius: 12,
   padding: "10px 0",
-  fontFamily: "var(--font-primary)",
+  fontFamily: "Vazirmatn",
   fontWeight: 700,
   fontSize: 12.5,
   color: "var(--text-mut)",

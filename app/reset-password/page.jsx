@@ -60,7 +60,7 @@ function ResetPasswordForm() {
     return (
       <div style={{ maxWidth: 380, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
         <CheckCircle2 size={30} color="#9B5CFF" style={{ margin: "0 auto 10px" }} />
-        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 20 }}>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20 }}>
           رمز عبور با موفقیت تغییر کرد
         </h1>
         <p style={{ color: "var(--text-mut)", fontSize: 13, marginTop: 8 }}>
@@ -85,7 +85,7 @@ function ResetPasswordForm() {
     <div style={{ maxWidth: 380, margin: "0 auto", padding: "80px 20px" }}>
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <KeyRound size={30} color="var(--text-mut)" style={{ margin: "0 auto 10px" }} />
-        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 20 }}>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20 }}>
           تنظیم رمز عبور جدید
         </h1>
       </div>
@@ -118,7 +118,7 @@ function ResetPasswordForm() {
             border: "none",
             borderRadius: 12,
             padding: "13px 0",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             cursor: "pointer",
             opacity: saving ? 0.6 : 1,
@@ -137,7 +137,7 @@ const inputStyle = {
   borderRadius: 12,
   padding: "13px 16px",
   color: "var(--text-hi)",
-  fontFamily: "var(--font-primary)",
+  fontFamily: "Vazirmatn",
   outline: "none",
   width: "100%",
   boxSizing: "border-box",

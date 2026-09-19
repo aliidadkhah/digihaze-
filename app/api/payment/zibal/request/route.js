@@ -121,7 +121,6 @@ export async function POST(req) {
         customer_province: customer.province,
         customer_city: customer.city,
         customer_postal_code: customer.postalCode,
-        customer_how_heard: customer.howHeard || "",
 
         shipping_method: shippingMethod,
         shipping_cost: shippingCost,

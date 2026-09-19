@@ -1,7 +1,5 @@
 import "./globals.css";
 
-import localFont from "next/font/local";
-
 import Providers from "@/components/Providers";
 import ProductsProvider from "@/components/ProductsProvider";
 import AnnouncementBar from "@/components/AnnouncementBar";
@@ -18,13 +16,6 @@ import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
 } from "@/lib/site";
-
-const primaryFont = localFont({
-  src: "./fonts/YekanBakh-VF.woff2",
-  weight: "1 1000",
-  variable: "--font-primary",
-  display: "swap",
-});
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -158,7 +149,6 @@ export default async function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      className={primaryFont.variable}
     >
       <body>
 

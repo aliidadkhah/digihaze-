@@ -314,7 +314,7 @@ export default function CheckoutPage() {
             margin: 0 auto;
             padding: 80px 20px;
             text-align: center;
-            font-family: var(--font-primary),
+            font-family: Vazirmatn,
               sans-serif;
             box-sizing: border-box;
           }
@@ -333,7 +333,7 @@ export default function CheckoutPage() {
             border: none;
             border-radius: 12px;
             padding: 14px;
-            font-family: var(--font-primary),
+            font-family: Vazirmatn,
               sans-serif;
             font-weight: 800;
             cursor: pointer;
@@ -873,7 +873,7 @@ export default function CheckoutPage() {
           margin: 0 auto;
           padding: 40px 20px 80px;
           box-sizing: border-box;
-          font-family: var(--font-primary), sans-serif;
+          font-family: Vazirmatn, sans-serif;
         }
 
         .checkout-title {
@@ -942,7 +942,7 @@ export default function CheckoutPage() {
           background: none;
           border: none;
           color: #9B5CFF;
-          font-family: var(--font-primary);
+          font-family: Vazirmatn;
           font-size: 12.5px;
           font-weight: 700;
           cursor: pointer;
@@ -1121,7 +1121,7 @@ export default function CheckoutPage() {
           color: var(--text-hi);
           border-radius: 10px;
           outline: none;
-          font-family: var(--font-primary), sans-serif;
+          font-family: Vazirmatn, sans-serif;
           font-size: 13px;
         }
 
@@ -1195,7 +1195,7 @@ export default function CheckoutPage() {
 
         .copied {
           color: #9B5CFF;
-          font-family: var(--font-primary), sans-serif;
+          font-family: Vazirmatn, sans-serif;
           font-size: 11px;
           font-weight: 900;
           white-space: nowrap;
@@ -1220,7 +1220,7 @@ export default function CheckoutPage() {
           color: #061014;
           border-radius: 12px;
           padding: 14px 0;
-          font-family: var(--font-primary), sans-serif;
+          font-family: Vazirmatn, sans-serif;
           font-weight: 800;
           font-size: 14px;
           cursor: pointer;
@@ -1249,7 +1249,7 @@ export default function CheckoutPage() {
             1px solid var(--surface2);
           color: var(--text-hi);
           border-radius: 12px;
-          font-family: var(--font-primary), sans-serif;
+          font-family: Vazirmatn, sans-serif;
           font-weight: 700;
           cursor: pointer;
         }
@@ -1445,7 +1445,7 @@ function OrderSummary({
               gap: 10,
               fontSize: 13,
               fontFamily:
-                "var(--font-primary)",
+                "Vazirmatn",
               color:
                 "var(--text-hi)",
             }}
@@ -1485,7 +1485,7 @@ function OrderSummary({
             "var(--text-mut)",
           marginBottom: 8,
           fontFamily:
-            "var(--font-primary)",
+            "Vazirmatn",
         }}
       >
         <span>
@@ -1508,7 +1508,7 @@ function OrderSummary({
             "var(--text-mut)",
           marginBottom: 15,
           fontFamily:
-            "var(--font-primary)",
+            "Vazirmatn",
         }}
       >
         <span>
@@ -1539,7 +1539,7 @@ function OrderSummary({
           fontSize: 17,
           marginBottom: 20,
           fontFamily:
-            "var(--font-primary)",
+            "Vazirmatn",
           color:
             "var(--text-hi)",
         }}
@@ -1578,7 +1578,7 @@ function ErrorBox({ children }) {
         color: "#ff6b6b",
         fontSize: 13,
         fontFamily:
-          "var(--font-primary)",
+          "Vazirmatn",
         lineHeight: 1.8,
       }}
     >

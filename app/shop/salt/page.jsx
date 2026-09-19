@@ -31,7 +31,7 @@ export default async function SaltPage({ searchParams }) {
       >
         <h1
           style={{
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             fontSize: 28,
             marginBottom: 10,
@@ -43,7 +43,7 @@ export default async function SaltPage({ searchParams }) {
         <p
           style={{
             color: "var(--text-lo)",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontSize: 15,
             lineHeight: 2,
             margin: 0,

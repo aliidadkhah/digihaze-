@@ -74,7 +74,7 @@ export default function OrderSuccessClient({
         <h1
           style={{
             fontFamily:
-              "var(--font-primary)",
+              "Vazirmatn",
 
             fontSize: 26,
 
@@ -95,7 +95,7 @@ export default function OrderSuccessClient({
         <p
           style={{
             fontFamily:
-              "var(--font-primary)",
+              "Vazirmatn",
 
             color:
               "var(--text-mut)",
@@ -129,7 +129,7 @@ export default function OrderSuccessClient({
             <div
               style={{
                 fontFamily:
-                  "var(--font-primary)",
+                  "Vazirmatn",
 
                 color:
                   "var(--text-mut)",
@@ -145,7 +145,7 @@ export default function OrderSuccessClient({
             <div
               style={{
                 fontFamily:
-                  "var(--font-primary)",
+                  "Vazirmatn",
 
                 color:
                   "var(--text-hi)",
@@ -177,7 +177,7 @@ export default function OrderSuccessClient({
             marginBottom: 25,
 
             fontFamily:
-              "var(--font-primary)",
+              "Vazirmatn",
 
             fontSize: 13,
 
@@ -221,7 +221,7 @@ export default function OrderSuccessClient({
               "14px 0",
 
             fontFamily:
-              "var(--font-primary)",
+              "Vazirmatn",
 
             fontWeight: 800,
 
