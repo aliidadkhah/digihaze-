@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { notifyNewOrder } from "@/lib/telegram";
+import { notifyNewOrder, notifyPaymentVerifyFailed } from "@/lib/telegram";
 import { zibalVerify } from "@/lib/zibal";
 
 const SHIPPING_LABELS = {
@@ -17,12 +17,15 @@ export async function GET(req) {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://digihaze.ir";
 
+  let trackId = null;
+  let orderId = null;
+
   try {
     const { searchParams } = new URL(req.url);
 
-    const trackId = searchParams.get("trackId");
+    trackId = searchParams.get("trackId");
     const success = searchParams.get("success");
-    const orderId = searchParams.get("orderId");
+    orderId = searchParams.get("orderId");
 
     if (!orderId) {
       return NextResponse.redirect(
@@ -36,6 +39,17 @@ export async function GET(req) {
         .from("orders")
         .update({ status: "failed" })
         .eq("id", orderId);
+
+      try {
+        await notifyPaymentVerifyFailed({
+          orderId,
+          trackId,
+          reason: `زیبال success=${success} برگردوند (یعنی خود درگاه گزارش داده که پرداخت موفق نبوده یا کاربر انصراف داده)`,
+          verifyResult: null,
+        });
+      } catch (e) {
+        console.error("Telegram error:", e);
+      }
 
       return NextResponse.redirect(
         `${siteUrl}/order-success?order=${orderId}&status=failed`
@@ -89,6 +103,17 @@ export async function GET(req) {
     // پرداخت ناموفق بوده
     console.error("ZIBAL VERIFY FAILED:", verifyResult);
 
+    try {
+      await notifyPaymentVerifyFailed({
+        orderId,
+        trackId,
+        reason: `verify با result=${verifyResult?.result} رد شد`,
+        verifyResult,
+      });
+    } catch (e) {
+      console.error("Telegram error:", e);
+    }
+
     await supabaseAdmin
       .from("orders")
       .update({ status: "failed" })
@@ -99,6 +124,17 @@ export async function GET(req) {
     );
   } catch (error) {
     console.error("ZIBAL CALLBACK ERROR:", error);
+
+    try {
+      await notifyPaymentVerifyFailed({
+        orderId: orderId || "نامشخص",
+        trackId,
+        reason: `خطای غیرمنتظره توی callback: ${error?.message || error}`,
+        verifyResult: null,
+      });
+    } catch (e) {
+      console.error("Telegram error:", e);
+    }
 
     return NextResponse.redirect(
       `${siteUrl}/order-success?status=error`
