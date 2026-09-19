@@ -109,7 +109,7 @@ function StatCallout({ title, text, color, className }) {
     >
       <div
         style={{
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontWeight: 800,
           fontSize: 16,
           color,
@@ -120,7 +120,7 @@ function StatCallout({ title, text, color, className }) {
       </div>
       <div
         style={{
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontSize: 13,
           lineHeight: 1.9,
           color: "var(--text-lo)",

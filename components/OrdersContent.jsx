@@ -70,7 +70,7 @@ export default function OrdersContent() {
     return (
       <div style={{ maxWidth: 420, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
         <PackageSearch size={40} color="var(--text-mut)" style={{ margin: "0 auto 16px" }} />
-        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 20, marginBottom: 8 }}>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 20, marginBottom: 8 }}>
           ابتدا وارد حساب کاربری‌ات شو
         </h1>
         <p style={{ color: "var(--text-mut)", fontSize: 13, marginBottom: 24, lineHeight: 2 }}>
@@ -84,7 +84,7 @@ export default function OrdersContent() {
             border: "none",
             borderRadius: 12,
             padding: "13px 24px",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 800,
             fontSize: 14,
             cursor: "pointer",
@@ -99,7 +99,7 @@ export default function OrdersContent() {
   return (
     <div style={{ maxWidth: 780, margin: "0 auto", padding: "50px 20px 90px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 22 }}>سفارش‌های من</h1>
+        <h1 style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 22 }}>سفارش‌های من</h1>
 
         <button
           onClick={fetchOrders}
@@ -114,7 +114,7 @@ export default function OrdersContent() {
             gap: 6,
             cursor: loading ? "default" : "pointer",
             color: "var(--text-hi)",
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontSize: 13,
             opacity: loading ? 0.6 : 1,
           }}
@@ -145,7 +145,7 @@ export default function OrdersContent() {
               borderRadius: 12,
               padding: "12px 22px",
               color: "var(--text-hi)",
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 13.5,
               cursor: "pointer",
@@ -169,7 +169,7 @@ export default function OrdersContent() {
           >
             <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 14, fontFamily: "var(--font-primary)" }}>
+                <div style={{ fontWeight: 800, fontSize: 14, fontFamily: "Vazirmatn" }}>
                   سفارش #{String(o.id).slice(0, 8)}
                 </div>
                 <div style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 3 }}>
@@ -181,7 +181,7 @@ export default function OrdersContent() {
                 style={{
                   background: `${STATUS_COLORS[o.status] || "var(--text-faint)"}22`,
                   color: STATUS_COLORS[o.status] || "var(--text-hi)",
-                  fontFamily: "var(--font-primary)",
+                  fontFamily: "Vazirmatn",
                   fontWeight: 700,
                   fontSize: 12,
                   padding: "6px 12px",
@@ -205,7 +205,7 @@ export default function OrdersContent() {
                       justifyContent: "space-between",
                       fontSize: 13,
                       color: "var(--text-lo)",
-                      fontFamily: "var(--font-primary)",
+                      fontFamily: "Vazirmatn",
                     }}
                   >
                     <span>
@@ -225,7 +225,7 @@ export default function OrdersContent() {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
               }}
             >
               <span style={{ color: "var(--text-mut)", fontSize: 12.5 }}>مبلغ کل</span>
@@ -244,7 +244,7 @@ export default function OrdersContent() {
           background: "none",
           border: "none",
           color: "var(--text-mut)",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontSize: 13,
           marginTop: 24,
           cursor: "pointer",

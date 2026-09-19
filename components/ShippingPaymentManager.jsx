@@ -93,7 +93,7 @@ export default function ShippingPaymentManager() {
 
   if (loading) {
     return (
-      <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "var(--font-primary)" }}>
+      <p style={{ color: "var(--text-mut)", fontSize: 13.5, fontFamily: "Vazirmatn" }}>
         در حال بارگذاری تنظیمات...
       </p>
     );
@@ -112,7 +112,7 @@ export default function ShippingPaymentManager() {
         gap: 20,
       }}
     >
-      <p style={{ color: "var(--text-mut)", fontSize: 12.5, fontFamily: "var(--font-primary)", margin: 0 }}>
+      <p style={{ color: "var(--text-mut)", fontSize: 12.5, fontFamily: "Vazirmatn", margin: 0 }}>
         هر کدوم از روش‌های ارسال یا پرداخت رو که خاموش کنی، توی صفحه تسویه‌حساب برای
         مشتری‌ها نمایش داده نمی‌شه.
       </p>
@@ -121,7 +121,7 @@ export default function ShippingPaymentManager() {
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <Truck size={17} color="#4F7FFF" />
-          <span style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 15 }}>
+          <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
             روش‌های ارسال
           </span>
         </div>
@@ -139,7 +139,7 @@ export default function ShippingPaymentManager() {
                 border: "1px solid var(--surface2)",
                 borderRadius: 10,
                 padding: "10px 14px",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
                 fontSize: 13,
                 color: "var(--text-hi)",
                 cursor: "pointer",
@@ -160,7 +160,7 @@ export default function ShippingPaymentManager() {
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <CreditCard size={17} color="#9B5CFF" />
-          <span style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 15 }}>
+          <span style={{ fontFamily: "Vazirmatn", fontWeight: 800, fontSize: 15 }}>
             روش‌های پرداخت
           </span>
         </div>
@@ -178,7 +178,7 @@ export default function ShippingPaymentManager() {
                 border: "1px solid var(--surface2)",
                 borderRadius: 10,
                 padding: "10px 14px",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
                 fontSize: 13,
                 color: "var(--text-hi)",
                 cursor: "pointer",
@@ -203,7 +203,7 @@ export default function ShippingPaymentManager() {
             borderRadius: 10,
             padding: "10px 14px",
             fontSize: 13,
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
           }}
         >
           {error}
@@ -223,7 +223,7 @@ export default function ShippingPaymentManager() {
           border: "none",
           borderRadius: 10,
           padding: "10px 20px",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontWeight: 700,
           fontSize: 13,
           color: "var(--ink)",

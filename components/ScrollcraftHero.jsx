@@ -4,14 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { SpaceField } from "./visuals";
-import { useTheme } from "./Providers";
 
 /* =========================================================
    دیتای آماری هدر (اعداد شمارشی)
 ========================================================= */
 const STATS = [
-  { value: 200, suffix: "+", label: "مشتری راضی" },
-  { value: 10, suffix: "+", label: "طعم متنوع" },
+  { value: 12000, suffix: "+", label: "مشتری راضی" },
+  { value: 60, suffix: "+", label: "طعم متنوع" },
   { value: 24, suffix: "h", label: "ارسال سریع" },
 ];
 
@@ -49,7 +48,7 @@ function StatItem({ value, suffix, label, active }) {
     <div style={{ textAlign: "center", minWidth: 84 }}>
       <div
         style={{
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontWeight: 800,
           fontSize: "clamp(20px, 3vw, 30px)",
           color: "var(--text-hi)",
@@ -184,8 +183,6 @@ export default function ScrollcraftHero() {
   const sectionRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
   const [scrolledPast, setScrolledPast] = useState(false);
-  const themeCtx = useTheme();
-  const isLight = themeCtx?.theme === "light";
 
   useEffect(() => {
     const reduced =
@@ -247,12 +244,7 @@ export default function ScrollcraftHero() {
         style={{
           position: "absolute",
           inset: 0,
-          // این گرادیان قبلاً همیشه به رنگ تیره‌ی #000410 ثابت بود، حتی
-          // تو لایت‌مود — همون چیزیه که باعث می‌شد کل هیرو صرف‌نظر از
-          // تم، تیره/سیاه دیده بشه. الان بر اساس تم صفحه رنگش عوض میشه.
-          background: isLight
-            ? "radial-gradient(circle at 50% 38%, transparent, #f7f5fb 62%)"
-            : "radial-gradient(circle at 50% 38%, transparent, #000410 62%)",
+          background: "radial-gradient(circle at 50% 38%, transparent, #000410 62%)",
           pointerEvents: "none",
         }}
       />
@@ -283,7 +275,7 @@ export default function ScrollcraftHero() {
           <span
             style={{
               display: "inline-block",
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 12.5,
               letterSpacing: 0.3,
@@ -301,7 +293,7 @@ export default function ScrollcraftHero() {
           <h1
             id="home-title"
             style={{
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 800,
               fontSize: "clamp(26px, 4.6vw, 46px)",
               lineHeight: 1.35,
@@ -377,7 +369,7 @@ export default function ScrollcraftHero() {
                 border: "none",
                 borderRadius: 14,
                 padding: "14px 30px",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
                 fontWeight: 800,
                 fontSize: 15,
                 textDecoration: "none",
@@ -397,7 +389,7 @@ export default function ScrollcraftHero() {
                 border: "1px solid var(--border-soft)",
                 borderRadius: 14,
                 padding: "14px 30px",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
                 fontWeight: 700,
                 fontSize: 15,
                 textDecoration: "none",
@@ -424,7 +416,7 @@ export default function ScrollcraftHero() {
           opacity: scrolledPast ? 0 : 1,
           transition: "opacity .3s ease",
           color: "var(--text-mut)",
-          fontFamily: "var(--font-primary)",
+          fontFamily: "Vazirmatn",
           fontSize: 12,
         }}
       >

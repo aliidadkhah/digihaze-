@@ -400,7 +400,7 @@ export default function Providers({ children }) {
                 }
 
                 .cart-toast-text {
-                  font-family: var(--font-primary), sans-serif;
+                  font-family: Vazirmatn, sans-serif;
                   font-size: 13.5px;
                   font-weight: 600;
                   color: var(--text-hi, #fff);
@@ -411,7 +411,7 @@ export default function Providers({ children }) {
                 }
 
                 .cart-toast-link {
-                  font-family: var(--font-primary), sans-serif;
+                  font-family: Vazirmatn, sans-serif;
                   font-size: 13px;
                   font-weight: 800 !important;
                   text-decoration: none !important;

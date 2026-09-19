@@ -160,7 +160,7 @@ function FaqItem({ q, a, open, onToggle }) {
       >
         <span
           style={{
-            fontFamily: "var(--font-primary)",
+            fontFamily: "Vazirmatn",
             fontWeight: 700,
             fontSize: 14,
             color: "var(--text-hi)",
@@ -231,7 +231,7 @@ export default function FaqSection() {
 
           <h2
             style={{
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 800,
               fontSize: 24,
               margin: "16px 0 10px",
@@ -267,7 +267,7 @@ export default function FaqSection() {
             >
               <h3
                 style={{
-                  fontFamily: "var(--font-primary)",
+                  fontFamily: "Vazirmatn",
                   fontWeight: 800,
                   fontSize: 15,
                   marginBottom: 12,
@@ -321,7 +321,7 @@ export default function FaqSection() {
               border: "1px solid var(--surface2)",
               borderRadius: 999,
               padding: "11px 22px",
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 13,
               color: "#4F7FFF",

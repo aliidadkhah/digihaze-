@@ -196,7 +196,7 @@ export default function SupportWidget() {
         {!open && (
           <span
             style={{
-              fontFamily: "var(--font-primary)",
+              fontFamily: "Vazirmatn",
               fontWeight: 700,
               fontSize: 12,
               color: "#fff",
@@ -292,7 +292,7 @@ export default function SupportWidget() {
             <div style={{ flex: 1 }}>
               <div
                 style={{
-                  fontFamily: "var(--font-primary)",
+                  fontFamily: "Vazirmatn",
                   fontWeight: 800,
                   fontSize: 15,
                   color: "var(--text-hi)",
@@ -303,7 +303,7 @@ export default function SupportWidget() {
 
               <div
                 style={{
-                  fontFamily: "var(--font-primary)",
+                  fontFamily: "Vazirmatn",
                   fontSize: 11,
                   color: "#9B5CFF",
                   marginTop: 3,
@@ -350,7 +350,7 @@ export default function SupportWidget() {
 
                   <div
                     style={{
-                      fontFamily: "var(--font-primary)",
+                      fontFamily: "Vazirmatn",
                       fontWeight: 800,
                       color: "var(--text-hi)",
                       marginBottom: 7,
@@ -361,7 +361,7 @@ export default function SupportWidget() {
 
                   <div
                     style={{
-                      fontFamily: "var(--font-primary)",
+                      fontFamily: "Vazirmatn",
                       fontSize: 12,
                       color: "var(--text-lo)",
                       lineHeight: 2,
@@ -396,7 +396,7 @@ export default function SupportWidget() {
                         padding: "12px 15px",
                         background: "var(--surface)",
                         color: "var(--text-hi)",
-                        fontFamily: "var(--font-primary)",
+                        fontFamily: "Vazirmatn",
                         fontWeight: 600,
                         fontSize: 12.5,
                         cursor: "pointer",
@@ -420,7 +420,7 @@ export default function SupportWidget() {
                       padding: "12px 15px",
                       background: "linear-gradient(135deg, #9B5CFF, #4F7FFF)",
                       color: "#fff",
-                      fontFamily: "var(--font-primary)",
+                      fontFamily: "Vazirmatn",
                       fontWeight: 700,
                       fontSize: 12.5,
                       cursor: "pointer",
@@ -464,7 +464,7 @@ export default function SupportWidget() {
                       border: isCustomer
                         ? "none"
                         : "1px solid var(--border-soft)",
-                      fontFamily: "var(--font-primary)",
+                      fontFamily: "Vazirmatn",
                       fontSize: 13,
                       lineHeight: 1.9,
                       whiteSpace: "pre-wrap",
@@ -532,7 +532,7 @@ export default function SupportWidget() {
                     border: "1px solid var(--border-soft)",
                     borderRadius: 10,
                     padding: "9px 10px",
-                    fontFamily: "var(--font-primary)",
+                    fontFamily: "Vazirmatn",
                     fontSize: 11,
                     outline: "none",
                   }}
@@ -551,7 +551,7 @@ export default function SupportWidget() {
                     border: "1px solid var(--border-soft)",
                     borderRadius: 10,
                     padding: "9px 10px",
-                    fontFamily: "var(--font-primary)",
+                    fontFamily: "Vazirmatn",
                     fontSize: 11,
                     outline: "none",
                   }}
@@ -581,7 +581,7 @@ export default function SupportWidget() {
                   border: "1px solid var(--border-soft)",
                   borderRadius: 13,
                   padding: "10px 12px",
-                  fontFamily: "var(--font-primary)",
+                  fontFamily: "Vazirmatn",
                   fontSize: 12,
                   outline: "none",
                   resize: "none",
@@ -619,7 +619,7 @@ export default function SupportWidget() {
             <div
               style={{
                 textAlign: "center",
-                fontFamily: "var(--font-primary)",
+                fontFamily: "Vazirmatn",
                 fontSize: 9,
                 color: "var(--text-lo)",
                 marginTop: 7,
