@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 
 import { Reveal } from "./ui";
@@ -28,60 +28,21 @@ export default function HomeContent() {
     startX: 0,
     scrollLeft: 0,
     moved: false,
+    captured: false,
   });
-  // نحوه‌ی محاسبه‌ی scrollLeft در حالت RTL بین مرورگرها فرق می‌کند
-  // (مثلاً کروم مقدار منفی می‌دهد). این رو یک‌بار تشخیص می‌دهیم تا
-  // جهت درگ همیشه درست باشد، مهم نیست کاربر چه مرورگری استفاده می‌کند.
-  const rtlScrollType = useRef("negative");
-
-  useEffect(() => {
-    const dummy = document.createElement("div");
-    const inner = document.createElement("div");
-    dummy.dir = "rtl";
-    dummy.style.cssText =
-      "position:absolute;top:-9999px;width:2px;height:1px;overflow:scroll;visibility:hidden;";
-    inner.style.width = "3px";
-    dummy.appendChild(inner);
-    document.body.appendChild(dummy);
-
-    if (dummy.scrollLeft > 0) {
-      rtlScrollType.current = "default"; // مرورگرهای قدیمی webkit
-    } else {
-      dummy.scrollLeft = 1;
-      rtlScrollType.current = dummy.scrollLeft === 0 ? "negative" : "reverse";
-    }
-
-    document.body.removeChild(dummy);
-  }, []);
-
-  // اگر وسط درگ، فوکوس پنجره از دست برود (مثلاً کاربر تب عوض کند یا موس
-  // را بیرون از پنجره رها کند) و رویداد pointerup هیچ‌وقت نرسد، وضعیت
-  // درگ رو دستی ریست می‌کنیم تا اسکرول برای همیشه قفل نماند.
-  useEffect(() => {
-    // توجه: اینجا فقط isDown ریست می‌شود، نه moved — چون moved باید تا
-    // زمان بررسی‌شدن توسط handleSaleClickCapture (بعد از رویداد click)
-    // دست‌نخورده بماند، وگرنه جلوگیری از کلیک ناخواسته بعد از یک درگ
-    // واقعی از کار می‌افتد.
-    const resetIsDown = () => {
-      dragState.current.isDown = false;
-    };
-    window.addEventListener("blur", resetIsDown);
-    return () => window.removeEventListener("blur", resetIsDown);
-  }, []);
 
   // تشخیص «کلیک واقعی» از «درگ» بر اساس فاصله‌ی جابه‌جایی. آستانه‌ی قبلی
   // (۴ پیکسل) خیلی حساس بود؛ یک کلیک عادی با موس/تاچ‌پد معمولاً چند پیکسل
-  // لرزش طبیعی دارد و با آستانه‌ی کم، آن کلیک هم اشتباهاً «درگ» تشخیص داده
-  // می‌شد و چون handleSaleClickCapture جلوی کلیک را می‌گرفت، هیچ‌چیز زیرش
-  // (افزودن به سبد، انتخاب رنگ، لینک محصول) قابل‌کلیک نمی‌ماند.
+  // لرزش طبیعی دارد.
   const DRAG_DISTANCE_THRESHOLD = 8;
 
   const endDrag = (pointerId) => {
     const el = saleScrollRef.current;
-    if (el && pointerId != null) {
+    if (el && dragState.current.captured && pointerId != null) {
       el.releasePointerCapture?.(pointerId);
     }
     dragState.current.isDown = false;
+    dragState.current.captured = false;
   };
 
   const handleDragStart = (e) => {
@@ -92,11 +53,19 @@ export default function HomeContent() {
     // می‌شود درگ کرد؛ تشخیص «کلیک واقعی» در مقابل «درگ» بر اساس مقدار
     // جابه‌جایی (moved) در handleDragMove انجام می‌شود، و در صورت درگ،
     // handleSaleClickCapture کلیک روی دکمه/لینک زیرین را متوقف می‌کند.
+    //
+    // نکته‌ی مهم: setPointerCapture عمداً اینجا (روی خودِ pointerdown)
+    // صدا زده نمی‌شود — اگر روی هر کلیک ساده هم capture انجام شود،
+    // برخی مرورگرها (به‌خصوص کروم) رویداد click نهایی را به‌جای خودِ
+    // دکمه/لینک زیرین، به همین عنصر بیرونی نسبت می‌دهند و در نتیجه هیچ
+    // دکمه‌ای (افزودن به سبد، انتخاب رنگ) کلیک‌پذیر نمی‌ماند. به همین
+    // خاطر capture را فقط در handleDragMove و فقط وقتی واقعاً درگ
+    // تشخیص داده شود، فعال می‌کنیم.
     const el = saleScrollRef.current;
     if (!el) return;
-    el.setPointerCapture?.(e.pointerId);
     dragState.current.isDown = true;
     dragState.current.moved = false;
+    dragState.current.captured = false;
     dragState.current.startX = e.clientX;
     dragState.current.scrollLeft = el.scrollLeft;
   };
@@ -104,16 +73,18 @@ export default function HomeContent() {
   const handleDragMove = (e) => {
     const el = saleScrollRef.current;
     if (!el || !dragState.current.isDown) return;
-    e.preventDefault();
     const walk = e.clientX - dragState.current.startX;
-    if (Math.abs(walk) > DRAG_DISTANCE_THRESHOLD) {
+
+    if (!dragState.current.moved) {
+      if (Math.abs(walk) <= DRAG_DISTANCE_THRESHOLD) return; // هنوز کلیک ساده است، دست نزن
       dragState.current.moved = true;
+      // همین الان که مطمئن شدیم درگ واقعی است، پوینتر را capture کن
+      el.setPointerCapture?.(e.pointerId);
+      dragState.current.captured = true;
     }
-    // جهت درگ باید با نحوه‌ی محاسبه‌ی scrollLeft در RTL هماهنگ باشد،
-    // وگرنه در مرورگرهایی مثل کروم که RTL را با مقدار منفی نشان می‌دهند
-    // درگ اصلاً اسکرول نمی‌کند یا برعکسِ جهت انگشت/موس اسکرول می‌کند.
-    const sign = rtlScrollType.current === "default" ? -1 : 1;
-    el.scrollLeft = dragState.current.scrollLeft + sign * walk;
+
+    e.preventDefault();
+    el.scrollLeft = dragState.current.scrollLeft - walk;
   };
 
   const handleDragEnd = (e) => {
