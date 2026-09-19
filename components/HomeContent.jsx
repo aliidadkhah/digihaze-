@@ -32,6 +32,12 @@ export default function HomeContent() {
 
   const handleDragStart = (e) => {
     if (e.pointerType && e.pointerType !== "mouse") return;
+    // قبلاً اگر شروع کلیک روی دکمه/لینک/سوییچ رنگ بود، درگ کلاً غیرفعال
+    // می‌شد — اما چون تقریباً کل کارت محصول داخل یک <Link> است، این باعث
+    // می‌شد درگ تقریباً هیچ‌جای کارت کار نکند. الان از هرجای کارت هم
+    // می‌شود درگ کرد؛ تشخیص «کلیک واقعی» در مقابل «درگ» بر اساس مقدار
+    // جابه‌جایی (moved) در handleDragMove انجام می‌شود، و در صورت درگ،
+    // handleSaleClickCapture کلیک روی دکمه/لینک زیرین را متوقف می‌کند.
     const el = saleScrollRef.current;
     if (!el) return;
     el.setPointerCapture?.(e.pointerId);
@@ -98,7 +104,7 @@ export default function HomeContent() {
           id="shop-categories-title"
           style={{
             fontFamily:
-              "Vazirmatn",
+              "var(--font-primary)",
             fontWeight: 800,
             fontSize: 22,
             marginBottom: 20,
@@ -169,7 +175,7 @@ export default function HomeContent() {
                   <div
                     style={{
                       fontFamily:
-                        "Vazirmatn",
+                        "var(--font-primary)",
                       fontWeight: 700,
                       fontSize: 14,
                       color:
@@ -276,7 +282,7 @@ export default function HomeContent() {
                 id="sale-title"
                 style={{
                   fontFamily:
-                    "Vazirmatn",
+                    "var(--font-primary)",
                   fontWeight: 800,
                   fontSize: 22,
                   marginBottom:
@@ -306,7 +312,7 @@ export default function HomeContent() {
                 color:
                   "var(--neon-blue)",
                 fontFamily:
-                  "Vazirmatn",
+                  "var(--font-primary)",
                 fontSize: 13,
                 textDecoration:
                   "none",
@@ -389,7 +395,7 @@ export default function HomeContent() {
             id="featured-title"
             style={{
               fontFamily:
-                "Vazirmatn",
+                "var(--font-primary)",
               fontWeight: 800,
               fontSize: 22,
             }}
@@ -403,7 +409,7 @@ export default function HomeContent() {
               color:
                 "var(--neon-blue)",
               fontFamily:
-                "Vazirmatn",
+                "var(--font-primary)",
               fontSize: 13,
               textDecoration:
                 "none",
