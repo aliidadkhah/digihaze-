@@ -342,15 +342,18 @@ export function FloatingBottle({ color }) {
           position: "absolute",
           inset: -30,
           borderRadius: "50%",
-          // نکته: از "transparent" استفاده نمی‌کنیم چون در واقع
-          // مشکی‌ شفاف (rgba(0,0,0,0)) هست، نه رنگ خودش با شفافیت صفر.
-          // وقتی با mixBlendMode: "multiply" ترکیب بشه، لبه‌ی گرادیان
-          // به‌جای محو شدن نرم، یه هاله‌ی مشکی زشت ایجاد می‌کنه.
+          // نکته: "multiply" تو حالت لایت رو عمداً استفاده نمی‌کنیم.
+          // حتی با استاپ رنگی شفاف (به‌جای کلمه‌ی "transparent")، ترکیب
+          // multiply + blur روی این گرادیان همچنان لبه‌ی گرادیان رو تیره
+          // می‌کنه و یه هاله‌ی مشکی دور وکتور می‌سازه. چون خود گرادیان
+          // از قبل با استاپ آلفا صفر محو میشه، برای هاله‌ی نرم نیازی به
+          // بلندمود نیست؛ حالت عادی (بدون blend) این افکت رو بدون آرتیفکت
+          // تیرگی میده.
           background: isLight
             ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, ${color}00 70%)`
             : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, ${color}00 70%)`,
           filter: "blur(18px)",
-          mixBlendMode: isLight ? "multiply" : "screen",
+          mixBlendMode: isLight ? "normal" : "screen",
           animation: "pulseGlow 2.8s ease-in-out infinite",
         }}
       />

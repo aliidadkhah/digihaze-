@@ -19,9 +19,9 @@ import {
   SITE_KEYWORDS,
 } from "@/lib/site";
 
-const pinar = localFont({
-  src: "./fonts/Pinar-VF.woff2",
-  weight: "300 900",
+const primaryFont = localFont({
+  src: "./fonts/YekanBakh-VF.woff2",
+  weight: "1 1000",
   variable: "--font-primary",
   display: "swap",
 });
@@ -158,7 +158,7 @@ export default async function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      className={pinar.variable}
+      className={primaryFont.variable}
     >
       <body>
 

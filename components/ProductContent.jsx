@@ -1312,7 +1312,7 @@ export default function ProductContent({ product, related }) {
           direction: rtl;
           text-align: justify;
           text-align-last: right;
-          font-family: "var(--font-primary)", sans-serif;
+          font-family: var(--font-primary), sans-serif;
         }
         .rich-content > *:first-child {
           margin-top: 0;
@@ -1328,7 +1328,7 @@ export default function ProductContent({ product, related }) {
         .rich-content h1,
         .rich-content h2,
         .rich-content h3 {
-          font-family: "var(--font-primary)", sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-weight: 800;
           color: var(--text-hi);
           line-height: 1.6;

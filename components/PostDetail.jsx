@@ -162,7 +162,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
 
       <style>{`
         .post-content {
-          font-family: "var(--font-primary)", sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-size: 15.5px;
           line-height: 2.05;
           color: var(--text-lo);
@@ -182,7 +182,7 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         .post-content h1,
         .post-content h2,
         .post-content h3 {
-          font-family: "var(--font-primary)", sans-serif;
+          font-family: var(--font-primary), sans-serif;
           font-weight: 800;
           color: var(--text-hi);
           line-height: 1.6;
