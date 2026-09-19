@@ -13,7 +13,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import { uploadProductImage } from "@/lib/productImages";
+import { uploadProductImage, deleteProductImage } from "@/lib/productImages";
 import RichTextEditor from "./RichTextEditor";
 
 function slugify(text) {
@@ -168,12 +168,27 @@ export default function PostsManager() {
     if (!file) return;
     setUploadingCover(true);
     try {
+      const oldUrl = form.coverImage;
       const url = await uploadProductImage(file);
-      if (url) update("coverImage", url);
+      if (url) {
+        update("coverImage", url);
+        // عکس قبلی رو از Storage پاک کن تا واقعاً و به‌طور کامل جایگزین بشه، نه فقط از فرم
+        if (oldUrl && oldUrl !== url) {
+          deleteProductImage(oldUrl).catch(() => {});
+        }
+      }
     } catch {
       setSaveError("آپلود عکس کاور ناموفق بود، دوباره امتحان کن");
     } finally {
       setUploadingCover(false);
+    }
+  };
+
+  const removeCoverImage = () => {
+    const oldUrl = form.coverImage;
+    update("coverImage", "");
+    if (oldUrl) {
+      deleteProductImage(oldUrl).catch(() => {});
     }
   };
 
@@ -580,11 +595,37 @@ export default function PostsManager() {
               <Field label="عکس کاور" full>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   {form.coverImage ? (
-                    <img
-                      src={form.coverImage}
-                      alt=""
-                      style={{ width: 70, height: 70, borderRadius: 10, objectFit: "cover" }}
-                    />
+                    <div style={{ position: "relative", width: 70, height: 70, flexShrink: 0 }}>
+                      <img
+                        src={form.coverImage}
+                        alt=""
+                        style={{ width: 70, height: 70, borderRadius: 10, objectFit: "cover" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={removeCoverImage}
+                        title="حذف عکس کاور"
+                        aria-label="حذف عکس کاور"
+                        style={{
+                          position: "absolute",
+                          top: -8,
+                          left: -8,
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "#ff3b3b",
+                          border: "2px solid var(--surface)",
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          padding: 0,
+                        }}
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
                   ) : (
                     <div
                       style={{
