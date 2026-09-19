@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { SpaceField } from "./visuals";
+import { useTheme } from "./Providers";
 
 /* =========================================================
    دیتای آماری هدر (اعداد شمارشی)
@@ -183,6 +184,8 @@ export default function ScrollcraftHero() {
   const sectionRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
   const [scrolledPast, setScrolledPast] = useState(false);
+  const themeCtx = useTheme();
+  const isLight = themeCtx?.theme === "light";
 
   useEffect(() => {
     const reduced =
@@ -244,7 +247,12 @@ export default function ScrollcraftHero() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "radial-gradient(circle at 50% 38%, transparent, #000410 62%)",
+          // این گرادیان قبلاً همیشه به رنگ تیره‌ی #000410 ثابت بود، حتی
+          // تو لایت‌مود — همون چیزیه که باعث می‌شد کل هیرو صرف‌نظر از
+          // تم، تیره/سیاه دیده بشه. الان بر اساس تم صفحه رنگش عوض میشه.
+          background: isLight
+            ? "radial-gradient(circle at 50% 38%, transparent, #f7f5fb 62%)"
+            : "radial-gradient(circle at 50% 38%, transparent, #000410 62%)",
           pointerEvents: "none",
         }}
       />
