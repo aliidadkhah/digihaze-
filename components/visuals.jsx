@@ -342,9 +342,13 @@ export function FloatingBottle({ color }) {
           position: "absolute",
           inset: -30,
           borderRadius: "50%",
+          // نکته: از "transparent" استفاده نمی‌کنیم چون در واقع
+          // مشکی‌ شفاف (rgba(0,0,0,0)) هست، نه رنگ خودش با شفافیت صفر.
+          // وقتی با mixBlendMode: "multiply" ترکیب بشه، لبه‌ی گرادیان
+          // به‌جای محو شدن نرم، یه هاله‌ی مشکی زشت ایجاد می‌کنه.
           background: isLight
-            ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, transparent 70%)`
-            : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, transparent 70%)`,
+            ? `radial-gradient(circle, ${color}77 0%, ${color}33 35%, ${color}00 70%)`
+            : `radial-gradient(circle, ${color}cc 0%, ${color}55 35%, ${color}00 70%)`,
           filter: "blur(18px)",
           mixBlendMode: isLight ? "multiply" : "screen",
           animation: "pulseGlow 2.8s ease-in-out infinite",
