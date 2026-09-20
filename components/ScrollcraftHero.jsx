@@ -10,8 +10,8 @@ import { useTheme } from "./Providers";
    دیتای آماری هدر (اعداد شمارشی)
 ========================================================= */
 const STATS = [
-  { value: 12000, suffix: "+", label: "مشتری راضی" },
-  { value: 60, suffix: "+", label: "طعم متنوع" },
+  { value: 200, suffix: "+", label: "مشتری راضی" },
+  { value: 10, suffix: "+", label: "طعم متنوع" },
   { value: 24, suffix: "h", label: "ارسال سریع" },
 ];
 
