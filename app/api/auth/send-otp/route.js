@@ -59,49 +59,43 @@ export async function POST(request) {
     }
 
     /*
-     * درخواست OTP واقعی از ملی پیامک
+     * برخلاف ملی‌پیامک، sms.ir خودش کد تولید نمی‌کند —
+     * کد تایید را خودمان اینجا می‌سازیم و به‌عنوان پارامتر قالب
+     * به sms.ir می‌دهیم تا فقط پیامکش را ارسال کند.
      */
-    const response = await fetch(
-      process.env.MELIPAYAMAK_OTP_URL,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: phone,
-        }),
-        cache: "no-store",
-      }
-    );
+    const code = String(Math.floor(10000 + Math.random() * 90000)); // ۵ رقمی
 
-    if (!response.ok) {
-      return NextResponse.json(
-        {
-          error: "ارتباط با سرویس ملی پیامک برقرار نشد.",
-        },
-        { status: 502 }
-      );
-    }
+    const response = await fetch("https://api.sms.ir/v1/send/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "x-api-key": process.env.SMS_IR_API_KEY,
+      },
+      body: JSON.stringify({
+        mobile: phone,
+        templateId: Number(process.env.SMS_IR_TEMPLATE_ID),
+        parameters: [{ name: "CONTANCS", value: code }],
+      }),
+      cache: "no-store",
+    });
 
     const smsData = await response.json();
 
     /*
-     * توجه: ملی‌پیامک توی این وب‌سرویس همیشه یه فیلد status برمی‌گردونه،
-     * چه موفق باشه چه ناموفق (مثلاً "عملیات موفق" هم توی status میاد).
-     * پس ملاک تشخیص خطا، وجود یا نبودِ خودِ کد (code) هست، نه وجود status.
+     * قرارداد sms.ir: status === 1 یعنی موفق؛ هر عدد دیگر یعنی خطا
+     * (لیست کامل کدهای خطا در مستندات REST API سایت sms.ir هست)
      */
+    if (!response.ok || smsData.status !== 1) {
+      console.error("SMS.ir error:", smsData);
 
-    if (!smsData.code) {
       return NextResponse.json(
         {
-          error: smsData.status || "کد تایید از ملی پیامک دریافت نشد.",
+          error: smsData.message || "ارتباط با سرویس sms.ir برقرار نشد.",
         },
-        { status: 400 }
+        { status: 502 }
       );
     }
-
-    const code = String(smsData.code);
 
     /*
      * فقط Hash کد را ذخیره می‌کنیم
