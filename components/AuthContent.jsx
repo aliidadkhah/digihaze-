@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, LogOut, ShoppingBag, Phone, PackageSearch, MapPin, ChevronDown } from "lucide-react";
+import { User, LogOut, ShoppingBag, Phone, PackageSearch, MapPin, ChevronDown, Lock, KeyRound } from "lucide-react";
 import { Badge, inputStyle } from "./ui";
 import { useUser, isProfileComplete } from "./Providers";
 import { IRAN_PROVINCES, IRAN_LOCATIONS } from "@/lib/iranLocations";
@@ -67,18 +67,50 @@ async function verifyOtpRequest(phone, code) {
   return data;
 }
 
+// ذخیره پروفایل روی سرور (و در صورت تمایل، تعیین/تغییر رمز عبور)
+async function saveProfileRequest(payload) {
+  const response = await fetch("/api/auth/save-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error || "ذخیره اطلاعات ناموفق بود");
+  }
+  return data;
+}
+
+// ورود مستقیم با شماره موبایل + رمز عبور (بدون کد تایید)
+async function loginWithPasswordRequest(phone, password) {
+  const response = await fetch("/api/auth/login-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, password }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.error || "ورود ناموفق بود");
+  }
+  return data;
+}
+
 export default function AuthContent() {
   const { user, login, logout, updateProfile } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
 
-  const [step, setStep] = useState("phone"); // phone | code | profile
+  const [step, setStep] = useState("phone"); // phone | code | profile | password-login
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+
+  // توکن کوتاه‌مدتی که بعد از تایید موفق OTP می‌گیریم؛ فقط با همین می‌شه رمز عبور تعیین/تغییر کرد
+  const [verifyToken, setVerifyToken] = useState("");
+  const [hasPassword, setHasPassword] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -87,8 +119,17 @@ export default function AuthContent() {
     city: "",
     postalCode: "",
     howHeard: "",
+    password: "",
+    confirmPassword: "",
   });
   const [profileError, setProfileError] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // فرم ورود با رمز عبور
+  const [pwPhone, setPwPhone] = useState("");
+  const [pwPassword, setPwPassword] = useState("");
+  const [pwError, setPwError] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     if (timer <= 0) return;
@@ -125,8 +166,11 @@ export default function AuthContent() {
     }
   };
 
-  const finishLogin = (loggedInUser) => {
-    if (isProfileComplete(loggedInUser)) {
+  // اگه پروفایل کامله و رمز عبور هم قبلاً تعیین شده، مستقیم هدایتش کن.
+  // در غیر این صورت (اولین بار، یا رمز هنوز تعیین نشده) ببرش مرحله پروفایل
+  // تا هم اطلاعاتش تکمیل بشه هم بتونه رمز عبور تعیین کنه.
+  const finishLogin = (loggedInUser, userHasPassword) => {
+    if (isProfileComplete(loggedInUser) && userHasPassword) {
       router.push(redirectTo);
     } else {
       setStep("profile");
@@ -140,8 +184,19 @@ export default function AuthContent() {
     try {
       const data = await verifyOtpRequest(phone, code.trim());
       const newUser = data.user || { name: `کاربر ${phone.slice(-4)}`, contact: phone };
+      setVerifyToken(data.verifyToken || "");
+      setHasPassword(!!data.hasPassword);
+      setProfileForm((f) => ({
+        ...f,
+        name: newUser.name?.startsWith("کاربر ") ? "" : newUser.name || "",
+        address: newUser.address || "",
+        province: newUser.province || "",
+        city: newUser.city || "",
+        postalCode: newUser.postalCode || "",
+        howHeard: newUser.howHeard || "",
+      }));
       login(newUser);
-      finishLogin(newUser);
+      finishLogin(newUser, !!data.hasPassword);
     } catch (err) {
       setError(err.message || "کد وارد شده صحیح نیست");
     } finally {
@@ -158,7 +213,7 @@ export default function AuthContent() {
     }));
   };
 
-  const submitProfile = (e) => {
+  const submitProfile = async (e) => {
     e.preventDefault();
     setProfileError("");
 
@@ -183,19 +238,69 @@ export default function AuthContent() {
       return;
     }
 
-    updateProfile({
-      name: profileForm.name.trim(),
-      province: profileForm.province,
-      city: profileForm.city,
-      address: profileForm.address.trim(),
-      postalCode: profileForm.postalCode.trim(),
-      howHeard: profileForm.howHeard,
-    });
+    const wantsPassword = !!profileForm.password || !!profileForm.confirmPassword;
 
-    router.push(redirectTo);
+    if (wantsPassword) {
+      if (profileForm.password.length < 6) {
+        setProfileError("رمز عبور باید حداقل ۶ کاراکتر باشد.");
+        return;
+      }
+      if (profileForm.password !== profileForm.confirmPassword) {
+        setProfileError("رمز عبور و تکرار آن یکسان نیستند.");
+        return;
+      }
+    }
+
+    setSavingProfile(true);
+    try {
+      const data = await saveProfileRequest({
+        phone: user.contact,
+        verifyToken,
+        name: profileForm.name.trim(),
+        province: profileForm.province,
+        city: profileForm.city,
+        address: profileForm.address.trim(),
+        postalCode: profileForm.postalCode.trim(),
+        howHeard: profileForm.howHeard,
+        password: wantsPassword ? profileForm.password : "",
+      });
+
+      updateProfile(data.user);
+      setHasPassword(!!data.hasPassword);
+      router.push(redirectTo);
+    } catch (err) {
+      setProfileError(err.message || "ذخیره اطلاعات ناموفق بود");
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
-  if (user && isProfileComplete(user)) {
+  const submitPasswordLogin = async (e) => {
+    e.preventDefault();
+    setPwError("");
+
+    if (!/^09\d{9}$/.test(pwPhone)) {
+      setPwError("شماره موبایل رو درست وارد کن");
+      return;
+    }
+    if (!pwPassword) {
+      setPwError("رمز عبور رو وارد کن");
+      return;
+    }
+
+    setPwLoading(true);
+    try {
+      const data = await loginWithPasswordRequest(pwPhone, pwPassword);
+      login(data.user);
+      router.push(redirectTo);
+    } catch (err) {
+      setPwError(err.message || "شماره موبایل یا رمز عبور اشتباه است");
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
+  if (user && isProfileComplete(user) && step !== "profile") {
     return (
       <div style={{ maxWidth: 480, margin: "0 auto", padding: "70px 20px 90px", textAlign: "center" }}>
         <div style={{ width: 74, height: 74, borderRadius: "50%", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", border: "2px solid #9B5CFF" }}>
@@ -213,7 +318,23 @@ export default function AuthContent() {
           <button onClick={() => router.push("/orders")} style={accountRowStyle}>
             <PackageSearch size={16} color="var(--text-lo)" /> سفارش‌های من
           </button>
-          <button onClick={() => setStep("profile")} style={accountRowStyle}>
+          <button
+            onClick={() => {
+              setProfileForm((f) => ({
+                ...f,
+                name: user.name || "",
+                address: user.address || "",
+                province: user.province || "",
+                city: user.city || "",
+                postalCode: user.postalCode || "",
+                howHeard: user.howHeard || "",
+                password: "",
+                confirmPassword: "",
+              }));
+              setStep("profile");
+            }}
+            style={accountRowStyle}
+          >
             <MapPin size={16} color="var(--text-lo)" /> ویرایش آدرس و مشخصات
           </button>
           <button onClick={logout} style={{ ...accountRowStyle, color: "#4F7FFF", borderColor: "#3a1440" }}>
@@ -225,10 +346,13 @@ export default function AuthContent() {
   }
 
   // ========================
-  // مرحله تکمیل پروفایل (اولین‌بار ورود)
+  // مرحله تکمیل پروفایل (اولین‌بار ورود، یا هنوز رمز عبور تعیین نکرده)
   // ========================
   if (user && step === "profile") {
     const cities = profileForm.province ? IRAN_LOCATIONS[profileForm.province] || [] : [];
+    // فرم رمز عبور فقط وقتی نشون داده می‌شه که یا هنوز رمزی تعیین نشده،
+    // یا همین الان (با یک تایید تازه‌ی OTP) توکن معتبر داریم که اجازه‌ی تغییرش رو بده
+    const canSetPassword = !hasPassword || !!verifyToken;
 
     return (
       <div style={{ maxWidth: 480, margin: "0 auto", padding: "50px 20px 90px" }}>
@@ -348,14 +472,128 @@ export default function AuthContent() {
             </div>
           </div>
 
+          {canSetPassword ? (
+            <div style={{ background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: 14, marginTop: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                <KeyRound size={15} color="#9B5CFF" />
+                <span style={{ fontFamily: "var(--font-primary)", fontWeight: 700, fontSize: 13, color: "var(--text-hi)" }}>
+                  {hasPassword ? "تغییر رمز عبور (اختیاری)" : "تعیین رمز عبور (اختیاری)"}
+                </span>
+              </div>
+              <p style={{ color: "var(--text-mut)", fontSize: 12, marginBottom: 10, lineHeight: 1.8 }}>
+                اگه رمز عبور تعیین کنی، دفعه‌ی بعد می‌تونی فقط با شماره موبایل و همین رمز وارد بشی، بدون نیاز به کد تایید پیامکی.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <input
+                  type="password"
+                  name="password"
+                  value={profileForm.password}
+                  onChange={handleProfileChange}
+                  placeholder="رمز عبور (حداقل ۶ کاراکتر)"
+                  dir="ltr"
+                  style={{ ...inputStyle, width: "100%", textAlign: "right" }}
+                  autoComplete="new-password"
+                />
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={profileForm.confirmPassword}
+                  onChange={handleProfileChange}
+                  placeholder="تکرار رمز عبور"
+                  dir="ltr"
+                  style={{ ...inputStyle, width: "100%", textAlign: "right" }}
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text-faint)", fontSize: 12 }}>
+              <Lock size={13} />
+              برای تغییر رمز عبور، یک‌بار دیگه با کد تایید پیامکی وارد شو.
+            </div>
+          )}
+
           {profileError && (
             <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>
               {profileError}
             </div>
           )}
 
-          <button type="submit" style={{ background: "#9B5CFF", color: "#061014", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 14, cursor: "pointer" }}>
-            ذخیره و ادامه
+          <button
+            type="submit"
+            disabled={savingProfile}
+            style={{
+              background: "#9B5CFF",
+              color: "#061014",
+              border: "none",
+              borderRadius: 12,
+              padding: "13px 0",
+              fontFamily: "var(--font-primary)",
+              fontWeight: 800,
+              fontSize: 14,
+              cursor: savingProfile ? "default" : "pointer",
+              opacity: savingProfile ? 0.7 : 1,
+            }}
+          >
+            {savingProfile ? "در حال ذخیره..." : "ذخیره و ادامه"}
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // ========================
+  // ورود با رمز عبور (بدون کد تایید)
+  // ========================
+  if (step === "password-login") {
+    return (
+      <div style={{ maxWidth: 420, margin: "0 auto", padding: "60px 20px 90px" }}>
+        <div style={{ textAlign: "center", marginBottom: 30 }}>
+          <Badge bg="#9B5CFF">ورود با رمز عبور</Badge>
+          <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 26, margin: "16px 0 6px" }}>
+            وارد حساب کاربری شو
+          </h1>
+          <p style={{ color: "var(--text-mut)", fontSize: 13 }}>
+            شماره موبایل و رمز عبوری که قبلاً تعیین کردی رو وارد کن
+          </p>
+        </div>
+
+        <form onSubmit={submitPasswordLogin} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ position: "relative" }}>
+            <Phone size={16} color="var(--text-mut)" style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <input
+              type="tel"
+              inputMode="numeric"
+              placeholder="09123456789"
+              value={pwPhone}
+              onChange={(e) => setPwPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+              style={{ ...inputStyle, width: "100%", paddingRight: 42, direction: "ltr", textAlign: "right" }}
+            />
+          </div>
+          <div style={{ position: "relative" }}>
+            <Lock size={16} color="var(--text-mut)" style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)" }} />
+            <input
+              type="password"
+              placeholder="رمز عبور"
+              value={pwPassword}
+              onChange={(e) => setPwPassword(e.target.value)}
+              style={{ ...inputStyle, width: "100%", paddingRight: 42, direction: "ltr", textAlign: "right" }}
+              autoComplete="current-password"
+            />
+          </div>
+
+          {pwError && <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>{pwError}</div>}
+
+          <button type="submit" disabled={pwLoading} style={{ background: "#9B5CFF", color: "#061014", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 14, cursor: pwLoading ? "default" : "pointer", opacity: pwLoading ? 0.7 : 1 }}>
+            {pwLoading ? "در حال ورود..." : "ورود"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => { setStep("phone"); setPwError(""); }}
+            style={{ background: "none", border: "none", color: "var(--text-mut)", cursor: "pointer", fontFamily: "var(--font-primary)", fontSize: 12.5 }}
+          >
+            رمز عبور رو یادت رفته؟ ورود با کد تایید پیامکی
           </button>
         </form>
       </div>
@@ -390,6 +628,13 @@ export default function AuthContent() {
           {error && <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>{error}</div>}
           <button type="submit" disabled={loading} style={{ background: "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 14, cursor: loading ? "default" : "pointer", opacity: loading ? 0.7 : 1 }}>
             {loading ? "در حال ارسال..." : "دریافت کد تایید"}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setStep("password-login"); setPwPhone(phone); }}
+            style={{ background: "none", border: "none", color: "#9B5CFF", cursor: "pointer", fontFamily: "var(--font-primary)", fontSize: 12.5, textAlign: "center" }}
+          >
+            رمز عبور داری؟ ورود بدون کد تایید
           </button>
         </form>
       )}
