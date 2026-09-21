@@ -406,8 +406,8 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                                   src={s.logo}
                                   alt={s.label}
                                   style={{
-                                    width: 22,
-                                    height: 22,
+                                    width: 30,
+                                    height: 30,
                                     borderRadius: "50%",
                                     objectFit: "cover",
                                     flexShrink: 0,
@@ -418,8 +418,8 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                               ) : (
                                 <span
                                   style={{
-                                    width: 22,
-                                    height: 22,
+                                    width: 30,
+                                    height: 30,
                                     borderRadius: "50%",
                                     background:
                                       "var(--surface2)",
