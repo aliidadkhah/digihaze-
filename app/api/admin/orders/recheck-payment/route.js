@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
 import { zibalVerify } from "@/lib/zibal";
+import { changeOrderStatus } from "@/lib/stock";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -93,23 +94,24 @@ export async function POST(request) {
       });
     }
 
-    const { data: updatedOrder, error: updateError } = await supabaseAdmin
-      .from("orders")
-      .update({
-        status: "paid",
-        payment_ref_number: String(verifyResult.refNumber || ""),
-      })
-      .eq("id", orderId)
-      .select("*, order_items(*)")
-      .single();
+    // force: پول واقعاً دریافت شده، پس حتی اگه موجودی برای سفارشِ
+    // قبلاً failed شده کافی نباشه هم وضعیت باید paid بشه
+    const result = await changeOrderStatus(
+      orderId,
+      "paid",
+      { payment_ref_number: String(verifyResult.refNumber || "") },
+      { force: true }
+    );
 
-    if (updateError) {
-      console.error("RECHECK PAYMENT UPDATE ERROR:", updateError);
+    if (!result.ok) {
+      console.error("RECHECK PAYMENT UPDATE ERROR:", result.error);
       return NextResponse.json(
-        { error: updateError.message },
-        { status: 500 }
+        { error: result.error },
+        { status: result.status || 500 }
       );
     }
+
+    const updatedOrder = result.order;
 
     try {
       await notifyNewOrder({

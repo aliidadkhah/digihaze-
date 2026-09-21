@@ -27,6 +27,7 @@ import {
 
 import { FlavorCloud } from "./visuals";
 import ProductCard from "./ProductCard";
+import { isColorSoldOut, firstAvailableColor } from "@/lib/colorStock";
 import { money, discountedPrice, CATEGORIES } from "@/lib/data";
 import { useCart, useUser } from "./Providers";
 
@@ -230,9 +231,14 @@ export default function ProductContent({ product, related }) {
    */
   const [selectedColor, setSelectedColor] = useState(
     product.colors?.length > 0
-      ? product.colors[0]
+      ? firstAvailableColor(product.colors)
       : null
   );
+
+  // آیا می‌شه خرید؟ (کل محصول موجود باشه و رنگ انتخاب‌شده هم تموم نشده باشه)
+  const canBuy =
+    product.available !== false &&
+    !(selectedColor && isColorSoldOut(selectedColor));
 
   const { addToCart } = useCart();
 
@@ -245,7 +251,7 @@ export default function ProductContent({ product, related }) {
 
     setSelectedColor(
       product.colors?.length > 0
-        ? product.colors[0]
+        ? firstAvailableColor(product.colors)
         : null
     );
   }, [product.id]);
@@ -272,6 +278,8 @@ export default function ProductContent({ product, related }) {
     ) {
       return;
     }
+
+    if (!canBuy) return;
 
     const cartProduct = {
       ...product,
@@ -609,6 +617,9 @@ export default function ProductContent({ product, related }) {
                   }}
                 >
                   {selectedColor?.name}
+                  {selectedColor && isColorSoldOut(selectedColor)
+                    ? " (ناموجود)"
+                    : ""}
                 </span>
               </div>
 
@@ -624,6 +635,9 @@ export default function ProductContent({ product, related }) {
                     selectedColor?.id ===
                     color.id;
 
+                  const soldOut =
+                    isColorSoldOut(color);
+
                   return (
                     <button
                       key={color.id}
@@ -631,7 +645,11 @@ export default function ProductContent({ product, related }) {
                       onClick={() =>
                         setSelectedColor(color)
                       }
-                      title={color.name}
+                      title={
+                        soldOut
+                          ? `${color.name} (ناموجود)`
+                          : color.name
+                      }
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -656,6 +674,10 @@ export default function ProductContent({ product, related }) {
                             : 500,
                         transition:
                           "all 0.2s ease",
+                        opacity: soldOut ? 0.5 : 1,
+                        textDecoration: soldOut
+                          ? "line-through"
+                          : "none",
                       }}
                     >
                       <span
@@ -740,19 +762,26 @@ export default function ProductContent({ product, related }) {
 
             <button
               onClick={handleAddToCart}
+              disabled={!canBuy}
               style={{
                 flex: 1,
-                background: added
+                background: !canBuy
+                  ? "var(--surface2)"
+                  : added
                   ? "#9B5CFF"
                   : "#4F7FFF",
-                color: "var(--ink)",
+                color: !canBuy
+                  ? "var(--text-mut)"
+                  : "var(--ink)",
                 border: "none",
                 borderRadius: 12,
                 padding: "14px 0",
                 fontFamily: "var(--font-primary)",
                 fontWeight: 800,
                 fontSize: 14,
-                cursor: "pointer",
+                cursor: canBuy
+                  ? "pointer"
+                  : "not-allowed",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -768,7 +797,9 @@ export default function ProductContent({ product, related }) {
                 <ShoppingBag size={16} />
               )}
 
-              {added
+              {!canBuy
+                ? "ناموجود"
+                : added
                 ? "اضافه شد"
                 : "افزودن به سبد خرید"}
             </button>

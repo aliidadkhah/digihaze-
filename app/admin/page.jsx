@@ -103,11 +103,15 @@ export default function AdminPage() {
 
   const changeStatus = async (orderId, status) => {
     const token = session.access_token;
-    await fetch("/api/admin/orders", {
+    const res = await fetch("/api/admin/orders", {
       method: "PATCH",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ orderId, status }),
     });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "تغییر وضعیت سفارش ناموفق بود");
+    }
     fetchOrders();
   };
 

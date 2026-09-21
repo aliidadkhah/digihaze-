@@ -14,6 +14,7 @@ import {
 import { Badge, Stars } from "./ui";
 import { money, discountedPrice } from "@/lib/data";
 import { useCart } from "./Providers";
+import { isColorSoldOut, firstAvailableColor } from "@/lib/colorStock";
 
 export default function ProductCard({ product }) {
   const [hover, setHover] = useState(false);
@@ -31,9 +32,13 @@ export default function ProductCard({ product }) {
   const hasColors = product.colors?.length > 0;
 
   // رنگ/مدل انتخاب‌شده روی همین کارت (پیش‌فرض: اولین رنگ)
+  // پیش‌فرض: اولین رنگی که موجوده
   const [selectedColor, setSelectedColor] = useState(
-    hasColors ? product.colors[0] : null
+    hasColors ? firstAvailableColor(product.colors) : null
   );
+
+  // رنگ انتخاب‌شده تموم شده؟ (کل محصول ممکنه هنوز موجود باشه)
+  const colorSoldOut = hasColors && isColorSoldOut(selectedColor);
 
   // پیدا کردن محصول (با همین رنگ انتخاب‌شده) در سبد خرید
   const cartItem = cart.find(
@@ -330,6 +335,7 @@ export default function ProductCard({ product }) {
             >
               {product.colors.map((c) => {
                 const isSelected = selectedColor?.id === c.id;
+                const soldOut = isColorSoldOut(c);
                 return (
                   <button
                     key={c.id}
@@ -339,7 +345,7 @@ export default function ProductCard({ product }) {
                       e.stopPropagation();
                       setSelectedColor(c);
                     }}
-                    title={c.name}
+                    title={soldOut ? `${c.name} (ناموجود)` : c.name}
                     style={{
                       width: 22,
                       height: 22,
@@ -354,6 +360,7 @@ export default function ProductCard({ product }) {
                       cursor: "pointer",
                       padding: 0,
                       flexShrink: 0,
+                      opacity: soldOut ? 0.35 : 1,
                     }}
                   />
                 );
@@ -368,12 +375,13 @@ export default function ProductCard({ product }) {
                   }}
                 >
                   {selectedColor.name}
+                  {colorSoldOut ? " (ناموجود)" : ""}
                 </span>
               )}
             </div>
           )}
 
-          {!isAvailable ? (
+          {!isAvailable || colorSoldOut ? (
             /* ناموجود */
             <button
               disabled

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder, notifyPaymentVerifyFailed } from "@/lib/telegram";
 import { zibalVerify } from "@/lib/zibal";
+import { changeOrderStatus } from "@/lib/stock";
 
 const SHIPPING_LABELS = {
   post: "پست",
@@ -35,10 +36,8 @@ export async function GET(req) {
 
     // کاربر از درگاه انصراف داده یا تراکنش ناموفق بوده
     if (success !== "1" || !trackId) {
-      await supabaseAdmin
-        .from("orders")
-        .update({ status: "failed" })
-        .eq("id", orderId);
+      // وضعیت → failed و موجودی رزروشده برمی‌گرده
+      await changeOrderStatus(orderId, "failed");
 
       try {
         await notifyPaymentVerifyFailed({
@@ -63,19 +62,22 @@ export async function GET(req) {
       verifyResult?.result === 100 ||
       verifyResult?.result === 201
     ) {
-      const { data: order, error } = await supabaseAdmin
-        .from("orders")
-        .update({
-          status: "paid",
+      // force: پول دریافت شده، پس حتی اگه (در حالت نادر) سفارش قبلاً
+      // failed شده بود و موجودی دوباره کافی نبود، وضعیت باید paid بشه
+      const result = await changeOrderStatus(
+        orderId,
+        "paid",
+        {
           payment_ref_number: String(
             verifyResult.refNumber || ""
           ),
-        })
-        .eq("id", orderId)
-        .select("*, order_items(*)")
-        .single();
+        },
+        { force: true }
+      );
 
-      if (!error && order) {
+      const order = result.order;
+
+      if (result.ok && order) {
         try {
           await notifyNewOrder({
             ...order,
@@ -114,10 +116,7 @@ export async function GET(req) {
       console.error("Telegram error:", e);
     }
 
-    await supabaseAdmin
-      .from("orders")
-      .update({ status: "failed" })
-      .eq("id", orderId);
+    await changeOrderStatus(orderId, "failed");
 
     return NextResponse.redirect(
       `${siteUrl}/order-success?order=${orderId}&status=failed`

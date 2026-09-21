@@ -4,6 +4,7 @@ import { discountedPrice } from "@/lib/data";
 import { getProductById } from "@/lib/products";
 import { getShippingCost } from "@/lib/shipping";
 import { zibalRequest, zibalPaymentUrl } from "@/lib/zibal";
+import { reserveStock, restoreStock, changeOrderStatus } from "@/lib/stock";
 
 const SHIPPING_LABELS = {
   post: "پست",
@@ -75,6 +76,13 @@ export async function POST(req) {
         );
       }
 
+      if (product.available === false) {
+        return NextResponse.json(
+          { error: `محصول «${product.name}» ناموجود است` },
+          { status: 409 }
+        );
+      }
+
       const qty = Number(item.qty);
 
       if (!Number.isInteger(qty) || qty <= 0) {
@@ -109,6 +117,14 @@ export async function POST(req) {
     }
 
     // =========================
+    // رزرو موجودی رنگ‌ها (اگه پرداخت ناموفق بشه برمی‌گرده)
+    // =========================
+    const reserved = await reserveStock(orderItems);
+    if (!reserved.ok) {
+      return NextResponse.json({ error: reserved.error }, { status: 409 });
+    }
+
+    // =========================
     // ثبت سفارش با وضعیت "در انتظار پرداخت"
     // =========================
     const { data: order, error: orderError } = await supabaseAdmin
@@ -136,6 +152,7 @@ export async function POST(req) {
 
     if (orderError) {
       console.error("ORDER ERROR:", orderError);
+      await restoreStock(orderItems);
       return NextResponse.json(
         { error: orderError.message },
         { status: 500 }
@@ -156,6 +173,11 @@ export async function POST(req) {
 
     if (itemsError) {
       console.error("ITEM ERROR:", itemsError);
+      await restoreStock(orderItems);
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "failed" })
+        .eq("id", order.id);
       return NextResponse.json(
         { error: itemsError.message },
         { status: 500 }
@@ -179,10 +201,7 @@ export async function POST(req) {
     } catch (zibalError) {
       console.error("ZIBAL REQUEST ERROR:", zibalError);
 
-      await supabaseAdmin
-        .from("orders")
-        .update({ status: "failed" })
-        .eq("id", order.id);
+      await changeOrderStatus(order.id, "failed");
 
       return NextResponse.json(
         { error: "خطا در اتصال به درگاه پرداخت. لطفاً دوباره تلاش کنید." },
@@ -193,10 +212,7 @@ export async function POST(req) {
     if (zibalResult?.result !== 100) {
       console.error("ZIBAL REQUEST REJECTED:", zibalResult);
 
-      await supabaseAdmin
-        .from("orders")
-        .update({ status: "failed" })
-        .eq("id", order.id);
+      await changeOrderStatus(order.id, "failed");
 
       return NextResponse.json(
         {

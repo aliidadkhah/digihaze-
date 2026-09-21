@@ -158,6 +158,13 @@ function mapProduct(row) {
 
             hex:
               c?.hex || "#000000",
+
+            // موجودی این رنگ؛ null یعنی نامحدود
+            stock:
+              c?.stock === null ||
+              c?.stock === undefined
+                ? null
+                : Number(c.stock),
           }))
         : [],
 

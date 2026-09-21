@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { changeOrderStatus, VALID_STATUSES } from "@/lib/stock";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -55,11 +56,14 @@ export async function PATCH(request) {
       );
     }
 
-    const updateData = {};
-
-    if (status) {
-      updateData.status = status;
+    if (status && !VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { error: "وضعیت نامعتبر است" },
+        { status: 400 }
+      );
     }
+
+    const updateData = {};
 
     if (trackingUrls) {
       if (trackingUrls.post !== undefined) {
@@ -71,6 +75,21 @@ export async function PATCH(request) {
       if (trackingUrls.chapar !== undefined) {
         updateData.tracking_url_chapar = trackingUrls.chapar;
       }
+    }
+
+    // تغییر وضعیت از مسیر مخصوص انجام می‌شه تا موجودی هم هماهنگ بشه:
+    // لغو/ناموفق → موجودی رنگ‌ها برمی‌گرده، برگشت به فعال → دوباره کم می‌شه
+    if (status) {
+      const result = await changeOrderStatus(orderId, status, updateData);
+
+      if (!result.ok) {
+        return NextResponse.json(
+          { error: result.error },
+          { status: result.status || 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true });
     }
 
     if (Object.keys(updateData).length === 0) {

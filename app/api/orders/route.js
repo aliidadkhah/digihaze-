@@ -4,6 +4,7 @@ import { notifyNewOrder } from "@/lib/telegram";
 import { discountedPrice } from "@/lib/data";
 import { getProductById } from "@/lib/products";
 import { getShippingCost } from "@/lib/shipping";
+import { reserveStock, restoreStock } from "@/lib/stock";
 
 export async function GET(req) {
   try {
@@ -148,6 +149,13 @@ export async function POST(req) {
         return NextResponse.json({ error: "محصول پیدا نشد" }, { status: 400 });
       }
 
+      if (product.available === false) {
+        return NextResponse.json(
+          { error: `محصول «${product.name}» ناموجود است` },
+          { status: 409 }
+        );
+      }
+
       const qty = Number(item.qty);
 
       if (!Number.isInteger(qty) || qty <= 0) {
@@ -173,6 +181,16 @@ export async function POST(req) {
     }
 
     const total = itemsTotal + shippingCost;
+
+    // =========================
+    // رزرو موجودی رنگ‌ها
+    // =========================
+    // موجودی همین‌جا (اتمیک، توی دیتابیس) کم می‌شه تا دو نفر همزمان
+    // آخرین عدد رو نخرن. اگه سفارش لغو/ناموفق بشه برمی‌گرده.
+    const reserved = await reserveStock(orderItems);
+    if (!reserved.ok) {
+      return NextResponse.json({ error: reserved.error }, { status: 409 });
+    }
 
     // =========================
     // ثبت سفارش
@@ -204,6 +222,7 @@ export async function POST(req) {
 
     if (orderError) {
       console.error("ORDER ERROR:", orderError);
+      await restoreStock(orderItems);
       return NextResponse.json({ error: orderError.message }, { status: 500 });
     }
 
@@ -224,6 +243,11 @@ export async function POST(req) {
 
     if (itemsError) {
       console.error("ITEM ERROR:", itemsError);
+      await restoreStock(orderItems);
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "failed" })
+        .eq("id", order.id);
       return NextResponse.json({ error: itemsError.message }, { status: 500 });
     }
 

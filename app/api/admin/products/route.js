@@ -37,8 +37,29 @@ export async function GET(request) {
   return NextResponse.json({ products: products || [] });
 }
 
+// رنگ‌ها رو تمیز می‌کنه و موجودی (stock) هر رنگ رو به عدد صحیح یا null تبدیل می‌کنه.
+// stock = null یعنی موجودی نامحدود (ثبت نشده)، 0 یعنی ناموجود.
+function normalizeColors(colors) {
+  if (!Array.isArray(colors)) return [];
+
+  return colors.map((c) => {
+    const raw = c?.stock;
+    const hasStock =
+      raw !== undefined && raw !== null && String(raw).trim() !== "";
+    const n = Math.floor(Number(raw));
+
+    return {
+      ...c,
+      name: String(c?.name || "").trim(),
+      hex: c?.hex || "#000000",
+      stock: hasStock && Number.isFinite(n) ? Math.max(0, n) : null,
+    };
+  });
+}
+
 function buildRow(body) {
   const price = Number(body.price) || 0;
+  const colors = normalizeColors(body.colors);
 
   // قیمت نهایی: همون چیزیه که ادمین توی فیلد "قیمت نهایی" نوشته.
   // اگه چیزی وارد نکرده یا صفره، یعنی تخفیفی نیست و قیمت نهایی = قیمت اصلی.
@@ -59,9 +80,15 @@ function buildRow(body) {
     reviews_count: Number(body.reviewsCount) || 0,
     color: body.color?.trim() || "",
     badge: body.badge?.trim() || "",
-    available: !!body.available,
+    // اگه محصول رنگ داره، موجود بودنش از روی موجودی رنگ‌ها تعیین می‌شه:
+    // تا وقتی حداقل یک رنگ موجودی (یا نامحدود) داره → موجود
+    // وقتی همه‌ی رنگ‌ها صفر بشن → ناموجود
+    available:
+      colors.length > 0
+        ? colors.some((c) => c.stock === null || c.stock > 0)
+        : !!body.available,
     images: Array.isArray(body.images) ? body.images : [],
-    colors: Array.isArray(body.colors) ? body.colors : [],
+    colors,
     description: body.description?.trim() || "",
     specs: Array.isArray(body.specs) ? body.specs : [],
     features: Array.isArray(body.features)

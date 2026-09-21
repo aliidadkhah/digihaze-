@@ -54,7 +54,7 @@ const EMPTY_FORM = {
   available: true,
   description: "",
   images: [],
-  colors: [], // [{ name, hex }]
+  colors: [], // [{ name, hex, stock }]  (stock خالی = نامحدود)
   specs: DEFAULT_SPEC_LABELS.map((label) => ({ label, value: "" })),
   features: [], // ["ویژگی مهم اول", ...]
   tags: "", // رشته‌ی جدا شده با کاما، هنگام ذخیره به آرایه تبدیل می‌شود
@@ -109,7 +109,7 @@ function mapRowToForm(row) {
     available: row.available !== false,
     description: toEditableHtml(row.description || ""),
     images: row.images || [],
-    colors: row.colors || [],
+    colors: (row.colors || []).map((c) => ({ ...c, stock: c?.stock ?? "" })),
     specs: [...existingSpecs, ...missingPresets],
     features: Array.isArray(row.features) ? row.features : [],
     tags: Array.isArray(row.tags) ? row.tags.join("، ") : "",
@@ -258,7 +258,7 @@ export default function ProductsManager() {
 
   // ---------- رنگ‌ها ----------
   const addColor = () =>
-    update("colors", [...form.colors, { name: "", hex: "#000000" }]);
+    update("colors", [...form.colors, { name: "", hex: "#000000", stock: "" }]);
 
   const updateColor = (idx, key, value) =>
     update(
@@ -342,6 +342,17 @@ export default function ProductsManager() {
       setSaveError("نام محصول الزامی است");
       return;
     }
+    // نام رنگ‌ها باید پر و یکتا باشه، چون سفارش و موجودی بر اساس نام رنگ ثبت می‌شه
+    const colorNames = form.colors.map((c) => (c.name || "").trim());
+    if (colorNames.some((n) => !n)) {
+      setSaveError("نام همه‌ی رنگ‌ها را وارد کن");
+      return;
+    }
+    if (new Set(colorNames).size !== colorNames.length) {
+      setSaveError("نام رنگ‌ها نباید تکراری باشد");
+      return;
+    }
+
     setSaving(true);
     setSaveError("");
     try {
@@ -783,10 +794,16 @@ export default function ProductsManager() {
             >
               <input
                 type="checkbox"
-                checked={form.available}
+                checked={form.colors.length > 0 ? form.colors.some((c) => c.stock === "" || c.stock === null || Number(c.stock) > 0) : form.available}
+                disabled={form.colors.length > 0}
                 onChange={(e) => update("available", e.target.checked)}
               />
               موجود در انبار
+              {form.colors.length > 0 && (
+                <span style={{ color: "var(--text-mut)", fontSize: 11.5 }}>
+                  (بر اساس موجودی رنگ‌ها خودکار تعیین می‌شود)
+                </span>
+              )}
             </label>
 
             <Field label="توضیحات محصول">
@@ -875,6 +892,9 @@ export default function ProductsManager() {
             {/* رنگ‌ها */}
             <div>
               <label style={labelStyle}>رنگ‌های موجود</label>
+              <p style={{ color: "var(--text-mut)", fontSize: 11.5, fontFamily: "var(--font-primary)", marginTop: -2, marginBottom: 8, lineHeight: 1.9 }}>
+                تعداد موجودی هر رنگ را وارد کن. با هر خرید از این عدد کم می‌شود و وقتی به صفر برسد، همان رنگ «ناموجود» می‌شود؛ وقتی موجودی همه‌ی رنگ‌ها صفر شود کل محصول ناموجود می‌شود. اگر خالی بگذاری، موجودی آن رنگ نامحدود در نظر گرفته می‌شود.
+              </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {form.colors.map((c, idx) => (
                   <div key={idx} style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -884,6 +904,27 @@ export default function ProductsManager() {
                       value={c.name}
                       onChange={(e) => updateColor(idx, "name", e.target.value)}
                     />
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      inputMode="numeric"
+                      style={{
+                        ...inputStyle,
+                        width: 110,
+                        flexShrink: 0,
+                        border: `1px solid ${c.stock !== "" && c.stock != null && Number(c.stock) <= 0 ? "#ff6b6b" : "var(--surface2)"}`,
+                      }}
+                      placeholder="نامحدود"
+                      title="تعداد موجودی این رنگ (خالی = نامحدود)"
+                      value={c.stock ?? ""}
+                      onChange={(e) => updateColor(idx, "stock", e.target.value)}
+                    />
+                    {c.stock !== "" && c.stock != null && Number(c.stock) <= 0 && (
+                      <span style={{ color: "#ff6b6b", fontSize: 11, fontFamily: "var(--font-primary)", whiteSpace: "nowrap" }}>
+                        ناموجود
+                      </span>
+                    )}
                     <input
                       type="color"
                       value={c.hex || "#000000"}
