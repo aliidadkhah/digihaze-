@@ -18,6 +18,13 @@ function hashCode(code) {
     .digest("hex");
 }
 
+// کد ۵ رقمی با تولیدکننده‌ی تصادفی امن (به‌جای Math.random)
+function generateCode() {
+  const buf = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(buf);
+  return String(10000 + (buf[0] % 90000));
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -30,6 +37,30 @@ export async function POST(request) {
           error: "شماره موبایل معتبر نیست",
         },
         { status: 400 }
+      );
+    }
+
+    /*
+     * بررسی تنظیمات sms.ir قبل از هر کاری.
+     * اگر SMS_IR_API_KEY یا SMS_IR_TEMPLATE_ID روی سرور (Cloudflare) ست نشده باشه،
+     * علت دقیق توی لاگ سرور نوشته می‌شه و به کاربر فقط یک پیام عمومی نشون داده می‌شه.
+     */
+    const apiKey = String(process.env.SMS_IR_API_KEY || "").trim();
+    const templateIdRaw = String(process.env.SMS_IR_TEMPLATE_ID || "").trim();
+    const templateId = Number(templateIdRaw);
+
+    if (!apiKey || !Number.isInteger(templateId) || templateId <= 0) {
+      console.error("SEND OTP CONFIG ERROR: تنظیمات sms.ir ناقص است", {
+        hasApiKey: !!apiKey,
+        templateIdValue: templateIdRaw || "(خالی)",
+      });
+
+      return NextResponse.json(
+        {
+          error:
+            "سرویس پیامک موقتاً در دسترس نیست. کمی بعد دوباره تلاش کن یا با رمز عبور وارد شو.",
+        },
+        { status: 503 }
       );
     }
 
@@ -63,35 +94,36 @@ export async function POST(request) {
      * کد تایید را خودمان اینجا می‌سازیم و به‌عنوان پارامتر قالب
      * به sms.ir می‌دهیم تا فقط پیامکش را ارسال کند.
      */
-    const code = String(Math.floor(10000 + Math.random() * 90000)); // ۵ رقمی
+    const code = generateCode();
 
     const response = await fetch("https://api.sms.ir/v1/send/verify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "x-api-key": process.env.SMS_IR_API_KEY,
+        "x-api-key": apiKey,
       },
       body: JSON.stringify({
         mobile: phone,
-        templateId: Number(process.env.SMS_IR_TEMPLATE_ID),
+        templateId,
         parameters: [{ name: "CONTANCS", value: code }],
       }),
       cache: "no-store",
     });
 
-    const smsData = await response.json();
+    const smsData = await response.json().catch(() => ({}));
 
     /*
      * قرارداد sms.ir: status === 1 یعنی موفق؛ هر عدد دیگر یعنی خطا
      * (لیست کامل کدهای خطا در مستندات REST API سایت sms.ir هست)
+     * پیام خام sms.ir فقط توی لاگ سرور ثبت می‌شه، نه برای کاربر.
      */
     if (!response.ok || smsData.status !== 1) {
-      console.error("SMS.ir error:", smsData);
+      console.error("SMS.ir error:", response.status, smsData);
 
       return NextResponse.json(
         {
-          error: smsData.message || "ارتباط با سرویس sms.ir برقرار نشد.",
+          error: "ارسال پیامک ناموفق بود. کمی بعد دوباره تلاش کن.",
         },
         { status: 502 }
       );

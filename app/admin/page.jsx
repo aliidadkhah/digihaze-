@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
@@ -9,6 +9,7 @@ import AnnouncementManager from "@/components/AnnouncementManager";
 import PostsManager from "@/components/PostsManager";
 import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 import CategoriesManager from "@/components/CategoriesManager";
+import FeedbackManager from "@/components/FeedbackManager";
 import { HOW_HEARD_LABELS } from "@/lib/telegram";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
@@ -234,6 +235,8 @@ export default function AdminPage() {
             ? "روش‌های ارسال و پرداخت"
             : tab === "categories"
             ? "دسته‌بندی‌ها"
+            : tab === "feedback"
+            ? "نظرات و سوالات"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -291,6 +294,12 @@ export default function AdminPage() {
         >
           <ListTree size={14} /> دسته‌بندی‌ها
         </button>
+        <button
+          onClick={() => setTab("feedback")}
+          style={tabBtnStyle(tab === "feedback")}
+        >
+          <MessageSquare size={14} /> نظرات و سوالات
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
@@ -304,6 +313,8 @@ export default function AdminPage() {
       {tab === "shipping-payment" && <ShippingPaymentManager />}
 
       {tab === "categories" && <CategoriesManager />}
+
+      {tab === "feedback" && <FeedbackManager />}
 
       {tab === "orders" && (
         <>

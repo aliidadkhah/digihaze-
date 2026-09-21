@@ -27,6 +27,7 @@ import {
 
 import { FlavorCloud } from "./visuals";
 import ProductCard from "./ProductCard";
+import ProductQA from "./ProductQA";
 import { isColorSoldOut, firstAvailableColor } from "@/lib/colorStock";
 import { money, discountedPrice, CATEGORIES } from "@/lib/data";
 import { useCart, useUser } from "./Providers";
@@ -61,12 +62,16 @@ function ReviewForm({ onSubmit }) {
   const [hoverRating, setHoverRating] = useState(0);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!name.trim()) {
+    // اگر کاربر لاگین باشه، اسمش از پروفایل گرفته می‌شه (ممکنه بعد از اولین رندر لود شده باشه)
+    const finalName = (user?.name || name).trim();
+
+    if (!finalName) {
       return setError("لطفاً نامت رو بنویس");
     }
 
@@ -74,13 +79,20 @@ function ReviewForm({ onSubmit }) {
       return setError("لطفاً متن نظرت رو بنویس");
     }
 
-    onSubmit({
-      name: name.trim(),
-      rating,
-      text: text.trim(),
-    });
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        name: finalName,
+        rating,
+        text: text.trim(),
+      });
 
-    setText("");
+      setText("");
+    } catch (err) {
+      setError(err?.message || "ثبت نظر ناموفق بود");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -178,6 +190,7 @@ function ReviewForm({ onSubmit }) {
 
       <button
         type="submit"
+        disabled={submitting}
         style={{
           alignSelf: "flex-start",
           background: "#4F7FFF",
@@ -188,10 +201,11 @@ function ReviewForm({ onSubmit }) {
           fontFamily: "var(--font-primary)",
           fontWeight: 700,
           fontSize: 13,
-          cursor: "pointer",
+          cursor: submitting ? "default" : "pointer",
+          opacity: submitting ? 0.7 : 1,
         }}
       >
-        ثبت نظر
+        {submitting ? "در حال ثبت..." : "ثبت نظر"}
       </button>
     </form>
   );
@@ -203,9 +217,15 @@ export default function ProductContent({ product, related }) {
   const [tab, setTab] = useState("desc");
   const [added, setAdded] = useState(false);
 
-  const [reviews, setReviews] = useState(
-    product.reviews || []
-  );
+  // نظرات ثبت‌شده‌ی کاربران (از دیتابیس) و سوال‌های کاربران
+  const [userReviews, setUserReviews] = useState([]);
+  const [questions, setQuestions] = useState([]);
+
+  // نظرات کاربران + نظرات ثابتی که ادمین توی مشخصات محصول وارد کرده
+  const reviews = [
+    ...userReviews,
+    ...(product.reviews || []),
+  ];
 
   const [descExpanded, setDescExpanded] = useState(false);
 
@@ -246,7 +266,8 @@ export default function ProductContent({ product, related }) {
     setImgIdx(0);
     setQty(1);
     setTab("desc");
-    setReviews(product.reviews || []);
+    setUserReviews([]);
+    setQuestions([]);
     setDescExpanded(false);
 
     setSelectedColor(
@@ -256,13 +277,76 @@ export default function ProductContent({ product, related }) {
     );
   }, [product.id]);
 
-  const addReview = (review) => {
-    setReviews((prev) => [
-      { ...review },
-      ...prev,
-    ]);
+  // دریافت نظرات و سوال‌های ثبت‌شده‌ی این محصول
+  useEffect(() => {
+    let cancelled = false;
+    const pid = encodeURIComponent(String(product.id));
 
+    fetch(`/api/product-reviews?productId=${pid}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setUserReviews(Array.isArray(data.reviews) ? data.reviews : []);
+        }
+      })
+      .catch(() => {});
+
+    fetch(`/api/product-questions?productId=${pid}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setQuestions(Array.isArray(data.questions) ? data.questions : []);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product.id]);
+
+  // ثبت نظر (در دیتابیس ذخیره می‌شه تا ادمین از پنل ببینه و حذف کنه)
+  const addReview = async (review) => {
+    const res = await fetch("/api/product-reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: String(product.id),
+        name: review.name,
+        rating: review.rating,
+        text: review.text,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.error || "ثبت نظر ناموفق بود");
+    }
+
+    setUserReviews((prev) => [data.review, ...prev]);
     setTab("reviews");
+  };
+
+  // ثبت سوال (پاسخ رو ادمین از پنل مدیریت می‌ده)
+  const addQuestion = async ({ name, question }) => {
+    const res = await fetch("/api/product-questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: String(product.id),
+        name,
+        question,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.error || "ثبت سوال ناموفق بود");
+    }
+
+    setQuestions((prev) => [data.question, ...prev]);
   };
 
   /*
@@ -1000,7 +1084,7 @@ export default function ProductContent({ product, related }) {
               },
               {
                 id: "qa",
-                label: `سوال و جواب (${(product.qa || []).length})`,
+                label: `سوال و جواب (${(product.qa || []).length + questions.length})`,
               },
             ].map((t) => (
               <button
@@ -1212,55 +1296,11 @@ export default function ProductContent({ product, related }) {
           )}
 
           {tab === "qa" && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 14,
-              }}
-            >
-              {(product.qa || []).length === 0 && (
-                <p
-                  style={{
-                    color: "var(--text-mut)",
-                    fontSize: 13,
-                  }}
-                >
-                  هنوز سوالی برای این محصول ثبت نشده.
-                </p>
-              )}
-
-              {(product.qa || []).map((item, i) => (
-                <div
-                  key={i}
-                  style={{
-                    background: "var(--surface)",
-                    borderRadius: 12,
-                    padding: 14,
-                  }}
-                >
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 13.5,
-                      marginBottom: 8,
-                    }}
-                  >
-                    {item.question}
-                  </div>
-
-                  <p
-                    style={{
-                      color: "var(--text-lo)",
-                      fontSize: 13,
-                      lineHeight: 1.9,
-                    }}
-                  >
-                    {item.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <ProductQA
+              questions={questions}
+              staticQa={product.qa || []}
+              onAsk={addQuestion}
+            />
           )}
 
           {tab === "reviews" && (
@@ -1291,7 +1331,7 @@ export default function ProductContent({ product, related }) {
 
                 {reviews.map((r, i) => (
                   <div
-                    key={i}
+                    key={r.id || i}
                     style={{
                       background:
                         "var(--surface)",
