@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { generateVerifyToken, hashToken } from "@/lib/passwordAuth";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -136,15 +137,45 @@ export async function POST(request) {
       .eq("id", otp.id);
 
     /*
-     * فعلاً اطلاعات کاربر را برمی‌گردانیم.
-     * مرحله بعد می‌توانیم Session واقعی و Cookie امن هم اضافه کنیم.
+     * اگه قبلاً مشتری با این شماره ثبت شده (نام/آدرس/رمز عبور)،
+     * پروفایلش رو برمی‌گردونیم تا دیگه مجبور نباشه دوباره اطلاعاتش رو وارد کنه.
      */
+    const { data: customer } = await supabaseAdmin
+      .from("customers")
+      .select(
+        "name, province, city, address, postal_code, how_heard, password_hash"
+      )
+      .eq("phone", phone)
+      .maybeSingle();
+
+    /*
+     * یک توکن کوتاه‌مدت (۳۰ دقیقه) صادر می‌کنیم؛ این توکن اجازه می‌ده
+     * کاربر بلافاصله بعد از این تایید، رمز عبور برای حساب خودش تعیین/تغییر بده
+     * بدون این‌که کس دیگه‌ای فقط با دونستن شماره موبایلش بتونه این کار رو بکنه.
+     */
+    const verifyToken = generateVerifyToken();
+    const tokenExpiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+    await supabaseAdmin.from("phone_verify_tokens").delete().eq("phone", phone);
+    await supabaseAdmin.from("phone_verify_tokens").insert({
+      phone,
+      token_hash: hashToken(verifyToken),
+      expires_at: tokenExpiresAt,
+    });
+
     return NextResponse.json({
       success: true,
+      verifyToken,
       user: {
-        name: `کاربر ${phone.slice(-4)}`,
+        name: customer?.name || `کاربر ${phone.slice(-4)}`,
         contact: phone,
+        province: customer?.province || "",
+        city: customer?.city || "",
+        address: customer?.address || "",
+        postalCode: customer?.postal_code || "",
+        howHeard: customer?.how_heard || "",
       },
+      hasPassword: !!customer?.password_hash,
     });
   } catch (error) {
     console.error("VERIFY OTP ERROR:", error);
