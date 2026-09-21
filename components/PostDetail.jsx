@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Calendar, User, ArrowRight, Tag as TagIcon } from "lucide-react";
 import PostCard from "./PostCard";
+import PostComments from "./PostComments";
 
 function formatDate(value) {
   if (!value) return "";
@@ -20,39 +21,41 @@ function formatDate(value) {
 export default function PostDetail({ post, basePath, backLabel, related = [] }) {
   return (
     <main dir="rtl" style={{ maxWidth: 820, margin: "0 auto", padding: "32px 20px 80px" }}>
-      <Link
-        href={basePath}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          color: "var(--text-mut)",
-          fontSize: 13,
-          fontFamily: "var(--font-primary)",
-          textDecoration: "none",
-          marginBottom: 20,
-        }}
-      >
-        <ArrowRight size={15} />
-        {backLabel}
-      </Link>
-
-      {post.category && (
-        <span
+      <div style={{ marginBottom: 14 }}>
+        <Link
+          href={basePath}
           style={{
-            display: "inline-block",
-            background: "#4F7FFF18",
-            color: "#4F7FFF",
-            fontSize: 12,
-            fontWeight: 800,
-            borderRadius: 999,
-            padding: "5px 14px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            color: "var(--text-mut)",
+            fontSize: 13,
             fontFamily: "var(--font-primary)",
-            marginBottom: 14,
+            textDecoration: "none",
           }}
         >
-          {post.category}
-        </span>
+          <ArrowRight size={15} />
+          {backLabel}
+        </Link>
+      </div>
+
+      {post.category && (
+        <div style={{ marginBottom: 14 }}>
+          <span
+            style={{
+              display: "inline-block",
+              background: "#4F7FFF18",
+              color: "#4F7FFF",
+              fontSize: 12,
+              fontWeight: 800,
+              borderRadius: 999,
+              padding: "5px 14px",
+              fontFamily: "var(--font-primary)",
+            }}
+          >
+            {post.category}
+          </span>
+        </div>
       )}
 
       <h1
@@ -159,6 +162,8 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           </div>
         </div>
       )}
+
+      <PostComments postId={post.id} />
 
       <style>{`
         .post-content {
