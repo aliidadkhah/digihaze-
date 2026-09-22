@@ -305,12 +305,14 @@ export default function ScrollcraftHero({ deviceColor }) {
               fontWeight: 700,
               fontSize: 12.5,
               letterSpacing: 0.3,
-              color: "var(--neon-teal)",
-              border: "1px solid #00FFD155",
+              color: isLight ? "#00A88F" : "var(--neon-teal)",
+              border: isLight
+                ? "1px solid #00A88F55"
+                : "1px solid #00FFD155",
               borderRadius: 999,
               padding: "6px 16px",
               marginBottom: 18,
-              background: "#00FFD10f",
+              background: isLight ? "#00A88F14" : "#00FFD10f",
             }}
           >
             ضمانت اصالت کالا · ارسال به سراسر ایران
