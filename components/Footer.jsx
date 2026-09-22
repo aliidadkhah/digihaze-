@@ -273,18 +273,13 @@ export default function Footer() {
           style={{
             display: "flex",
             alignItems: "center",
-            background: "#fff",
-            borderRadius: 10,
-            padding: "10px 16px",
-            height: 72,
-            boxSizing: "border-box",
           }}
         >
           <img
             src="/zibal-logo.svg"
             alt="درگاه پرداخت زیبال"
             style={{
-              height: "100%",
+              height: 36,
               width: "auto",
               display: "block",
             }}
