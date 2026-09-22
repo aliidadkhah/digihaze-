@@ -138,7 +138,7 @@ function StatCallout({ title, text, color, className }) {
 --------------------------------------------------------- */
 export default function GlobalNetworkGlobe({
   height = 440,
-  color = "#FF7A1F",
+  color = "#108de2",
   leftStat = {
     title: "ارسال به سراسر ایران",
     text: "بسته‌بندی امن و ارسال از نزدیک‌ترین انبار، برای رسیدن سریع‌تر بسته به دستتون.",
