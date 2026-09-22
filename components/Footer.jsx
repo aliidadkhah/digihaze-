@@ -249,7 +249,7 @@ export default function Footer() {
         <a
           referrerPolicy="origin"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           href="https://trustseal.enamad.ir/?id=7710858&Code=HstWRvynMwXZpmDYFVR6gFFUpk75bg9G"
         >
           <img
