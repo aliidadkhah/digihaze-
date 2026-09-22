@@ -234,12 +234,70 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* Trust badges */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 16,
+          marginTop: 34,
+          paddingTop: 24,
+          borderTop: "1px solid var(--surface2)",
+        }}
+      >
+        <a
+          referrerPolicy="origin"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://trustseal.enamad.ir/?id=7710858&Code=HstWRvynMwXZpmDYFVR6gFFUpk75bg9G"
+        >
+          <img
+            referrerPolicy="origin"
+            src="https://trustseal.enamad.ir/logo.aspx?id=7710858&Code=HstWRvynMwXZpmDYFVR6gFFUpk75bg9G"
+            alt="نماد اعتماد الکترونیکی"
+            style={{
+              cursor: "pointer",
+              height: 72,
+              width: "auto",
+            }}
+            code="HstWRvynMwXZpmDYFVR6gFFUpk75bg9G"
+          />
+        </a>
+
+        <a
+          href="https://zibal.ir"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="درگاه پرداخت زیبال"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            background: "#fff",
+            borderRadius: 10,
+            padding: "10px 16px",
+            height: 72,
+            boxSizing: "border-box",
+          }}
+        >
+          <img
+            src="/zibal-logo.svg"
+            alt="درگاه پرداخت زیبال"
+            style={{
+              height: "100%",
+              width: "auto",
+              display: "block",
+            }}
+          />
+        </a>
+      </div>
+
       <div
         style={{
           textAlign: "center",
           color: "var(--text-faint)",
           fontSize: 12,
-          marginTop: 34,
+          marginTop: 20,
         }}
       >
         © تمامی حقوق برای دیجی‌هیز محفوظ است.
