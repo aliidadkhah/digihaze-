@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 
 import { Reveal } from "./ui";
@@ -15,6 +15,11 @@ import { useProducts } from "./ProductsProvider";
 
 export default function HomeContent() {
   const { products } = useProducts();
+
+  // رنگ نور دستگاه ویپ بالای هیرو، وقتی روی یکی از باکس‌های دسته‌بندی
+  // هاور می‌شود به رنگ همون دسته‌بندی تغییر می‌کند (وقتی هاور نیست،
+  // به رنگ پیش‌فرض بنفش برمی‌گردد — این رفتار توی ScrollcraftHero هندل می‌شود).
+  const [hoveredCategoryColor, setHoveredCategoryColor] = useState(null);
 
   const featured = products;
 
@@ -114,7 +119,7 @@ export default function HomeContent() {
           (اسکرول = تایم‌لاین، سکشن بلند با sticky)
       ========================= */}
 
-      <ScrollcraftHero />
+      <ScrollcraftHero deviceColor={hoveredCategoryColor} />
 
       {/* =========================
           CATEGORY STRIP
@@ -159,6 +164,12 @@ export default function HomeContent() {
               >
                 <div
                   className="glow-box"
+                  onMouseEnter={() =>
+                    setHoveredCategoryColor(c.color)
+                  }
+                  onMouseLeave={() =>
+                    setHoveredCategoryColor(null)
+                  }
                   style={{
                     borderRadius: 16,
                     "--glow": "#4F7FFF",

@@ -247,6 +247,16 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           align-items: center;
           justify-content: center;
         }
+        .post-content a {
+          color: #4F7FFF;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          font-weight: 700;
+          transition: color 0.2s ease;
+        }
+        .post-content a:hover {
+          color: #9B5CFF;
+        }
         .post-content blockquote {
           position: relative;
           margin: 22px 0;

@@ -104,7 +104,14 @@ function RevealWords({ words, revealed, startDelay = 0, stepDelay = 55, gradient
    دستگاه ویپ سیگنچر — همیشه پررنگ، جلوی ستاره‌های دنباله‌دار
    (مستقل از هر انیمیشن fade، هرگز کم‌رنگ نمی‌شود)
 ========================================================= */
-function FloatingDevice({ color = "#9B5CFF" }) {
+function FloatingDevice({ color = "#9B5CFF", isLight = false }) {
+  // نکته: قبلاً این کلاهک بالای دستگاه (دهانی) همیشه با یک سفید-بنفش
+  // ثابت (#F5F1FF) پر می‌شد. تو حالت تیره روی پس‌زمینه‌ی مشکی خوب دیده
+  // می‌شد، اما تو لایت‌مود چون پس‌زمینه‌ی صفحه هم روشنه، همین رنگ تقریباً
+  // نامرئی می‌شد. الان تو لایت‌مود از یک رنگ تیره (هم‌خانواده‌ی بدنه)
+  // استفاده می‌کنیم تا همیشه، مستقل از تم، قابل دیدن باشه.
+  const capFill = isLight ? "#2a2050" : "#F5F1FF";
+
   return (
     <div
       aria-hidden
@@ -125,6 +132,7 @@ function FloatingDevice({ color = "#9B5CFF" }) {
           filter: "blur(18px)",
           mixBlendMode: "screen",
           animation: "scPulseGlow 2.8s ease-in-out infinite",
+          transition: "background 0.5s ease",
         }}
       />
       <svg
@@ -135,6 +143,7 @@ function FloatingDevice({ color = "#9B5CFF" }) {
           position: "relative",
           display: "block",
           filter: `drop-shadow(0 24px 30px ${color}55)`,
+          transition: "filter 0.5s ease",
         }}
       >
         <defs>
@@ -147,13 +156,17 @@ function FloatingDevice({ color = "#9B5CFF" }) {
             <stop offset="100%" stopColor={color} stopOpacity="0.35" />
           </linearGradient>
         </defs>
-        <path d="M48 0 h24 a4 4 0 0 1 4 4 v14 h-32 v-14 a4 4 0 0 1 4-4 z" fill="#F5F1FF" />
-        <rect x="42" y="18" width="36" height="8" rx="2" fill={color} />
-        <rect x="18" y="26" width="84" height="164" rx="20" fill="url(#scBodyGrad)" stroke={`${color}99`} strokeWidth="2" />
-        <rect x="30" y="86" width="60" height="74" rx="10" fill="#0b0818" stroke={`${color}77`} strokeWidth="1.5" />
+        <path
+          d="M48 0 h24 a4 4 0 0 1 4 4 v14 h-32 v-14 a4 4 0 0 1 4-4 z"
+          fill={capFill}
+          style={{ transition: "fill 0.4s ease" }}
+        />
+        <rect x="42" y="18" width="36" height="8" rx="2" fill={color} style={{ transition: "fill 0.4s ease" }} />
+        <rect x="18" y="26" width="84" height="164" rx="20" fill="url(#scBodyGrad)" stroke={`${color}99`} strokeWidth="2" style={{ transition: "stroke 0.4s ease" }} />
+        <rect x="30" y="86" width="60" height="74" rx="10" fill="#0b0818" stroke={`${color}77`} strokeWidth="1.5" style={{ transition: "stroke 0.4s ease" }} />
         <rect x="35" y="118" width="50" height="37" rx="7" fill="url(#scWinGrad)" />
-        <circle cx="60" cy="176" r="10" fill="#0b0818" stroke={color} strokeWidth="2" />
-        <circle cx="60" cy="176" r="4" fill={color} />
+        <circle cx="60" cy="176" r="10" fill="#0b0818" stroke={color} strokeWidth="2" style={{ transition: "stroke 0.4s ease" }} />
+        <circle cx="60" cy="176" r="4" fill={color} style={{ transition: "fill 0.4s ease" }} />
       </svg>
       {[0, 1, 2].map((i) => (
         <span
@@ -168,6 +181,7 @@ function FloatingDevice({ color = "#9B5CFF" }) {
             background: `${color}99`,
             filter: "blur(2px)",
             animation: `scRiseUp ${3.5 + i}s ease-in ${i * 0.9}s infinite`,
+            transition: "background 0.4s ease",
           }}
         />
       ))}
@@ -180,7 +194,7 @@ function FloatingDevice({ color = "#9B5CFF" }) {
    بدون اسکرول‌جک؛ ورود یک‌بار و زمان‌محور، دقیقاً 100vh
    بلافاصله بعدش سکشن دسته‌بندی شروع می‌شود (بدون فاصله‌ی اضافه)
 ========================================================= */
-export default function ScrollcraftHero() {
+export default function ScrollcraftHero({ deviceColor }) {
   const sectionRef = useRef(null);
   const [revealed, setRevealed] = useState(false);
   const [scrolledPast, setScrolledPast] = useState(false);
@@ -268,9 +282,13 @@ export default function ScrollcraftHero() {
           textAlign: "center",
         }}
       >
-        {/* وکتور ویپ — همیشه پررنگ و همیشه جلوی ستاره‌های دنباله‌دار */}
+        {/* وکتور ویپ — همیشه پررنگ و همیشه جلوی ستاره‌های دنباله‌دار.
+            وقتی کاربر روی یکی از باکس‌های دسته‌بندی هاور می‌کند، رنگ نور
+            این دستگاه به رنگ همون دسته‌بندی تغییر می‌کند (deviceColor از
+            HomeContent پاس داده می‌شود)؛ وقتی هاور نیست به بنفش پیش‌فرض
+            برمی‌گردد. */}
         <div style={{ position: "relative", zIndex: 2 }}>
-          <FloatingDevice color="#9B5CFF" />
+          <FloatingDevice color={deviceColor || "#9B5CFF"} isLight={isLight} />
         </div>
 
         <div

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Bold, Heading2, List, ImagePlus, Highlighter, Quote } from "lucide-react";
+import { Bold, Heading2, List, ImagePlus, Highlighter, Quote, Link2, Unlink } from "lucide-react";
 import { uploadProductImage } from "@/lib/productImages";
 
 const btnStyle = {
@@ -77,6 +77,50 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
     }
   };
 
+  // لینک‌دادن به متنِ انتخاب‌شده (مثلاً وسط یک پاراگراف، لینک به یک محصول)
+  // برای لینک به محصول کافیه آدرسی مثل /product/اسلاگ-محصول وارد بشه،
+  // یا یک آدرس کامل https://... برای لینک‌های بیرونی
+  const insertLink = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+      alert("اول متنی که می‌خواهید لینک بشه رو انتخاب کنید (سلکت کنید)، بعد روی این دکمه بزنید.");
+      return;
+    }
+    if (!ref.current?.contains(sel.getRangeAt(0).commonAncestorContainer)) return;
+
+    saveSelection();
+
+    const url = window.prompt(
+      "آدرس لینک رو وارد کنید — برای لینک به یک محصول: /product/اسلاگ-محصول ، یا یک آدرس کامل مثل https://..."
+    );
+    if (!url) return;
+
+    ref.current?.focus();
+    restoreSelection();
+    document.execCommand("createLink", false, url);
+
+    // execCommand("createLink") خودش target/rel رو تنظیم نمی‌کند؛
+    // برای لینک‌های بیرونی بهتره در تب جدید باز بشه
+    if (/^https?:\/\//i.test(url)) {
+      const sel2 = window.getSelection();
+      const anchor =
+        sel2?.anchorNode?.parentElement?.closest?.("a") ||
+        sel2?.focusNode?.parentElement?.closest?.("a");
+      if (anchor) {
+        anchor.setAttribute("target", "_blank");
+        anchor.setAttribute("rel", "noopener noreferrer");
+      }
+    }
+
+    saveSelection();
+    onChange(ref.current.innerHTML);
+  };
+
+  // حذف لینک از متنِ انتخاب‌شده (مکان‌نما باید داخل یک لینک باشه)
+  const removeLink = () => {
+    exec("unlink");
+  };
+
   // پس‌زمینه (کادر) پشت متنِ انتخاب‌شده اضافه می‌کند
   const highlightSelection = () => {
     const sel = window.getSelection();
@@ -130,6 +174,24 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           onClick={() => exec("insertUnorderedList")}
         >
           <List size={14} />
+        </button>
+        <button
+          type="button"
+          title="لینک‌دادن به متن انتخاب‌شده (مثلاً لینک به یک محصول — اول متن رو انتخاب کن)"
+          style={btnStyle}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={insertLink}
+        >
+          <Link2 size={14} />
+        </button>
+        <button
+          type="button"
+          title="حذف لینک (مکان‌نما باید روی یک لینک باشه)"
+          style={btnStyle}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={removeLink}
+        >
+          <Unlink size={14} />
         </button>
         <button
           type="button"
@@ -204,6 +266,10 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
         }
         .rte-editable :global(ul) {
           padding-inline-start: 20px;
+        }
+        .rte-editable :global(a) {
+          color: #4F7FFF;
+          text-decoration: underline;
         }
         .rte-editable :global(blockquote) {
           margin: 10px 0;
