@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
@@ -10,6 +10,7 @@ import PostsManager from "@/components/PostsManager";
 import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 import CategoriesManager from "@/components/CategoriesManager";
 import FeedbackManager from "@/components/FeedbackManager";
+import DiscountCodesManager from "@/components/DiscountCodesManager";
 import { HOW_HEARD_LABELS } from "@/lib/telegram";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
@@ -300,6 +301,12 @@ export default function AdminPage() {
         >
           <MessageSquare size={14} /> نظرات و سوالات
         </button>
+        <button
+          onClick={() => setTab("discounts")}
+          style={tabBtnStyle(tab === "discounts")}
+        >
+          <Percent size={14} /> کد تخفیف
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
@@ -315,6 +322,8 @@ export default function AdminPage() {
       {tab === "categories" && <CategoriesManager />}
 
       {tab === "feedback" && <FeedbackManager />}
+
+      {tab === "discounts" && <DiscountCodesManager />}
 
       {tab === "orders" && (
         <>
@@ -355,6 +364,11 @@ export default function AdminPage() {
                 )}
                 <div>روش ارسال: {SHIPPING_LABELS[o.shipping_method] || o.shipping_method || "—"} • روش پرداخت: {o.payment_method === "gateway" ? "درگاه" : "کارت به کارت"}</div>
                 {o.payment_tracking_code && <div>کد پیگیری واریز: <span dir="ltr">{o.payment_tracking_code}</span></div>}
+                {o.discount_code && (
+                  <div>
+                    کد تخفیف: <span dir="ltr">{o.discount_code}</span> (- {Number(o.discount_amount || 0).toLocaleString("fa-IR")} تومان)
+                  </div>
+                )}
               </div>
 
               {/* بررسی دوباره‌ی پرداخت درگاهی که برنگشته و pending مونده */}

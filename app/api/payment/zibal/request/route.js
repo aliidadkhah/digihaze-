@@ -5,6 +5,7 @@ import { getProductById } from "@/lib/products";
 import { getShippingCost } from "@/lib/shipping";
 import { zibalRequest, zibalPaymentUrl } from "@/lib/zibal";
 import { reserveStock, restoreStock, changeOrderStatus } from "@/lib/stock";
+import { findValidDiscountCode, redeemDiscountCode } from "@/lib/discount";
 
 const SHIPPING_LABELS = {
   post: "پست",
@@ -19,7 +20,7 @@ const SHIPPING_LABELS = {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { customer, shipping, items } = body;
+    const { customer, shipping, items, discountCode } = body;
 
     // =========================
     // بررسی مشتری
@@ -107,7 +108,24 @@ export async function POST(req) {
       });
     }
 
-    const total = itemsTotal + shippingCost;
+    // =========================
+    // بررسی کد تخفیف (همیشه سمت سرور، روی جمع واقعی سبد)
+    // =========================
+    let discountAmount = 0;
+    let appliedDiscountCode = null;
+
+    if (discountCode && String(discountCode).trim()) {
+      const discountResult = await findValidDiscountCode(discountCode, itemsTotal);
+
+      if (!discountResult.ok) {
+        return NextResponse.json({ error: discountResult.error }, { status: 400 });
+      }
+
+      discountAmount = discountResult.amount;
+      appliedDiscountCode = discountResult.discount.code;
+    }
+
+    const total = itemsTotal - discountAmount + shippingCost;
 
     if (total <= 0) {
       return NextResponse.json(
@@ -144,6 +162,9 @@ export async function POST(req) {
 
         total,
         status: "pending",
+
+        discount_code: appliedDiscountCode,
+        discount_amount: discountAmount,
 
         payment_method: "gateway",
       })
@@ -182,6 +203,13 @@ export async function POST(req) {
         { error: itemsError.message },
         { status: 500 }
       );
+    }
+
+    // =========================
+    // ثبت استفاده از کد تخفیف
+    // =========================
+    if (appliedDiscountCode) {
+      await redeemDiscountCode(appliedDiscountCode);
     }
 
     // =========================

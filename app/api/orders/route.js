@@ -5,6 +5,7 @@ import { discountedPrice } from "@/lib/data";
 import { getProductById } from "@/lib/products";
 import { getShippingCost } from "@/lib/shipping";
 import { reserveStock, restoreStock } from "@/lib/stock";
+import { findValidDiscountCode, redeemDiscountCode } from "@/lib/discount";
 
 export async function GET(req) {
   try {
@@ -66,7 +67,7 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    const { customer, shipping, payment, items } = body;
+    const { customer, shipping, payment, items, discountCode } = body;
 
     // =========================
     // بررسی مشتری
@@ -180,7 +181,26 @@ export async function POST(req) {
       });
     }
 
-    const total = itemsTotal + shippingCost;
+    // =========================
+    // بررسی کد تخفیف (همیشه سمت سرور، روی جمع واقعی سبد)
+    // =========================
+    // نکته امنیتی: مبلغ تخفیف هرگز از روی چیزی که کلاینت فرستاده
+    // حساب نمی‌شه؛ کد از نو روی جمع واقعی سبد (itemsTotal) اعتبارسنجی و محاسبه می‌شه.
+    let discountAmount = 0;
+    let appliedDiscountCode = null;
+
+    if (discountCode && String(discountCode).trim()) {
+      const discountResult = await findValidDiscountCode(discountCode, itemsTotal);
+
+      if (!discountResult.ok) {
+        return NextResponse.json({ error: discountResult.error }, { status: 400 });
+      }
+
+      discountAmount = discountResult.amount;
+      appliedDiscountCode = discountResult.discount.code;
+    }
+
+    const total = itemsTotal - discountAmount + shippingCost;
 
     // =========================
     // رزرو موجودی رنگ‌ها
@@ -212,6 +232,9 @@ export async function POST(req) {
 
         total,
         status: initialStatus,
+
+        discount_code: appliedDiscountCode,
+        discount_amount: discountAmount,
 
         payment_method: paymentMethod,
         payment_tracking_code: payment?.trackingCode?.trim() || "",
@@ -249,6 +272,13 @@ export async function POST(req) {
         .update({ status: "failed" })
         .eq("id", order.id);
       return NextResponse.json({ error: itemsError.message }, { status: 500 });
+    }
+
+    // =========================
+    // ثبت استفاده از کد تخفیف
+    // =========================
+    if (appliedDiscountCode) {
+      await redeemDiscountCode(appliedDiscountCode);
     }
 
     // =========================

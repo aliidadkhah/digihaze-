@@ -223,13 +223,23 @@ export default function OrdersContent() {
                 borderTop: "1px solid var(--surface2)",
                 paddingTop: 12,
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
+                gap: 6,
                 fontFamily: "var(--font-primary)",
               }}
             >
-              <span style={{ color: "var(--text-mut)", fontSize: 12.5 }}>مبلغ کل</span>
-              <span style={{ fontWeight: 800, fontSize: 15 }}>{money(o.total)}</span>
+              {o.discount_amount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ color: "#9B5CFF", fontSize: 12.5 }}>
+                    تخفیف {o.discount_code ? `(${o.discount_code})` : ""}
+                  </span>
+                  <span style={{ color: "#9B5CFF", fontSize: 12.5 }}>- {money(o.discount_amount)}</span>
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "var(--text-mut)", fontSize: 12.5 }}>مبلغ کل</span>
+                <span style={{ fontWeight: 800, fontSize: 15 }}>{money(o.total)}</span>
+              </div>
             </div>
           </div>
         ))}

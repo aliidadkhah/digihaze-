@@ -19,6 +19,10 @@ import {
   Truck,
   CreditCard,
   Landmark,
+  Tag,
+  X,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 import { SHIPPING_METHODS } from "@/lib/shipping";
@@ -118,6 +122,15 @@ export default function CheckoutPage() {
   const [copied, setCopied] =
     useState(false);
 
+  /* ========================= */
+  /* کد تخفیف */
+  /* ========================= */
+
+  const [discountCodeInput, setDiscountCodeInput] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(null); // { code, type, value, amount }
+  const [discountChecking, setDiscountChecking] = useState(false);
+  const [discountError, setDiscountError] = useState("");
+
   const cardNumber =
     "5022291316719168";
 
@@ -153,8 +166,10 @@ export default function CheckoutPage() {
       (m) => m.id === shippingMethod
     )?.cost || 0;
 
+  const discountAmount = appliedDiscount?.amount || 0;
+
   const total =
-    itemsTotal + shippingCost;
+    itemsTotal - discountAmount + shippingCost;
 
   /* ========================= */
   /* کپی شماره کارت */
@@ -178,6 +193,97 @@ export default function CheckoutPage() {
       );
     }
   };
+
+  /* ========================= */
+  /* اعمال / حذف کد تخفیف */
+  /* ========================= */
+
+  const applyDiscountCode = async () => {
+    const code = discountCodeInput.trim();
+
+    if (!code) {
+      setDiscountError("کد تخفیف را وارد کن");
+      return;
+    }
+
+    setDiscountChecking(true);
+    setDiscountError("");
+
+    try {
+      const res = await fetch("/api/discount/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: itemsTotal }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data?.valid) {
+        setAppliedDiscount(null);
+        setDiscountError(data?.error || "کد تخفیف نامعتبر است");
+        return;
+      }
+
+      setAppliedDiscount({
+        code: data.code,
+        type: data.type,
+        value: data.value,
+        amount: data.amount,
+      });
+    } catch (err) {
+      console.error("DISCOUNT VALIDATE ERROR:", err);
+      setDiscountError("خطا در بررسی کد تخفیف، دوباره تلاش کن");
+    } finally {
+      setDiscountChecking(false);
+    }
+  };
+
+  const removeDiscountCode = () => {
+    setAppliedDiscount(null);
+    setDiscountCodeInput("");
+    setDiscountError("");
+  };
+
+  // اگه سبد خرید بعد از اعمال کد تخفیف تغییر کنه (مثلاً کاربر توی یه تب دیگه
+  // چیزی اضافه/کم کنه)، مبلغ تخفیف رو دوباره روی جمع تازه چک می‌کنیم.
+  useEffect(() => {
+    if (!appliedDiscount) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/discount/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: appliedDiscount.code, subtotal: itemsTotal }),
+        });
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (!res.ok || !data?.valid) {
+          setAppliedDiscount(null);
+          setDiscountError(data?.error || "کد تخفیف روی سبد فعلی دیگر معتبر نیست");
+          return;
+        }
+
+        setAppliedDiscount((prev) =>
+          prev && prev.amount === data.amount
+            ? prev
+            : { code: data.code, type: data.type, value: data.value, amount: data.amount }
+        );
+      } catch {
+        // اگه چک دوباره خطا بده، عددی که قبلاً تایید شده رو نگه می‌داریم؛
+        // اعتبار نهایی هرحال موقع ثبت سفارش دوباره سمت سرور چک می‌شه.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsTotal]);
 
   /* ========================= */
   /* ثبت سفارش */
@@ -219,6 +325,8 @@ export default function CheckoutPage() {
             status,
             ...paymentPayload,
           },
+
+          discountCode: appliedDiscount?.code || null,
 
           items: cart.map((item) => ({
             productId:
@@ -382,6 +490,8 @@ export default function CheckoutPage() {
               shipping: {
                 method: shippingMethod,
               },
+
+              discountCode: appliedDiscount?.code || null,
 
               items: cart.map((item) => ({
                 productId:
@@ -830,9 +940,73 @@ export default function CheckoutPage() {
               فاکتور خرید
             </h2>
 
+            {/* ========================= */}
+            {/* کد تخفیف */}
+            {/* ========================= */}
+
+            <div className="discount-box">
+
+              {appliedDiscount ? (
+                <div className="discount-applied">
+                  <span className="discount-applied-text">
+                    <Check size={14} style={{ verticalAlign: "-2px", marginLeft: 4 }} />
+                    کد «{appliedDiscount.code}» اعمال شد
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={removeDiscountCode}
+                    className="discount-remove"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <div className="discount-input-row">
+                  <Tag size={15} style={{ flexShrink: 0, color: "var(--text-mut)" }} />
+
+                  <input
+                    value={discountCodeInput}
+                    onChange={(e) => {
+                      setDiscountCodeInput(e.target.value);
+                      if (discountError) setDiscountError("");
+                    }}
+                    placeholder="کد تخفیف دارید؟"
+                    dir="ltr"
+                    className="discount-input"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        applyDiscountCode();
+                      }
+                    }}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={applyDiscountCode}
+                    disabled={discountChecking}
+                    className="discount-apply-btn"
+                  >
+                    {discountChecking ? (
+                      <Loader2 size={14} className="spin" />
+                    ) : (
+                      "اعمال"
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {discountError && (
+                <div className="discount-error">{discountError}</div>
+              )}
+
+            </div>
+
             <OrderSummary
               cart={cart}
               itemsTotal={itemsTotal}
+              discountAmount={discountAmount}
               shippingCost={
                 shippingCost
               }
@@ -887,6 +1061,12 @@ export default function CheckoutPage() {
               </strong>
 
             </div>
+
+            {appliedDiscount && (
+              <div className="discount-note">
+                با احتساب تخفیف کد «{appliedDiscount.code}» ({money(discountAmount)})
+              </div>
+            )}
 
             <button
               type="button"
@@ -1396,6 +1576,95 @@ export default function CheckoutPage() {
         }
 
         /* ================================= */
+        /* کد تخفیف */
+        /* ================================= */
+
+        .discount-box {
+          margin-bottom: 18px;
+        }
+
+        .discount-input-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: var(--bg);
+          border: 1px solid var(--surface2);
+          border-radius: 12px;
+          padding: 6px 6px 6px 14px;
+        }
+
+        .discount-input {
+          flex: 1;
+          min-width: 0;
+          background: transparent;
+          border: none;
+          outline: none;
+          color: var(--text-hi);
+          font-family: var(--font-primary), sans-serif;
+          font-size: 13px;
+          padding: 8px 0;
+        }
+
+        .discount-apply-btn {
+          flex-shrink: 0;
+          background: var(--surface2);
+          border: none;
+          border-radius: 9px;
+          padding: 9px 16px;
+          color: var(--text-hi);
+          font-family: var(--font-primary), sans-serif;
+          font-weight: 700;
+          font-size: 12.5px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .discount-applied {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          background: #9B5CFF14;
+          border: 1px solid #9B5CFF44;
+          border-radius: 12px;
+          padding: 12px 14px;
+        }
+
+        .discount-applied-text {
+          color: #9B5CFF;
+          font-family: var(--font-primary), sans-serif;
+          font-weight: 700;
+          font-size: 12.5px;
+          direction: rtl;
+        }
+
+        .discount-remove {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--text-mut);
+          display: flex;
+          align-items: center;
+        }
+
+        .discount-error {
+          margin-top: 8px;
+          color: #ff6b6b;
+          font-family: var(--font-primary), sans-serif;
+          font-size: 12px;
+        }
+
+        .discount-note {
+          margin-top: -6px;
+          margin-bottom: 15px;
+          color: #9B5CFF;
+          font-family: var(--font-primary), sans-serif;
+          font-size: 12px;
+        }
+
+        /* ================================= */
         /* شماره کارت */
         /* ================================= */
 
@@ -1664,6 +1933,15 @@ export default function CheckoutPage() {
 
         }
 
+        .spin {
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
       `}</style>
     </div>
   );
@@ -1676,6 +1954,7 @@ export default function CheckoutPage() {
 function OrderSummary({
   cart,
   itemsTotal,
+  discountAmount = 0,
   shippingCost,
   total,
 }) {
@@ -1752,6 +2031,26 @@ function OrderSummary({
           {money(itemsTotal)}
         </span>
       </div>
+
+      {discountAmount > 0 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 10,
+            fontSize: 13,
+            color: "#9B5CFF",
+            marginBottom: 8,
+            fontFamily: "var(--font-primary), sans-serif",
+          }}
+        >
+          <span>تخفیف</span>
+
+          <span>
+            - {money(discountAmount)}
+          </span>
+        </div>
+      )}
 
       <div
         style={{
