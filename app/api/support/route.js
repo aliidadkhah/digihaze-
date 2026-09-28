@@ -14,12 +14,12 @@ export async function POST(request) {
       );
     }
 
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const botToken = process.env.BALE_BOT_TOKEN;
+    const chatId = process.env.BALE_CHAT_ID;
 
     if (!botToken || !chatId) {
       return Response.json(
-        { success: false, error: "تنظیمات تلگرام انجام نشده است" },
+        { success: false, error: "تنظیمات بله انجام نشده است" },
         { status: 500 }
       );
     }
@@ -110,7 +110,7 @@ ${message.trim()}
 
     // ارسال پیام به تلگرام
     const telegramResponse = await fetch(
-      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      `https://tapi.bale.ai/bot${botToken}/sendMessage`,
       {
         method: "POST",
         headers: {
@@ -131,7 +131,7 @@ ${message.trim()}
       return Response.json(
         {
           success: false,
-          error: "ارسال پیام به تلگرام ناموفق بود",
+          error: "ارسال پیام به بله ناموفق بود",
         },
         { status: 500 }
       );
