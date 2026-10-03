@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder } from "@/lib/telegram";
+import { notifyAdminSms } from "@/lib/sms-notify";
 import { discountedPrice } from "@/lib/data";
 import { getProductById } from "@/lib/products";
 import { getShippingCost } from "@/lib/shipping";
@@ -31,8 +32,6 @@ export async function GET(req) {
       .select("*, order_items(*)")
       .order("created_at", { ascending: false });
 
-    // برای صفحه‌ی بازگشت از درگاه پرداخت، سفارش با شناسه (id) پیدا می‌شود
-    // چون در آن لحظه شماره موبایل در حافظه‌ی مرورگر موجود نیست.
     query = id ? query.eq("id", id) : query.eq("customer_phone", phone);
 
     const { data: orders, error } = await query;
@@ -69,9 +68,6 @@ export async function POST(req) {
 
     const { customer, shipping, payment, items, discountCode } = body;
 
-    // =========================
-    // بررسی مشتری
-    // =========================
     if (
       !customer?.name ||
       !customer?.phone ||
@@ -86,9 +82,6 @@ export async function POST(req) {
       );
     }
 
-    // =========================
-    // بررسی سبد
-    // =========================
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { error: "سبد خرید خالی است" },
@@ -96,12 +89,6 @@ export async function POST(req) {
       );
     }
 
-    // =========================
-    // بررسی روش ارسال
-    // =========================
-    // نکته امنیتی: هزینه‌ی ارسال هرگز از روی مقداری که کلاینت
-    // توی درخواست فرستاده محاسبه نمی‌شه (چون قابل دستکاری در مرورگره).
-    // همیشه از روی لیست ثابت سمت سرور (lib/shipping.js) خونده می‌شه.
     const shippingMethod = shipping?.method;
     if (!SHIPPING_LABELS[shippingMethod]) {
       return NextResponse.json(
@@ -111,14 +98,6 @@ export async function POST(req) {
     }
     const shippingCost = getShippingCost(shippingMethod) ?? 0;
 
-    // =========================
-    // بررسی روش پرداخت
-    // =========================
-    // نکته امنیتی: پرداخت با درگاه (زیبال) دیگر از این مسیر ثبت نمی‌شود،
-    // چون این‌جا کلاینت می‌تونه مستقیماً status=paid بفرسته بدون این‌که
-    // واقعاً پولی رد و بدل شده باشه. سفارش‌های درگاهی همیشه باید از
-    // app/api/payment/zibal/request ساخته بشن و وضعیتشون فقط بعد از
-    // verify واقعی توی app/api/payment/zibal/callback به "paid" تغییر کنه.
     const paymentMethod = payment?.method;
     if (!PAYMENT_LABELS[paymentMethod]) {
       return NextResponse.json(
@@ -134,12 +113,8 @@ export async function POST(req) {
       );
     }
 
-    // کارت‌به‌کارت -> در انتظار تایید دستی ادمین
     const initialStatus = "pending";
 
-    // =========================
-    // محاسبه مبلغ
-    // =========================
     let itemsTotal = 0;
     const orderItems = [];
 
@@ -181,11 +156,6 @@ export async function POST(req) {
       });
     }
 
-    // =========================
-    // بررسی کد تخفیف (همیشه سمت سرور، روی جمع واقعی سبد)
-    // =========================
-    // نکته امنیتی: مبلغ تخفیف هرگز از روی چیزی که کلاینت فرستاده
-    // حساب نمی‌شه؛ کد از نو روی جمع واقعی سبد (itemsTotal) اعتبارسنجی و محاسبه می‌شه.
     let discountAmount = 0;
     let appliedDiscountCode = null;
 
@@ -202,19 +172,11 @@ export async function POST(req) {
 
     const total = itemsTotal - discountAmount + shippingCost;
 
-    // =========================
-    // رزرو موجودی رنگ‌ها
-    // =========================
-    // موجودی همین‌جا (اتمیک، توی دیتابیس) کم می‌شه تا دو نفر همزمان
-    // آخرین عدد رو نخرن. اگه سفارش لغو/ناموفق بشه برمی‌گرده.
     const reserved = await reserveStock(orderItems);
     if (!reserved.ok) {
       return NextResponse.json({ error: reserved.error }, { status: 409 });
     }
 
-    // =========================
-    // ثبت سفارش
-    // =========================
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
@@ -249,9 +211,6 @@ export async function POST(req) {
       return NextResponse.json({ error: orderError.message }, { status: 500 });
     }
 
-    // =========================
-    // ثبت محصولات سفارش
-    // =========================
     const rows = orderItems.map((item) => ({
       order_id: order.id,
       product_id: item.product_id,
@@ -274,16 +233,10 @@ export async function POST(req) {
       return NextResponse.json({ error: itemsError.message }, { status: 500 });
     }
 
-    // =========================
-    // ثبت استفاده از کد تخفیف
-    // =========================
     if (appliedDiscountCode) {
       await redeemDiscountCode(appliedDiscountCode);
     }
 
-    // =========================
-    // ارسال تلگرام
-    // =========================
     try {
       await notifyNewOrder({
         ...order,
@@ -299,9 +252,14 @@ export async function POST(req) {
       console.error("Telegram error:", telegramError);
     }
 
-    // =========================
-    // پاسخ
-    // =========================
+    try {
+      await notifyAdminSms(
+        `سفارش جدید\nشماره: ${order.id}\nمشتری: ${order.customer_name}\nموبایل: ${order.customer_phone}\nمبلغ: ${Number(order.total || 0).toLocaleString("fa-IR")} تومان`
+      );
+    } catch (smsError) {
+      console.error("SMS notify error:", smsError);
+    }
+
     return NextResponse.json({ success: true, order });
   } catch (error) {
     console.error("API ERROR:", error);
