@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { notifyAdminSms } from "@/lib/sms-notify";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,6 @@ export async function POST(request) {
 
     let conversation;
 
-    // اگر گفتگو از قبل وجود دارد، همان را استفاده می‌کنیم
     if (conversationId) {
       const { data, error } = await supabaseAdmin
         .from("support_conversations")
@@ -43,7 +43,6 @@ export async function POST(request) {
 
       conversation = data;
 
-      // آپدیت زمان آخرین فعالیت
       await supabaseAdmin
         .from("support_conversations")
         .update({
@@ -51,7 +50,6 @@ export async function POST(request) {
         })
         .eq("id", conversation.id);
     } else {
-      // اولین پیام مشتری → ساخت گفتگو
       const { data, error } = await supabaseAdmin
         .from("support_conversations")
         .insert({
@@ -73,7 +71,6 @@ export async function POST(request) {
       conversation = data;
     }
 
-    // ذخیره پیام مشتری
     const { data: customerMessage, error: messageError } =
       await supabaseAdmin
         .from("support_messages")
@@ -108,8 +105,7 @@ ${message.trim()}
 ↩️ برای پاسخ، روی همین پیام Reply کنید.
 `;
 
-    // ارسال پیام به تلگرام
-    const telegramResponse = await fetch(
+    const baleResponse = await fetch(
       `https://tapi.bale.ai/bot${botToken}/sendMessage`,
       {
         method: "POST",
@@ -123,10 +119,10 @@ ${message.trim()}
       }
     );
 
-    const telegramData = await telegramResponse.json();
+    const baleData = await baleResponse.json();
 
-    if (!telegramData.ok) {
-      console.error("Telegram error:", telegramData);
+    if (!baleData.ok) {
+      console.error("Bale error:", baleData);
 
       return Response.json(
         {
@@ -137,13 +133,20 @@ ${message.trim()}
       );
     }
 
-    // ذخیره ID پیام تلگرام
     await supabaseAdmin
       .from("support_messages")
       .update({
-        telegram_message_id: telegramData.result.message_id,
+        telegram_message_id: baleData.result.message_id,
       })
       .eq("id", customerMessage.id);
+
+    try {
+      await notifyAdminSms(
+        `پیام پشتیبانی جدید\nنام: ${conversation.customer_name}\nتماس: ${conversation.customer_phone}\nپیام: ${message.trim().slice(0, 100)}`
+      );
+    } catch (smsError) {
+      console.error("SMS notify error:", smsError);
+    }
 
     return Response.json({
       success: true,
