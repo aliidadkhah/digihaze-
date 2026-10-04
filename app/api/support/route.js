@@ -141,9 +141,7 @@ ${message.trim()}
       .eq("id", customerMessage.id);
 
     try {
-      await notifyAdminSms(
-        `پیام پشتیبانی جدید\nنام: ${conversation.customer_name}\nتماس: ${conversation.customer_phone}\nپیام: ${message.trim().slice(0, 100)}`
-      );
+      await notifyAdminSms("پیام پشتیبانی جدید");
     } catch (smsError) {
       console.error("SMS notify error:", smsError);
     }
