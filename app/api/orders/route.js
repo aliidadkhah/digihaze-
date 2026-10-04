@@ -253,9 +253,7 @@ export async function POST(req) {
     }
 
     try {
-      await notifyAdminSms(
-        `سفارش جدید\nشماره: ${order.id}\nمشتری: ${order.customer_name}\nموبایل: ${order.customer_phone}\nمبلغ: ${Number(order.total || 0).toLocaleString("fa-IR")} تومان`
-      );
+      await notifyAdminSms("سفارش جدید");
     } catch (smsError) {
       console.error("SMS notify error:", smsError);
     }
