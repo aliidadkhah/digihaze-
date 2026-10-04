@@ -141,7 +141,7 @@ ${message.trim()}
       .eq("id", customerMessage.id);
 
     try {
-      await notifyAdminSms("پیام پشتیبانی جدید");
+      await notifyAdminSms("پشتیبانی");
     } catch (smsError) {
       console.error("SMS notify error:", smsError);
     }
