@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent, Users } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
@@ -11,6 +11,7 @@ import ShippingPaymentManager from "@/components/ShippingPaymentManager";
 import CategoriesManager from "@/components/CategoriesManager";
 import FeedbackManager from "@/components/FeedbackManager";
 import DiscountCodesManager from "@/components/DiscountCodesManager";
+import CustomersManager from "@/components/CustomersManager";
 import { HOW_HEARD_LABELS } from "@/lib/telegram";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
@@ -238,6 +239,8 @@ export default function AdminPage() {
             ? "دسته‌بندی‌ها"
             : tab === "feedback"
             ? "نظرات و سوالات"
+            : tab === "customers"
+            ? "مشتریان"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -307,6 +310,12 @@ export default function AdminPage() {
         >
           <Percent size={14} /> کد تخفیف
         </button>
+        <button
+          onClick={() => setTab("customers")}
+          style={tabBtnStyle(tab === "customers")}
+        >
+          <Users size={14} /> مشتریان
+        </button>
       </div>
 
       {tab === "images" && <ImagesManager />}
@@ -324,6 +333,8 @@ export default function AdminPage() {
       {tab === "feedback" && <FeedbackManager />}
 
       {tab === "discounts" && <DiscountCodesManager />}
+
+      {tab === "customers" && <CustomersManager />}
 
       {tab === "orders" && (
         <>
