@@ -214,6 +214,7 @@ export async function POST(req) {
     const rows = orderItems.map((item) => ({
       order_id: order.id,
       product_id: item.product_id,
+      product_name: item.product_name,
       qty: item.qty,
       price: item.price,
       variant: item.variant || null,
