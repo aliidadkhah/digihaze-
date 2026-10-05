@@ -1,0 +1,461 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent, Users } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
+import ImagesManager from "@/components/ImagesManager";
+import ProductsManager from "@/components/ProductsManager";
+import AnnouncementManager from "@/components/AnnouncementManager";
+import PostsManager from "@/components/PostsManager";
+import ShippingPaymentManager from "@/components/ShippingPaymentManager";
+import CategoriesManager from "@/components/CategoriesManager";
+import FeedbackManager from "@/components/FeedbackManager";
+import DiscountCodesManager from "@/components/DiscountCodesManager";
+import CustomersManager from "@/components/CustomersManager";
+import { HOW_HEARD_LABELS } from "@/lib/telegram";
+
+const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
+const STATUS_COLORS = { pending: "#FF7A1F", paid: "#9B5CFF", failed: "#4F7FFF", cancelled: "var(--text-faint)" };
+const SHIPPING_LABELS = { post: "پست", tipax: "تیپاکس", chapar: "چاپار" };
+
+export default function AdminPage() {
+  const [session, setSession] = useState(null);
+  const [checking, setChecking] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [trackingDrafts, setTrackingDrafts] = useState({}); // { [orderId]: { post, tipax, chapar } }
+  const [savingId, setSavingId] = useState(null);
+  const [recheckingId, setRecheckingId] = useState(null);
+  const [recheckMsg, setRecheckMsg] = useState({}); // { [orderId]: "پیام نتیجه" }
+  const [tab, setTab] = useState("orders"); // "orders" | "images" | "products" | "posts" | "announcement" | "shipping-payment"
+  const [resetSending, setResetSending] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setChecking(false);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (session) fetchOrders();
+  }, [session]);
+
+  const login = async (e) => {
+    e.preventDefault();
+    setLoginError("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setLoginError("ایمیل یا رمز عبور اشتباهه");
+  };
+
+  const sendResetEmail = async () => {
+    setLoginError("");
+    setResetSent(false);
+    if (!email) {
+      setLoginError("اول ایمیلت رو توی فیلد بالا بنویس");
+      return;
+    }
+    setResetSending(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://digihaze.ir/reset-password",
+    });
+    setResetSending(false);
+    if (error) {
+      setLoginError("ارسال ایمیل ریست ناموفق بود");
+      return;
+    }
+    setResetSent(true);
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const token = session.access_token;
+      const res = await fetch("/api/admin/orders", { headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "خطا در دریافت سفارش‌ها");
+      setOrders(data.orders || []);
+
+      const drafts = {};
+      (data.orders || []).forEach((o) => {
+        drafts[o.id] = {
+          post: o.tracking_url_post || "",
+          tipax: o.tracking_url_tipax || "",
+          chapar: o.tracking_url_chapar || "",
+        };
+      });
+      setTrackingDrafts(drafts);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeStatus = async (orderId, status) => {
+    const token = session.access_token;
+    const res = await fetch("/api/admin/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ orderId, status }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "تغییر وضعیت سفارش ناموفق بود");
+    }
+    fetchOrders();
+  };
+
+  // بررسی دوباره‌ی پرداخت درگاهی که مرورگر مشتری بعد از پرداخت
+  // به callback سایت برنگشته (مثلاً تب رو بسته یا نت قطع شده)
+  // و در نتیجه سفارش pending مونده و پیام تلگرام هم نرفته
+  const recheckPayment = async (orderId) => {
+    setRecheckingId(orderId);
+    setRecheckMsg((prev) => ({ ...prev, [orderId]: "" }));
+    try {
+      const token = session.access_token;
+      const res = await fetch("/api/admin/orders/recheck-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: data.error || "خطا در بررسی" }));
+      } else if (data.alreadyPaid) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: "این سفارش از قبل پرداخت‌شده بود." }));
+      } else if (data.paid) {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: "پرداخت تایید شد و پیام تلگرام فرستاده شد ✅" }));
+        fetchOrders();
+      } else {
+        setRecheckMsg((prev) => ({ ...prev, [orderId]: data.message || "زیبال این تراکنش را تایید نکرد." }));
+      }
+    } catch (e) {
+      setRecheckMsg((prev) => ({ ...prev, [orderId]: e.message || "خطایی رخ داد" }));
+    } finally {
+      setRecheckingId(null);
+    }
+  };
+
+  const saveTrackingLinks = async (orderId) => {
+    setSavingId(orderId);
+    try {
+      const token = session.access_token;
+      await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ orderId, trackingUrls: trackingDrafts[orderId] }),
+      });
+      await fetchOrders();
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  if (checking) return null;
+
+  if (!session) {
+    return (
+      <div style={{ maxWidth: 380, margin: "0 auto", padding: "80px 20px" }}>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <Lock size={30} color="var(--text-mut)" style={{ margin: "0 auto 10px" }} />
+          <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 20 }}>ورود به پنل مدیریت</h1>
+        </div>
+        <form onSubmit={login} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <input type="email" placeholder="ایمیل" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+          <input type="password" placeholder="رمز عبور" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+          {loginError && <div style={{ color: "#4F7FFF", fontSize: 12.5, background: "#4F7FFF22", borderRadius: 10, padding: "8px 12px" }}>{loginError}</div>}
+          {resetSent && (
+            <div style={{ color: "#9B5CFF", fontSize: 12.5, background: "#9B5CFF22", borderRadius: 10, padding: "8px 12px" }}>
+              اگه این ایمیل توی سیستم ثبت باشه، لینک ریست پسورد براش ارسال شد. صندوق ورودی (و اسپم) رو چک کن.
+            </div>
+          )}
+          <button type="submit" style={{ background: "#4F7FFF", color: "var(--ink)", border: "none", borderRadius: 12, padding: "13px 0", fontFamily: "var(--font-primary)", fontWeight: 800, cursor: "pointer" }}>
+            ورود
+          </button>
+          <button
+            type="button"
+            onClick={sendResetEmail}
+            disabled={resetSending}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-mut)",
+              fontFamily: "var(--font-primary)",
+              fontSize: 12.5,
+              cursor: "pointer",
+              opacity: resetSending ? 0.6 : 1,
+              padding: "2px 0",
+            }}
+          >
+            {resetSending ? "در حال ارسال..." : "رمز عبور رو فراموش کردم"}
+          </button>
+        </form>
+        <p style={{ color: "var(--text-mut)", fontSize: 12, marginTop: 16, textAlign: "center" }}>
+          این کاربر باید از قبل توی Supabase ساخته شده و is_admin=true داشته باشه.
+        </p>
+      </div>
+    );
+  }
+
+  if (error === "دسترسی مدیریتی نداری") {
+    return (
+      <div style={{ maxWidth: 420, margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
+        <p style={{ color: "var(--text-hi)", marginBottom: 16 }}>این حساب دسترسی مدیریتی نداره.</p>
+        <button onClick={logout} style={{ background: "var(--surface2)", border: "none", borderRadius: 10, padding: "10px 20px", color: "var(--text-hi)", cursor: "pointer" }}>
+          خروج
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 10 }}>
+        <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 24 }}>
+          {tab === "orders"
+            ? `سفارش‌ها (${orders.length})`
+            : tab === "images"
+            ? "مدیریت عکس‌ها"
+            : tab === "products"
+            ? "مدیریت محصولات"
+            : tab === "posts"
+            ? "بلاگ و راهنمای خرید"
+            : tab === "shipping-payment"
+            ? "روش‌های ارسال و پرداخت"
+            : tab === "categories"
+            ? "دسته‌بندی‌ها"
+            : tab === "feedback"
+            ? "نظرات و سوالات"
+            : tab === "customers"
+            ? "مشتریان"
+            : "اطلاعیه سایت"}
+        </h1>
+        <div style={{ display: "flex", gap: 8 }}>
+          {tab === "orders" && (
+            <button onClick={fetchOrders} style={iconTextBtn}>
+              <RefreshCw size={14} /> به‌روزرسانی
+            </button>
+          )}
+          <button onClick={logout} style={iconTextBtn}>
+            <LogOut size={14} /> خروج
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, borderBottom: "1px solid var(--surface2)" }}>
+        <button
+          onClick={() => setTab("orders")}
+          style={tabBtnStyle(tab === "orders")}
+        >
+          <PackageSearch size={14} /> سفارش‌ها
+        </button>
+        <button
+          onClick={() => setTab("images")}
+          style={tabBtnStyle(tab === "images")}
+        >
+          <ImageIcon size={14} /> تصاویر سایت
+        </button>
+        <button
+          onClick={() => setTab("products")}
+          style={tabBtnStyle(tab === "products")}
+        >
+          <Tag size={14} /> محصولات
+        </button>
+        <button
+          onClick={() => setTab("posts")}
+          style={tabBtnStyle(tab === "posts")}
+        >
+          <Newspaper size={14} /> بلاگ و راهنما
+        </button>
+        <button
+          onClick={() => setTab("announcement")}
+          style={tabBtnStyle(tab === "announcement")}
+        >
+          <Megaphone size={14} /> اطلاعیه
+        </button>
+        <button
+          onClick={() => setTab("shipping-payment")}
+          style={tabBtnStyle(tab === "shipping-payment")}
+        >
+          <Truck size={14} /> ارسال و پرداخت
+        </button>
+        <button
+          onClick={() => setTab("categories")}
+          style={tabBtnStyle(tab === "categories")}
+        >
+          <ListTree size={14} /> دسته‌بندی‌ها
+        </button>
+        <button
+          onClick={() => setTab("feedback")}
+          style={tabBtnStyle(tab === "feedback")}
+        >
+          <MessageSquare size={14} /> نظرات و سوالات
+        </button>
+        <button
+          onClick={() => setTab("discounts")}
+          style={tabBtnStyle(tab === "discounts")}
+        >
+          <Percent size={14} /> کد تخفیف
+        </button>
+        <button
+          onClick={() => setTab("customers")}
+          style={tabBtnStyle(tab === "customers")}
+        >
+          <Users size={14} /> مشتریان
+        </button>
+      </div>
+
+      {tab === "images" && <ImagesManager />}
+
+      {tab === "products" && <ProductsManager />}
+
+      {tab === "posts" && <PostsManager />}
+
+      {tab === "announcement" && <AnnouncementManager />}
+
+      {tab === "shipping-payment" && <ShippingPaymentManager />}
+
+      {tab === "categories" && <CategoriesManager />}
+
+      {tab === "feedback" && <FeedbackManager />}
+
+      {tab === "discounts" && <DiscountCodesManager />}
+
+      {tab === "customers" && <CustomersManager />}
+
+      {tab === "orders" && (
+        <>
+      {loading && <p style={{ color: "var(--text-mut)" }}>در حال بارگذاری...</p>}
+      {orders.length === 0 && !loading && <p style={{ color: "var(--text-mut)" }}>هنوز سفارشی ثبت نشده.</p>}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {orders.map((o) => {
+          const draft = trackingDrafts[o.id] || { post: "", tipax: "", chapar: "" };
+          return (
+            <div key={o.id} style={{ background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 14, padding: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13.5 }}>سفارش #{String(o.id).slice(0, 8)}</div>
+                  <div style={{ color: "var(--text-mut)", fontSize: 12 }}>{new Date(o.created_at).toLocaleString("fa-IR")}</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontWeight: 800 }}>{Number(o.total || 0).toLocaleString("fa-IR")} تومان</span>
+                  <select
+                    value={o.status}
+                    onChange={(e) => changeStatus(o.id, e.target.value)}
+                    style={{ background: "var(--surface2)", color: STATUS_COLORS[o.status] || "var(--text-hi)", border: "none", borderRadius: 8, padding: "6px 10px", fontFamily: "var(--font-primary)", fontSize: 12, fontWeight: 700 }}
+                  >
+                    {Object.entries(STATUS_LABELS).map(([k, label]) => (
+                      <option key={k} value={k}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* اطلاعات مشتری و ارسال */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 10, fontSize: 12.5, color: "var(--text-lo)" }}>
+                <div>{o.customer_name} — <span dir="ltr">{o.customer_phone}</span></div>
+                <div>{o.customer_province} / {o.customer_city} — کدپستی: <span dir="ltr">{o.customer_postal_code || "—"}</span></div>
+                <div>{o.customer_address}</div>
+                {o.customer_how_heard && (
+                  <div>نحوه آشنایی: {HOW_HEARD_LABELS[o.customer_how_heard] || o.customer_how_heard}</div>
+                )}
+                <div>روش ارسال: {SHIPPING_LABELS[o.shipping_method] || o.shipping_method || "—"} • روش پرداخت: {o.payment_method === "gateway" ? "درگاه" : "کارت به کارت"}</div>
+                {o.payment_tracking_code && <div>کد پیگیری واریز: <span dir="ltr">{o.payment_tracking_code}</span></div>}
+                {o.discount_code && (
+                  <div>
+                    کد تخفیف: <span dir="ltr">{o.discount_code}</span> (- {Number(o.discount_amount || 0).toLocaleString("fa-IR")} تومان)
+                  </div>
+                )}
+              </div>
+
+              {/* بررسی دوباره‌ی پرداخت درگاهی که برنگشته و pending مونده */}
+              {o.payment_method === "gateway" && o.status !== "paid" && (
+                <div style={{ marginBottom: 12 }}>
+                  <button
+                    onClick={() => recheckPayment(o.id)}
+                    disabled={recheckingId === o.id}
+                    style={{ ...iconTextBtn, opacity: recheckingId === o.id ? 0.6 : 1 }}
+                  >
+                    {recheckingId === o.id ? "در حال بررسی از زیبال..." : "بررسی دوباره پرداخت از درگاه"}
+                  </button>
+                  {recheckMsg[o.id] && (
+                    <div style={{ fontSize: 12, color: "var(--text-mut)", marginTop: 6 }}>
+                      {recheckMsg[o.id]}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* اقلام سفارش */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
+                {(o.order_items || []).map((it) => (
+                  <div key={it.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-lo)" }}>
+                    <span>{it.product_name || it.product_id}{it.variant ? ` (${it.variant})` : ""}</span>
+                    <span>× {it.qty}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* لینک‌های رهگیری */}
+              <div style={{ borderTop: "1px solid var(--surface2)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-hi)" }}>لینک‌های رهگیری مرسوله</div>
+                {["post", "tipax", "chapar"].map((key) => (
+                  <input
+                    key={key}
+                    placeholder={`لینک رهگیری ${SHIPPING_LABELS[key]}`}
+                    value={draft[key]}
+                    dir="ltr"
+                    onChange={(e) =>
+                      setTrackingDrafts((prev) => ({ ...prev, [o.id]: { ...prev[o.id], [key]: e.target.value } }))
+                    }
+                    style={{ ...inputStyle, padding: "9px 12px", fontSize: 12 }}
+                  />
+                ))}
+                <button
+                  onClick={() => saveTrackingLinks(o.id)}
+                  disabled={savingId === o.id}
+                  style={{ ...iconTextBtn, alignSelf: "flex-start", opacity: savingId === o.id ? 0.6 : 1 }}
+                >
+                  {savingId === o.id ? "در حال ذخیره..." : "ذخیره لینک‌ها"}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+const inputStyle = { background: "var(--surface)", border: "1px solid var(--surface2)", borderRadius: 12, padding: "13px 16px", color: "var(--text-hi)", fontFamily: "var(--font-primary)", outline: "none", width: "100%", boxSizing: "border-box" };
+const iconTextBtn = { background: "var(--surface2)", border: "none", borderRadius: 10, padding: "8px 14px", display: "flex", alignItems: "center", gap: 6, cursor: "pointer", color: "var(--text-hi)", fontFamily: "var(--font-primary)", fontSize: 13 };
+const tabBtnStyle = (active) => ({
+  background: "transparent",
+  border: "none",
+  borderBottom: active ? "2px solid #4F7FFF" : "2px solid transparent",
+  color: active ? "var(--text-hi)" : "var(--text-mut)",
+  fontFamily: "var(--font-primary)",
+  fontWeight: 700,
+  fontSize: 13.5,
+  padding: "0 4px 10px",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  cursor: "pointer",
+});
