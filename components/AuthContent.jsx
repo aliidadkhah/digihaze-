@@ -602,7 +602,12 @@ export default function AuthContent() {
 
   return (
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "60px 20px 90px" }}>
-      <div style={{ textAlign: "center", marginBottom: 30 }}>
+           <div style={{ textAlign: "center", marginBottom: 30 }}>
+        <img
+          src="/digihaze.svg"
+          alt="دیجی‌هیز"
+          style={{ height: 40, margin: "0 auto 16px", display: "block" }}
+        />
         <Badge bg="#FF7A1F">ورود سریع</Badge>
         <h1 style={{ fontFamily: "var(--font-primary)", fontWeight: 800, fontSize: 26, margin: "16px 0 6px" }}>
           {step === "phone" ? "ورود با شماره موبایل" : "کد تایید رو وارد کن"}
