@@ -133,14 +133,14 @@ export async function POST(request) {
     // به‌جای id خام). اگه اسم تکراری باشه، عدد به آخرش اضافه می‌شه.
     row.slug = await generateUniqueSlug(supabaseAdmin, row.name);
 
-    const { data: maxRow } = await supabaseAdmin
+        const { data: minRow } = await supabaseAdmin
       .from("products")
       .select("sort_order")
-      .order("sort_order", { ascending: false })
+      .order("sort_order", { ascending: true })
       .limit(1)
       .maybeSingle();
 
-    row.sort_order = (maxRow?.sort_order ?? 0) + 1;
+    row.sort_order = (minRow?.sort_order ?? 0) - 1;
 
     // لاگ موقت برای دیباگ - بعد از حل مشکل حذفش کن
     console.log("ROW TO INSERT:", JSON.stringify(row));
