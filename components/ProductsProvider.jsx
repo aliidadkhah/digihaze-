@@ -264,6 +264,15 @@ export default function ProductsProvider({
       } = await supabase
         .from("products")
         .select("*")
+        // ناموجودها آخر لیست بیان (available=false بعد از available=true)
+        .order("available", {
+          ascending: false,
+        })
+        // بین محصولات هم‌وضعیت، جدیدترین‌ها اول (بر اساس تاریخ ثبت)
+        .order("created_at", {
+          ascending: false,
+        })
+        // در آخر، اگه created_at برابر بود، ترتیب دستی ادمین
         .order("sort_order", {
           ascending: true,
         });
