@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PackageSearch, RefreshCw, ChevronLeft } from "lucide-react";
+import { PackageSearch, RefreshCw, ChevronLeft, Truck, ExternalLink } from "lucide-react";
 import { useUser } from "./Providers";
 import { money } from "@/lib/data";
 import { useProducts } from "./ProductsProvider";
@@ -20,6 +20,16 @@ const STATUS_COLORS = {
   failed: "#4F7FFF",
   cancelled: "var(--text-faint)",
 };
+
+const TRACKING_CARRIERS = [
+  { key: "tracking_url_post", label: "رهگیری پست" },
+  { key: "tracking_url_tipax", label: "رهگیری تیپاکس" },
+  { key: "tracking_url_chapar", label: "رهگیری چاپار" },
+];
+
+function isLink(value) {
+  return /^https?:\/\//i.test(String(value || "").trim());
+}
 
 export default function OrdersContent() {
   const { user } = useUser();
@@ -196,27 +206,133 @@ export default function OrdersContent() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
               {(o.order_items || []).map((it) => {
                 const product = getProductById(it.product_id);
+                const image = product?.images?.[0];
+                const name = it.product_name || product?.name || "محصول";
 
                 return (
                   <div
                     key={it.id}
                     style={{
                       display: "flex",
+                      alignItems: "center",
                       justifyContent: "space-between",
+                      gap: 10,
                       fontSize: 13,
                       color: "var(--text-lo)",
                       fontFamily: "var(--font-primary)",
                     }}
                   >
-                    <span>
-                      {product?.name || it.product_id}
-                      {it.variant ? ` (${it.variant})` : ""} × {it.qty}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                      {image ? (
+                        <img
+                          src={image}
+                          alt={name}
+                          width={44}
+                          height={44}
+                          loading="lazy"
+                          style={{
+                            width: 44,
+                            height: 44,
+                            objectFit: "cover",
+                            borderRadius: 10,
+                            background: "var(--surface2)",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 10,
+                            background: "var(--surface2)",
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
+                      <span>
+                        {name}
+                        {it.variant ? ` (${it.variant})` : ""} × {it.qty}
+                      </span>
+                    </div>
                     <span style={{ whiteSpace: "nowrap" }}>{money(it.price * it.qty)}</span>
                   </div>
                 );
               })}
             </div>
+
+            {(() => {
+              const carriers = TRACKING_CARRIERS.filter((c) => String(o[c.key] || "").trim());
+
+              if (carriers.length === 0) {
+                return (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      color: "var(--text-mut)",
+                      fontSize: 12.5,
+                      fontFamily: "var(--font-primary)",
+                      marginBottom: 14,
+                    }}
+                  >
+                    <Truck size={14} /> کد/لینک رهگیری هنوز ثبت نشده است.
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+                  {carriers.map((c) => {
+                    const value = String(o[c.key]).trim();
+
+                    return isLink(value) ? (
+                      <a
+                        key={c.key}
+                        href={value}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          background: "#9B5CFF18",
+                          color: "#9B5CFF",
+                          borderRadius: 10,
+                          padding: "10px 12px",
+                          fontFamily: "var(--font-primary)",
+                          fontWeight: 700,
+                          fontSize: 13,
+                          textDecoration: "none",
+                        }}
+                      >
+                        <Truck size={15} /> {c.label}
+                        <ExternalLink size={13} style={{ marginRight: "auto" }} />
+                      </a>
+                    ) : (
+                      <div
+                        key={c.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          background: "var(--surface2)",
+                          borderRadius: 10,
+                          padding: "10px 12px",
+                          fontFamily: "var(--font-primary)",
+                          fontSize: 13,
+                          color: "var(--text-hi)",
+                        }}
+                      >
+                        <Truck size={15} /> {c.label}:
+                        <span dir="ltr" style={{ fontWeight: 700 }}>{value}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             <div
               style={{
