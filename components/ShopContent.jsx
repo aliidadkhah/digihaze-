@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Filter, ChevronDown } from "lucide-react";
 import { Reveal } from "./ui";
@@ -88,21 +88,6 @@ function matchesSearch(product, query) {
   return false;
 }
 
-/* =========================================
-   مخلوط کردن تصادفی لیست (Fisher–Yates)
-========================================= */
-
-function shuffle(list) {
-  const arr = [...list];
-
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  return arr;
-}
-
 export default function ShopContent({
   products = [],
   categories = CATEGORIES,
@@ -153,18 +138,33 @@ export default function ShopContent({
    * ترتیب تصادفی محصولات با هر بار باز شدن/ریلود صفحه.
    * عمداً بعد از mount انجام می‌شود (نه موقع رندر سرور) تا HTML اولیه‌ی
    * سرور (برای سئو) با کلاینت یکی باشد و hydration mismatch نداشته باشیم.
-   * با عوض کردن تب‌ها، فیلتر یا جستجو ترتیب دوباره عوض نمی‌شود.
+   *
+   * به هر محصول (بر اساس id) یک عدد تصادفی ثابت می‌دهیم که تا وقتی صفحه
+   * باز است عوض نمی‌شود. به همین دلیل، وقتی با کلیک روی تب‌ها آدرس عوض
+   * می‌شود و سرور دوباره لیست محصولات را می‌فرستد (آرایه‌ی جدید با همان
+   * محصولات)، ترتیب دوباره به‌هم نمی‌ریزد.
    */
-  const [shuffleSeed, setShuffleSeed] = useState(null);
+  const ranksRef = useRef(new Map());
+  const [shuffleReady, setShuffleReady] = useState(false);
 
   useEffect(() => {
-    setShuffleSeed(Math.random());
+    setShuffleReady(true);
   }, []);
 
-  const shuffledProducts = useMemo(
-    () => (shuffleSeed === null ? products : shuffle(products)),
-    [products, shuffleSeed]
-  );
+  const shuffledProducts = useMemo(() => {
+    if (!shuffleReady) return products;
+
+    const ranks = ranksRef.current;
+
+    const rankOf = (id) => {
+      if (!ranks.has(id)) ranks.set(id, Math.random());
+      return ranks.get(id);
+    };
+
+    return [...products].sort(
+      (a, b) => rankOf(a.id) - rankOf(b.id)
+    );
+  }, [products, shuffleReady]);
 
   const chips = [
     {
