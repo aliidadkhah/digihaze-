@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { Reveal } from "./ui";
@@ -10,21 +10,72 @@ import ProductCard from "./ProductCard";
 import BannerCarousel from "./BannerCarousel";
 import FaqSection from "./FaqSection";
 import SiteImage from "./SiteImage";
-import { CATEGORIES } from "@/lib/data";
+import { CATEGORIES, resolveCategoryId } from "@/lib/data";
 import { useProducts } from "./ProductsProvider";
 
+// مخلوط کردن تصادفی لیست (Fisher–Yates)
+function shuffle(list) {
+  const arr = [...list];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// موجودها اول (با حفظ ترتیب فعلی)، ناموجودها آخر لیست
+function availableFirst(list) {
+  return [
+    ...list.filter((p) => p.available !== false),
+    ...list.filter((p) => p.available === false),
+  ];
+}
+
+// تب‌های بخش «همه محصولات» صفحه اول
+const HOME_TABS = [
+  { id: "all", label: "همه محصولات", color: "#4F7FFF" },
+  ...CATEGORIES.map((c) => ({
+    id: c.id,
+    label: c.label,
+    color: c.color,
+  })),
+];
+
 export default function HomeContent() {
-  const { products } = useProducts();
+  const { products, loading } = useProducts();
 
   // رنگ نور دستگاه ویپ بالای هیرو، وقتی روی یکی از باکس‌های دسته‌بندی
   // هاور می‌شود به رنگ همون دسته‌بندی تغییر می‌کند (وقتی هاور نیست،
   // به رنگ پیش‌فرض بنفش برمی‌گردد — این رفتار توی ScrollcraftHero هندل می‌شود).
   const [hoveredCategoryColor, setHoveredCategoryColor] = useState(null);
 
-  const featured = products;
+  const [activeTab, setActiveTab] = useState("all");
 
-  const saleItems = products.filter(
-    (p) => p.discount > 0
+  // ترتیب تصادفی: فقط وقتی لیست محصولات تازه لود می‌شود (یعنی با هر
+  // ریلود صفحه) دوباره ساخته می‌شود؛ با عوض کردن تب یا رندر مجدد،
+  // ترتیب تغییر نمی‌کند. ناموجودها همیشه آخر لیست می‌مانند.
+  const shuffledProducts = useMemo(
+    () => availableFirst(shuffle(products)),
+    [products]
+  );
+
+  const featured = useMemo(
+    () =>
+      activeTab === "all"
+        ? shuffledProducts
+        : shuffledProducts.filter(
+            (p) => resolveCategoryId(p.category) === activeTab
+          ),
+    [shuffledProducts, activeTab]
+  );
+
+  // محصولات تخفیف‌دار هم با هر ریلود به ترتیب تصادفی نمایش داده می‌شوند
+  const saleItems = useMemo(
+    () =>
+      availableFirst(
+        shuffle(products.filter((p) => p.discount > 0))
+      ),
+    [products]
   );
 
   const saleScrollRef = useRef(null);
@@ -445,7 +496,11 @@ export default function HomeContent() {
           </h2>
 
           <Link
-            href="/shop"
+            href={
+              activeTab === "all"
+                ? "/shop"
+                : `/shop/${activeTab}`
+            }
             style={{
               color:
                 "var(--neon-blue)",
@@ -459,6 +514,67 @@ export default function HomeContent() {
             مشاهده همه ←
           </Link>
         </div>
+
+        <div
+          className="featured-tabs"
+          role="tablist"
+          aria-label="دسته‌بندی محصولات"
+          style={{
+            display: "flex",
+            gap: 8,
+            overflowX: "auto",
+            paddingBottom: 6,
+            marginBottom: 18,
+          }}
+        >
+          {HOME_TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  flexShrink: 0,
+                  cursor: "pointer",
+                  padding: "9px 16px",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-primary)",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  whiteSpace: "nowrap",
+                  border: isActive
+                    ? `1px solid ${tab.color}`
+                    : "1px solid var(--border-soft)",
+                  background: isActive
+                    ? `${tab.color}22`
+                    : "transparent",
+                  color: isActive
+                    ? tab.color
+                    : "var(--text-hi)",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {!loading && featured.length === 0 && (
+          <p
+            style={{
+              color: "var(--text-mut)",
+              fontSize: 13,
+              padding: "20px 0",
+            }}
+          >
+            محصولی در این دسته‌بندی وجود ندارد.
+          </p>
+        )}
 
         <div
           className="featured-grid"
@@ -506,6 +622,14 @@ export default function HomeContent() {
         .discount-banner-link:hover {
           transform: translateY(-3px);
           box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .featured-tabs {
+          scrollbar-width: none;
+        }
+
+        .featured-tabs::-webkit-scrollbar {
+          display: none;
         }
 
         @media (max-width: 600px) {
