@@ -88,6 +88,21 @@ function matchesSearch(product, query) {
   return false;
 }
 
+/* =========================================
+   مخلوط کردن تصادفی لیست (Fisher–Yates)
+========================================= */
+
+function shuffle(list) {
+  const arr = [...list];
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  return arr;
+}
+
 export default function ShopContent({
   products = [],
   categories = CATEGORIES,
@@ -134,6 +149,23 @@ export default function ShopContent({
     setDiscountOnly(Boolean(initialDiscountOnly));
   }, [initialDiscountOnly]);
 
+  /*
+   * ترتیب تصادفی محصولات با هر بار باز شدن/ریلود صفحه.
+   * عمداً بعد از mount انجام می‌شود (نه موقع رندر سرور) تا HTML اولیه‌ی
+   * سرور (برای سئو) با کلاینت یکی باشد و hydration mismatch نداشته باشیم.
+   * با عوض کردن تب‌ها، فیلتر یا جستجو ترتیب دوباره عوض نمی‌شود.
+   */
+  const [shuffleSeed, setShuffleSeed] = useState(null);
+
+  useEffect(() => {
+    setShuffleSeed(Math.random());
+  }, []);
+
+  const shuffledProducts = useMemo(
+    () => (shuffleSeed === null ? products : shuffle(products)),
+    [products, shuffleSeed]
+  );
+
   const chips = [
     {
       id: "all",
@@ -167,8 +199,8 @@ export default function ShopContent({
   const list = useMemo(() => {
     let arr =
       active === "all"
-        ? products
-        : products.filter(
+        ? shuffledProducts
+        : shuffledProducts.filter(
             (p) => resolveCategoryId(p.category) === active
           );
 
@@ -262,7 +294,7 @@ export default function ShopContent({
 
     return arr;
   }, [
-    products,
+    shuffledProducts,
     categories,
     active,
     activeSub,
