@@ -32,7 +32,7 @@ function WhatsAppIcon({
 
 const WHATSAPP_NUMBER = "989020951384";
 const INSTAGRAM_USERNAME = "digihaze.ir";
-const TELEGRAM_USERNAME = "digihaze";
+const TELEGRAM_USERNAME = "aliidadkhah";
 
 export default function Footer() {
   const SOCIAL_LINKS = [
