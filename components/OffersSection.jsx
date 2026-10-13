@@ -13,7 +13,7 @@ import { CATEGORIES, resolveCategoryId } from "@/lib/data";
    - پیش‌فرض: همه محصولات تخفیف‌دار
 ========================================= */
 
-const PURPLE = "#5600af";
+const PURPLE = "#34087a";
 const PURPLE_DARK = "#0b0338";
 
 // ترتیب دسته‌بندی‌ها در پنل سمت راست
