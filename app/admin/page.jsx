@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent, Users, BarChart3 } from "lucide-react";
+import { Lock, RefreshCw, LogOut, Image as ImageIcon, PackageSearch, Tag, Megaphone, Newspaper, Truck, ListTree, MessageSquare, Percent, Users, Film } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import ImagesManager from "@/components/ImagesManager";
 import ProductsManager from "@/components/ProductsManager";
@@ -12,7 +12,7 @@ import CategoriesManager from "@/components/CategoriesManager";
 import FeedbackManager from "@/components/FeedbackManager";
 import DiscountCodesManager from "@/components/DiscountCodesManager";
 import CustomersManager from "@/components/CustomersManager";
-import AnalyticsManager from "@/components/AnalyticsManager";
+import StoriesManager from "@/components/StoriesManager";
 import { HOW_HEARD_LABELS } from "@/lib/telegram";
 
 const STATUS_LABELS = { pending: "در انتظار تایید", paid: "تایید شده", failed: "ناموفق", cancelled: "لغوشده" };
@@ -242,8 +242,8 @@ export default function AdminPage() {
             ? "نظرات و سوالات"
             : tab === "customers"
             ? "مشتریان"
-            : tab === "analytics"
-            ? "آمار بازدید"
+            : tab === "stories"
+            ? "استوری‌ها"
             : "اطلاعیه سایت"}
         </h1>
         <div style={{ display: "flex", gap: 8 }}>
@@ -320,10 +320,10 @@ export default function AdminPage() {
           <Users size={14} /> مشتریان
         </button>
         <button
-          onClick={() => setTab("analytics")}
-          style={tabBtnStyle(tab === "analytics")}
+          onClick={() => setTab("stories")}
+          style={tabBtnStyle(tab === "stories")}
         >
-          <BarChart3 size={14} /> آمار بازدید
+          <Film size={14} /> استوری‌ها
         </button>
       </div>
 
@@ -345,7 +345,7 @@ export default function AdminPage() {
 
       {tab === "customers" && <CustomersManager />}
 
-      {tab === "analytics" && <AnalyticsManager />}
+      {tab === "stories" && <StoriesManager />}
 
       {tab === "orders" && (
         <>
