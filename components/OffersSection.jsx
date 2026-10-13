@@ -13,12 +13,13 @@ import {
 
 /* =========================================
    بخش «پیشنهادها» صفحه اول
-   - باکس قرمز با پنل سمت راست (دسته‌بندی‌ها)
+   - باکس بنفش با پنل سمت راست (دسته‌بندی‌ها)
    - کارت‌های سفید با اسکرول افقی
    - پیش‌فرض: همه محصولات تخفیف‌دار
 ========================================= */
 
-const RED = "#D1414F";
+const PURPLE = "#7C3AED";
+const PURPLE_DARK = "#5B21B6";
 
 // ترتیب دسته‌بندی‌ها در پنل سمت راست
 const OFFER_CATEGORY_ORDER = [
@@ -284,23 +285,6 @@ export default function OffersSection({
         <div className="offers-box" dir="rtl">
           {/* ---------- پنل سمت راست ---------- */}
           <aside className="offers-side">
-            <svg
-              className="offers-icon"
-              width="60"
-              height="60"
-              viewBox="0 0 64 64"
-              fill="none"
-              stroke="#fff"
-              strokeWidth="4"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <line x1="41" y1="11" x2="21" y2="39" />
-              <circle cx="23" cy="17" r="4.5" />
-              <circle cx="40" cy="33" r="4.5" />
-              <path d="M13 47 Q32 61 51 47" />
-            </svg>
-
             <h2 id="sale-title" className="offers-title">
               پیشنهادها
             </h2>
@@ -398,7 +382,7 @@ export default function OffersSection({
           display: flex;
           align-items: stretch;
           gap: 8px;
-          background: linear-gradient(135deg, ${RED}, #BF3345);
+          background: linear-gradient(135deg, ${PURPLE}, ${PURPLE_DARK});
           border-radius: 24px;
           padding: 16px;
           overflow: hidden;
@@ -460,7 +444,7 @@ export default function OffersSection({
 
         .offers-cat.active {
           background: #fff;
-          color: ${RED};
+          color: ${PURPLE};
           border-color: #fff;
         }
 
@@ -527,9 +511,10 @@ export default function OffersSection({
           box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
         }
 
+        /* عکس محصول: ۱۰۸۰ در ۱۳۵۰ (نسبت ۴ به ۵) مثل بقیه کارت‌های سایت */
         .offers-card-img {
           position: relative;
-          aspect-ratio: 1 / 1;
+          aspect-ratio: 4 / 5;
           background: #f1f1f4;
           overflow: hidden;
         }
@@ -584,7 +569,7 @@ export default function OffersSection({
         }
 
         .offers-badge {
-          background: ${RED};
+          background: ${PURPLE};
           color: #fff;
           font-weight: 800;
           font-size: 12px;
@@ -611,7 +596,7 @@ export default function OffersSection({
 
         .offers-skeleton {
           flex: 0 0 200px;
-          height: 330px;
+          height: 380px;
           border-radius: 16px;
           background: rgba(255, 255, 255, 0.22);
         }
@@ -671,10 +656,6 @@ export default function OffersSection({
           .offers-side {
             width: 100%;
             gap: 8px;
-          }
-
-          .offers-icon {
-            display: none;
           }
 
           .offers-cats {
