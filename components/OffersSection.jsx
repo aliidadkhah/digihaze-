@@ -14,7 +14,7 @@ import { CATEGORIES, resolveCategoryId } from "@/lib/data";
 ========================================= */
 
 const PURPLE = "#5600af";
-const PURPLE_DARK = "#44008a";
+const PURPLE_DARK = "#0b0338";
 
 // ترتیب دسته‌بندی‌ها در پنل سمت راست
 const OFFER_CATEGORY_ORDER = [
