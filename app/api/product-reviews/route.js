@@ -10,6 +10,8 @@ function mapRow(row) {
     name: row.name,
     rating: row.rating,
     text: row.content,
+    answer: row.answer || "",
+    answeredAt: row.answered_at || null,
     createdAt: row.created_at,
   };
 }

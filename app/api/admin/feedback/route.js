@@ -125,6 +125,8 @@ export async function GET(request) {
         id: c.id,
         name: c.name,
         content: c.content,
+        answer: c.answer || "",
+        answeredAt: c.answered_at || null,
         createdAt: c.created_at,
         postTitle: p?.title || "پست حذف‌شده",
         link: p?.slug
@@ -137,6 +139,8 @@ export async function GET(request) {
       name: r.name,
       rating: r.rating,
       content: r.content,
+      answer: r.answer || "",
+      answeredAt: r.answered_at || null,
       createdAt: r.created_at,
       product: productInfo(r.product_id),
     })),
@@ -153,8 +157,9 @@ export async function GET(request) {
 }
 
 // =====================================================
-// پاسخ دادن (یا ویرایش/پاک کردن پاسخ) به سوال یک محصول
-// body: { id, answer }
+// پاسخ دادن (یا ویرایش/پاک کردن پاسخ) به سوال، نظر محصول یا نظر بلاگ
+// body: { type: "question" | "review" | "comment", id, answer }
+// (اگه type ارسال نشه، مثل قبل پاسخ به «سوال» حساب می‌شه)
 // =====================================================
 export async function PATCH(request) {
   const user = await verifyAdmin(request);
@@ -168,16 +173,17 @@ export async function PATCH(request) {
 
     const id = String(body.id || "").trim();
     const answer = String(body.answer || "").trim().slice(0, 2000);
+    const type = body.type === "review" || body.type === "comment" ? body.type : "question";
 
     if (!id) {
       return NextResponse.json(
-        { error: "شناسه سوال ارسال نشده است" },
+        { error: "شناسه ارسال نشده است" },
         { status: 400 }
       );
     }
 
     const { data, error } = await supabaseAdmin
-      .from(TABLES.question)
+      .from(TABLES[type])
       .update({
         answer: answer || null,
         answered_at: answer ? new Date().toISOString() : null,
@@ -188,7 +194,15 @@ export async function PATCH(request) {
 
     if (error) {
       console.error("ADMIN ANSWER ERROR:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      const missingColumn = /answer/i.test(error.message || "");
+      return NextResponse.json(
+        {
+          error: missingColumn
+            ? "ستون پاسخ هنوز در دیتابیس ساخته نشده؛ SQL راهنما را در Supabase اجرا کن."
+            : error.message,
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({

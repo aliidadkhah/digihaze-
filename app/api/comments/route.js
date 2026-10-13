@@ -21,6 +21,8 @@ function mapRow(row) {
     postId: row.post_id,
     name: row.name,
     content: row.content,
+    answer: row.answer || "",
+    answeredAt: row.answered_at || null,
     createdAt: row.created_at,
   };
 }

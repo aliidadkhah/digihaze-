@@ -258,6 +258,47 @@ export default function PostComments({ postId }) {
               >
                 {c.content}
               </p>
+
+              {c.answer && (
+                <div
+                  style={{
+                    marginTop: 12,
+                    background: "#4F7FFF12",
+                    borderRight: "3px solid #4F7FFF",
+                    borderRadius: 10,
+                    padding: "10px 14px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      fontFamily: "var(--font-primary)",
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      color: "#4F7FFF",
+                      marginBottom: 4,
+                    }}
+                  >
+                    <MessageCircle size={13} />
+                    پاسخ دیجی‌هیز
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-primary)",
+                      color: "var(--text-lo)",
+                      fontSize: 13,
+                      lineHeight: 1.9,
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {c.answer}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -91,7 +91,7 @@ export default function FeedbackManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sub, setSub] = useState("questions"); // questions | reviews | comments
-  const [answerDrafts, setAnswerDrafts] = useState({}); // { [questionId]: "متن پاسخ" }
+  const [answerDrafts, setAnswerDrafts] = useState({}); // { "نوع:شناسه": "متن پاسخ" }
   const [busyId, setBusyId] = useState(null);
   const [rowMsg, setRowMsg] = useState({}); // { [id]: "پیام" }
 
@@ -121,7 +121,13 @@ export default function FeedbackManager() {
 
       const drafts = {};
       (json.questions || []).forEach((q) => {
-        drafts[q.id] = q.answer || "";
+        drafts[`question:${q.id}`] = q.answer || "";
+      });
+      (json.reviews || []).forEach((r) => {
+        drafts[`review:${r.id}`] = r.answer || "";
+      });
+      (json.comments || []).forEach((c) => {
+        drafts[`comment:${c.id}`] = c.answer || "";
       });
       setAnswerDrafts(drafts);
     } catch (e) {
@@ -164,9 +170,12 @@ export default function FeedbackManager() {
     }
   };
 
-  const saveAnswer = async (id) => {
-    setBusyId(id);
-    setRowMsg((prev) => ({ ...prev, [id]: "" }));
+  const LIST_KEYS = { question: "questions", review: "reviews", comment: "comments" };
+
+  const saveAnswer = async (type, id) => {
+    const key = `${type}:${id}`;
+    setBusyId(key);
+    setRowMsg((prev) => ({ ...prev, [key]: "" }));
     try {
       const token = await getToken();
       const res = await fetch("/api/admin/feedback", {
@@ -175,31 +184,94 @@ export default function FeedbackManager() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ id, answer: answerDrafts[id] || "" }),
+        body: JSON.stringify({ type, id, answer: answerDrafts[key] || "" }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setRowMsg((prev) => ({ ...prev, [id]: json.error || "ثبت پاسخ ناموفق بود" }));
+        setRowMsg((prev) => ({ ...prev, [key]: json.error || "ثبت پاسخ ناموفق بود" }));
         return;
       }
+      const listKey = LIST_KEYS[type];
       setData((prev) => ({
         ...prev,
-        questions: prev.questions.map((q) =>
-          q.id === id
-            ? { ...q, answer: json.answer, answeredAt: json.answeredAt }
-            : q
+        [listKey]: prev[listKey].map((item) =>
+          item.id === id
+            ? { ...item, answer: json.answer, answeredAt: json.answeredAt }
+            : item
         ),
       }));
       setRowMsg((prev) => ({
         ...prev,
-        [id]: json.answer ? "پاسخ ثبت شد ✅" : "پاسخ پاک شد",
+        [key]: json.answer ? "پاسخ ثبت شد ✅" : "پاسخ پاک شد",
       }));
     } catch {
-      setRowMsg((prev) => ({ ...prev, [id]: "خطا در ارتباط با سرور" }));
+      setRowMsg((prev) => ({ ...prev, [key]: "خطا در ارتباط با سرور" }));
     } finally {
       setBusyId(null);
     }
   };
+
+  // کادر نوشتن پاسخ ادمین (برای سوال، نظر محصول و نظر بلاگ)
+  const answerBox = (type, item) => {
+    const key = `${type}:${item.id}`;
+    return (
+      <div style={{ marginTop: type === "question" ? 0 : 12 }}>
+        <textarea
+          rows={3}
+          maxLength={2000}
+          placeholder="پاسخ ادمین رو اینجا بنویس..."
+          value={answerDrafts[key] ?? ""}
+          onChange={(e) =>
+            setAnswerDrafts((prev) => ({ ...prev, [key]: e.target.value }))
+          }
+          style={textareaStyle}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+          <button
+            onClick={() => saveAnswer(type, item.id)}
+            disabled={busyId === key}
+            style={{ ...smallBtn, background: "#4F7FFF", color: "#fff", fontWeight: 700 }}
+          >
+            {busyId === key ? <Loader2 size={14} className="fb-spin" /> : <Send size={14} />}
+            {item.answer ? "ویرایش پاسخ" : "ثبت پاسخ"}
+          </button>
+          {rowMsg[key] && (
+            <span style={{ fontSize: 12, color: "var(--text-mut)" }}>{rowMsg[key]}</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // نشان «پاسخ داده شده / بی‌پاسخ» برای نظرها
+  const answerBadge = (item) =>
+    item.answer ? (
+      <span
+        style={{
+          color: "#4CD98A",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 3,
+          fontSize: 11,
+          fontWeight: 400,
+        }}
+      >
+        <CheckCircle2 size={12} /> پاسخ داده شده
+      </span>
+    ) : (
+      <span
+        style={{
+          background: "#FF7A1F22",
+          color: "#FF7A1F",
+          borderRadius: 999,
+          fontSize: 11,
+          fontWeight: 400,
+          padding: "2px 8px",
+        }}
+      >
+        بی‌پاسخ
+      </span>
+    );
 
   // سوال‌های بی‌پاسخ اول نمایش داده بشن
   const sortedQuestions = [...data.questions].sort((a, b) => {
@@ -404,30 +476,7 @@ export default function FeedbackManager() {
                 {q.question}
               </p>
 
-              <textarea
-                rows={3}
-                maxLength={2000}
-                placeholder="پاسخ ادمین رو اینجا بنویس..."
-                value={answerDrafts[q.id] ?? ""}
-                onChange={(e) =>
-                  setAnswerDrafts((prev) => ({ ...prev, [q.id]: e.target.value }))
-                }
-                style={textareaStyle}
-              />
-
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                <button
-                  onClick={() => saveAnswer(q.id)}
-                  disabled={busyId === q.id}
-                  style={{ ...smallBtn, background: "#4F7FFF", color: "#fff", fontWeight: 700 }}
-                >
-                  {busyId === q.id ? <Loader2 size={14} className="fb-spin" /> : <Send size={14} />}
-                  {q.answer ? "ویرایش پاسخ" : "ثبت پاسخ"}
-                </button>
-                {rowMsg[q.id] && (
-                  <span style={{ fontSize: 12, color: "var(--text-mut)" }}>{rowMsg[q.id]}</span>
-                )}
-              </div>
+              {answerBox("question", q)}
             </div>
           ))}
         </div>
@@ -457,6 +506,7 @@ export default function FeedbackManager() {
                     <span style={{ color: "#B6FF1A", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 3 }}>
                       <Star size={12} fill="#B6FF1A" /> {Number(r.rating).toLocaleString("fa-IR")}
                     </span>
+                    {answerBadge(r)}
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--text-mut)", marginTop: 2 }}>
                     {formatDate(r.createdAt)} • {productLink(r.product)}
@@ -477,6 +527,8 @@ export default function FeedbackManager() {
               >
                 {r.content}
               </p>
+
+              {answerBox("review", r)}
             </div>
           ))}
         </div>
@@ -503,6 +555,7 @@ export default function FeedbackManager() {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 13.5, display: "flex", alignItems: "center", gap: 6 }}>
                     <MessageSquare size={14} color="#4F7FFF" /> {c.name}
+                    {answerBadge(c)}
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--text-mut)", marginTop: 2 }}>
                     {formatDate(c.createdAt)} •{" "}
@@ -541,6 +594,8 @@ export default function FeedbackManager() {
               >
                 {c.content}
               </p>
+
+              {answerBox("comment", c)}
             </div>
           ))}
         </div>
