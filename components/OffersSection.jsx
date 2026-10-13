@@ -90,7 +90,12 @@ export default function OffersSection({
     scrollLeft: 0,
     moved: false,
     captured: false,
+    lastX: 0,
+    lastT: 0,
+    velocity: 0, // سرعت اسکرول (پیکسل بر میلی‌ثانیه)
   });
+
+  const rafRef = useRef(0);
 
   const DRAG_THRESHOLD = 8;
 
@@ -99,17 +104,48 @@ export default function OffersSection({
     if (el) el.scrollLeft = 0;
   }, [items]);
 
+  // توقف انیمیشن لغزش هنگام خروج از صفحه
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  // بعد از رها کردن موس، کارت‌ها نرم و آهسته‌شونده ادامه می‌دهند
+  const startGlide = () => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    cancelAnimationFrame(rafRef.current);
+    let last = performance.now();
+
+    const step = (now) => {
+      const dt = Math.min(now - last, 32);
+      last = now;
+
+      el.scrollLeft += drag.current.velocity * dt;
+      drag.current.velocity *= Math.pow(0.94, dt / 16);
+
+      if (Math.abs(drag.current.velocity) > 0.02) {
+        rafRef.current = requestAnimationFrame(step);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+  };
+
   const onPointerDown = (e) => {
     if (e.pointerType && e.pointerType !== "mouse") return;
 
     const el = trackRef.current;
     if (!el) return;
 
+    cancelAnimationFrame(rafRef.current);
+
     drag.current.isDown = true;
     drag.current.moved = false;
     drag.current.captured = false;
     drag.current.startX = e.clientX;
     drag.current.scrollLeft = el.scrollLeft;
+    drag.current.lastX = e.clientX;
+    drag.current.lastT = performance.now();
+    drag.current.velocity = 0;
   };
 
   const onPointerMove = (e) => {
@@ -128,6 +164,16 @@ export default function OffersSection({
 
     e.preventDefault();
     el.scrollLeft = drag.current.scrollLeft - walk;
+
+    // محاسبه‌ی سرعت برای حرکت نرم بعد از رها کردن
+    const now = performance.now();
+    const dt = now - drag.current.lastT;
+    if (dt > 0) {
+      const v = -(e.clientX - drag.current.lastX) / dt;
+      drag.current.velocity = drag.current.velocity * 0.6 + v * 0.4;
+    }
+    drag.current.lastX = e.clientX;
+    drag.current.lastT = now;
   };
 
   const onPointerEnd = (e) => {
@@ -137,8 +183,16 @@ export default function OffersSection({
       el.releasePointerCapture?.(e.pointerId);
     }
 
+    const wasDragging = drag.current.isDown && drag.current.moved;
+    const idle = performance.now() - drag.current.lastT;
+
     drag.current.isDown = false;
     drag.current.captured = false;
+
+    // اگر کاربر با سرعت رها کرد، حرکت نرم ادامه پیدا کند
+    if (wasDragging && idle < 80 && Math.abs(drag.current.velocity) > 0.05) {
+      startGlide();
+    }
   };
 
   // بعد از یک درگ واقعی، کلیک روی کارت (لینک) نباید باز شود
