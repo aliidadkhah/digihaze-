@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import ProductCard from "./ProductCard";
 import { CATEGORIES, resolveCategoryId } from "@/lib/data";
@@ -59,10 +58,6 @@ export default function OffersSection({
   loading = false,
 }) {
   const [activeCat, setActiveCat] = useState("all");
-  const [edges, setEdges] = useState({
-    prev: false,
-    next: false,
-  });
 
   // لیست تخفیف‌دارها: با هر ریلود صفحه ترتیب تصادفی جدید می‌گیرد
   // (فقط وقتی لیست محصولات تازه لود شود دوباره ساخته می‌شود، نه با
@@ -99,40 +94,10 @@ export default function OffersSection({
 
   const DRAG_THRESHOLD = 8;
 
-  const updateEdges = () => {
-    const el = trackRef.current;
-    if (!el) return;
-
-    // در صفحه‌ی راست‌به‌چپ، scrollLeft منفی می‌شود؛ قدر مطلق می‌گیریم
-    const pos = Math.abs(el.scrollLeft);
-
-    setEdges({
-      prev: pos > 4,
-      next: pos + el.clientWidth < el.scrollWidth - 4,
-    });
-  };
-
   useEffect(() => {
     const el = trackRef.current;
     if (el) el.scrollLeft = 0;
-
-    updateEdges();
-
-    window.addEventListener("resize", updateEdges);
-    return () =>
-      window.removeEventListener("resize", updateEdges);
   }, [items]);
-
-  const scrollByDir = (dir) => {
-    const el = trackRef.current;
-    if (!el) return;
-
-    // next = به سمت چپ (محصولات بعدی)، prev = به سمت راست
-    el.scrollBy({
-      left: dir * -1 * el.clientWidth * 0.8,
-      behavior: "smooth",
-    });
-  };
 
   const onPointerDown = (e) => {
     if (e.pointerType && e.pointerType !== "mouse") return;
@@ -247,32 +212,9 @@ export default function OffersSection({
 
           {/* ---------- کارت‌ها ---------- */}
           <div className="offers-track-wrap">
-            {edges.prev && (
-              <button
-                type="button"
-                className="offers-arrow offers-arrow-prev"
-                aria-label="قبلی"
-                onClick={() => scrollByDir(-1)}
-              >
-                <ChevronRight size={20} />
-              </button>
-            )}
-
-            {edges.next && (
-              <button
-                type="button"
-                className="offers-arrow offers-arrow-next"
-                aria-label="بعدی"
-                onClick={() => scrollByDir(1)}
-              >
-                <ChevronLeft size={20} />
-              </button>
-            )}
-
             <div
               ref={trackRef}
               className="offers-track"
-              onScroll={updateEdges}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerEnd}
@@ -320,6 +262,7 @@ export default function OffersSection({
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: center;
           text-align: center;
           gap: 10px;
           color: #fff;
@@ -426,40 +369,7 @@ export default function OffersSection({
           margin: 0;
         }
 
-        /* ---------- فلش‌ها ---------- */
-
-        .offers-arrow {
-          position: absolute;
-          top: 34%;
-          z-index: 2;
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          border: 1px solid #e3e3ea;
-          background: #fff;
-          color: #1d1d35;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-        }
-
-        .offers-arrow-next {
-          left: 8px;
-        }
-
-        .offers-arrow-prev {
-          right: 8px;
-        }
-
         /* ---------- موبایل ---------- */
-
-        @media (hover: none) {
-          .offers-arrow {
-            display: none;
-          }
-        }
 
         @media (max-width: 820px) {
           .offers-box {
