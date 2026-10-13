@@ -1,20 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import SiteImage from "./SiteImage";
-import {
-  CATEGORIES,
-  resolveCategoryId,
-  discountedPrice,
-} from "@/lib/data";
+import ProductCard from "./ProductCard";
+import { CATEGORIES, resolveCategoryId } from "@/lib/data";
 
 /* =========================================
    بخش «پیشنهادها» صفحه اول
    - باکس بنفش با پنل سمت راست (دسته‌بندی‌ها)
-   - کارت‌های سفید با اسکرول افقی
+   - کارت‌های محصول (همان ProductCard سایت) با اسکرول افقی
    - پیش‌فرض: همه محصولات تخفیف‌دار
 ========================================= */
 
@@ -53,71 +48,6 @@ function availableFirst(list) {
     ...list.filter((p) => p.available !== false),
     ...list.filter((p) => p.available === false),
   ];
-}
-
-const fa = (n) => Number(n || 0).toLocaleString("fa-IR");
-
-/* =========================================
-   کارت محصول
-========================================= */
-
-function OfferCard({ product }) {
-  const available = product.available !== false;
-  const finalPrice = discountedPrice(product);
-  const originalPrice = Number(product.price || 0);
-  const showOld = originalPrice > finalPrice;
-
-  return (
-    <Link
-      href={`/product/${product.category}/${
-        product.slug || product.id
-      }`}
-      className="offers-card"
-      draggable={false}
-    >
-      <div className="offers-card-img">
-        <SiteImage
-          src={product.images?.[0]}
-          alt={product.name}
-          draggable={false}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            display: "block",
-            filter: available
-              ? "none"
-              : "grayscale(70%) brightness(0.6)",
-          }}
-        />
-
-        {!available && (
-          <span className="offers-soldout">ناموجود</span>
-        )}
-      </div>
-
-      <h3 className="offers-card-name">{product.name}</h3>
-
-      <div className="offers-card-prices">
-        {showOld && (
-          <div className="offers-old-row">
-            <span className="offers-badge">
-              {fa(product.discount)}٪
-            </span>
-            <del>{fa(originalPrice)}</del>
-          </div>
-        )}
-
-        <div
-          className="offers-final"
-          style={{ opacity: available ? 1 : 0.5 }}
-        >
-          <strong>{fa(finalPrice)}</strong>
-          <small>تومان</small>
-        </div>
-      </div>
-    </Link>
-  );
 }
 
 /* =========================================
@@ -260,10 +190,6 @@ export default function OffersSection({
 
   if (!loading && saleProducts.length === 0) return null;
 
-  const viewAllHref =
-    activeCat === "all"
-      ? "/shop?discount=1"
-      : `/shop?category=${activeCat}&discount=1`;
 
   return (
     <section
@@ -317,11 +243,6 @@ export default function OffersSection({
                 );
               })}
             </div>
-
-            <Link href={viewAllHref} className="offers-all">
-              <ChevronLeft size={16} />
-              مشاهده همه
-            </Link>
           </aside>
 
           {/* ---------- کارت‌ها ---------- */}
@@ -357,6 +278,7 @@ export default function OffersSection({
               onPointerUp={onPointerEnd}
               onPointerCancel={onPointerEnd}
               onClickCapture={onClickCapture}
+              onDragStart={(e) => e.preventDefault()}
             >
               {loading && items.length === 0 &&
                 [0, 1, 2, 3, 4].map((i) => (
@@ -370,7 +292,9 @@ export default function OffersSection({
               )}
 
               {items.map((p) => (
-                <OfferCard key={p.id} product={p} />
+                <div key={p.id} className="offers-item">
+                  <ProductCard product={p} />
+                </div>
               ))}
             </div>
           </div>
@@ -448,27 +372,7 @@ export default function OffersSection({
           border-color: #fff;
         }
 
-        .offers-all {
-          margin-top: auto;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          width: 100%;
-          padding: 10px 12px;
-          border-radius: 12px;
-          background: #fff;
-          color: #1d1d35;
-          text-decoration: none;
-          font-family: var(--font-primary);
-          font-weight: 700;
-          font-size: 13px;
-          transition: transform 0.2s ease;
-        }
 
-        .offers-all:hover {
-          transform: translateY(-2px);
-        }
 
         /* ---------- ناحیه‌ی کارت‌ها ---------- */
 
@@ -482,7 +386,7 @@ export default function OffersSection({
           display: flex;
           gap: 10px;
           overflow-x: auto;
-          padding: 2px;
+          padding: 14px 6px;
           scroll-snap-type: x proximity;
           scrollbar-width: none;
           cursor: grab;
@@ -492,111 +396,22 @@ export default function OffersSection({
           display: none;
         }
 
-        .offers-card {
-          flex: 0 0 200px;
+        .offers-item {
+          flex: 0 0 220px;
           scroll-snap-align: start;
           display: flex;
           flex-direction: column;
-          background: #fff;
-          color: #1d1d35;
-          border-radius: 16px;
-          overflow: hidden;
-          text-decoration: none;
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
           user-select: none;
         }
 
-        .offers-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
-        }
-
-        /* عکس محصول: ۱۰۸۰ در ۱۳۵۰ (نسبت ۴ به ۵) مثل بقیه کارت‌های سایت */
-        .offers-card-img {
-          position: relative;
-          aspect-ratio: 4 / 5;
-          background: #f1f1f4;
-          overflow: hidden;
-        }
-
-        .offers-soldout {
-          position: absolute;
-          inset: auto 0 10px 0;
-          margin: 0 auto;
-          width: fit-content;
-          background: rgba(0, 0, 0, 0.78);
-          color: #fff;
-          font-size: 12px;
-          font-weight: 800;
-          border-radius: 999px;
-          padding: 4px 12px;
-        }
-
-        .offers-card-name {
-          margin: 0;
-          padding: 10px 12px 4px;
-          font-family: var(--font-primary);
-          font-weight: 700;
-          font-size: 13px;
-          line-height: 1.7;
-          min-height: calc(1.7em * 2 + 14px);
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .offers-card-prices {
-          margin-top: auto;
-          padding: 4px 12px 12px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          min-height: 62px;
-          justify-content: flex-end;
-        }
-
-        .offers-old-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 8px;
-        }
-
-        .offers-old-row del {
-          color: #9a9aae;
-          font-size: 12px;
-        }
-
-        .offers-badge {
-          background: ${PURPLE};
-          color: #fff;
-          font-weight: 800;
-          font-size: 12px;
-          border-radius: 999px;
-          padding: 2px 9px;
-        }
-
-        .offers-final {
-          display: flex;
-          align-items: baseline;
-          justify-content: flex-start;
-          gap: 4px;
-        }
-
-        .offers-final strong {
-          font-size: 17px;
-          font-weight: 800;
-        }
-
-        .offers-final small {
-          font-size: 11px;
-          color: #55556b;
+        .offers-item img,
+        .offers-item a {
+          -webkit-user-drag: none;
         }
 
         .offers-skeleton {
-          flex: 0 0 200px;
-          height: 380px;
+          flex: 0 0 220px;
+          height: 470px;
           border-radius: 16px;
           background: rgba(255, 255, 255, 0.22);
         }
@@ -677,17 +492,10 @@ export default function OffersSection({
             border-radius: 999px;
           }
 
-          .offers-all {
-            order: 5;
-            margin-top: 0;
-            width: auto;
-            align-self: flex-start;
-            padding: 8px 14px;
-          }
 
-          .offers-card,
+          .offers-item,
           .offers-skeleton {
-            flex-basis: 160px;
+            flex-basis: 175px;
           }
         }
 
