@@ -107,11 +107,13 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
         />
       )}
 
-      <div
-        className="post-content"
-        dir="rtl"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <div className="doc-panel">
+        <div
+          className="post-content"
+          dir="rtl"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
+      </div>
 
       {post.tags?.length > 0 && (
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 30 }}>

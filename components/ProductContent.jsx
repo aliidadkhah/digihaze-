@@ -1119,7 +1119,7 @@ export default function ProductContent({ product, related }) {
           </div>
 
           {tab === "desc" && (
-            <div>
+            <div className="doc-panel">
               <div
                 style={{
                   position: "relative",
@@ -1154,7 +1154,7 @@ export default function ProductContent({ product, related }) {
                       left: 0,
                       height: 70,
                       background:
-                        "linear-gradient(to bottom, transparent, var(--bg))",
+                        "linear-gradient(to bottom, transparent, var(--surface))",
                       pointerEvents: "none",
                     }}
                   />
