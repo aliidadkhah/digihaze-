@@ -1494,6 +1494,16 @@ export default function ProductContent({ product, related }) {
           align-items: center;
           justify-content: center;
         }
+        .rich-content a {
+          color: rgba(34, 229, 201, 0.8);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          font-weight: 700;
+          transition: color 0.2s ease;
+        }
+        .rich-content a:hover {
+          color: #22E5C9;
+        }
         .rich-content blockquote {
           position: relative;
           margin: 22px 0;
