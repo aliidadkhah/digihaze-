@@ -250,14 +250,14 @@ export default function PostDetail({ post, basePath, backLabel, related = [] }) 
           justify-content: center;
         }
         .post-content a {
-          color: #4F7FFF;
+          color: rgba(34, 229, 201, 0.8);
           text-decoration: underline;
-          text-underline-offset: 2px;
+          text-underline-offset: 3px;
           font-weight: 700;
           transition: color 0.2s ease;
         }
         .post-content a:hover {
-          color: #9B5CFF;
+          color: #22E5C9;
         }
         .post-content blockquote {
           position: relative;
