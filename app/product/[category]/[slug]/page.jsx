@@ -246,15 +246,16 @@ export async function generateMetadata({
           : [],
     },
 
+    // محصول ناموجود هم ایندکس می‌شه (وضعیت موجودی توی schema به‌صورت
+    // OutOfStock اعلام می‌شه)، تا رتبه‌ی صفحه از بین نره و بعد از
+    // موجود شدن سریع‌تر برگرده.
     robots: {
-      index:
-        product.available !== false,
+      index: true,
 
       follow: true,
 
       googleBot: {
-        index:
-          product.available !== false,
+        index: true,
 
         follow: true,
 
