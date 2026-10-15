@@ -268,7 +268,7 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           padding-inline-start: 20px;
         }
         .rte-editable :global(a) {
-          color: #4F7FFF;
+          color: rgba(34, 229, 201, 0.8);
           text-decoration: underline;
         }
         .rte-editable :global(blockquote) {
