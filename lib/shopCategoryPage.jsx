@@ -4,6 +4,8 @@ import { getProducts } from "@/lib/products";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
 import { notFound } from "next/navigation";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { TaxonomyLinks } from "@/lib/taxonomyPage";
+import { TAXONOMY_CATEGORIES } from "@/lib/taxonomy";
 
 // =====================================================
 // SEO دسته‌بندی‌ها
@@ -87,11 +89,29 @@ const CATEGORY_SEO = {
   },
 };
 
+// تطبیق برند محصول با برچسب زیردسته (همون منطق فیلتر ShopContent)
+function normalizeBrand(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\u200c/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function brandDisplayName(subDef) {
+  if (!subDef) return "";
+  return subDef.nameFa
+    ? `${subDef.nameFa} (${subDef.label})`
+    : subDef.label;
+}
+
 // =====================================================
 // Metadata (مشترک بین /shop/[category] و /shop/[category]/[sub])
 // =====================================================
 
-export async function buildCategoryMetadata(rawCategory) {
+export async function buildCategoryMetadata(rawCategory, sub = "") {
   const category = LEGACY_CATEGORY_MAP[rawCategory] || rawCategory;
 
   const seo = CATEGORY_SEO[category];
@@ -110,14 +130,59 @@ export async function buildCategoryMetadata(rawCategory) {
     };
   }
 
-  const categoryUrl = `${SITE_URL}/shop/${category}`;
+  // -------------------------------------------------
+  // صفحه‌ی برند (/shop/دسته/برند): title، description و canonical
+  // مخصوص خودش دارد (قبلاً canonical به صفحه‌ی دسته اشاره می‌کرد و
+  // صفحه‌ی برند هیچ‌وقت جدا رتبه نمی‌گرفت). اگه برند محصولی نداشته
+  // باشه ایندکس نمی‌شه.
+  // -------------------------------------------------
+  let categoryUrl = `${SITE_URL}/shop/${category}`;
+  let pageTitle = seo.title;
+  let pageDescription = seo.description;
+  let pageKeywords = seo.keywords;
+  let indexable = true;
+
+  if (sub) {
+    const categories = await getCategoriesWithOverrides();
+    const categoryDef = categories.find((c) => c.id === category);
+    const subDef = categoryDef?.subcategories?.find((x) => x.id === sub);
+
+    if (!subDef) {
+      return {
+        title: `فروشگاه | ${SITE_NAME}`,
+        robots: { index: false, follow: false },
+      };
+    }
+
+    const brandName = brandDisplayName(subDef);
+
+    categoryUrl = `${SITE_URL}/shop/${category}/${sub}`;
+    pageTitle = `خرید ${seo.name} ${brandName} | قیمت و مشخصات`;
+    pageDescription = `خرید ${seo.name} ${brandName} از ${SITE_NAME}؛ مشاهده قیمت، مدل‌ها و مشخصات محصولات اورجینال ${subDef.label}.`;
+    pageKeywords = [
+      `خرید ${seo.name} ${subDef.label}`,
+      `قیمت ${seo.name} ${subDef.label}`,
+      `${subDef.label}`,
+    ];
+
+    const products = await getProducts();
+    const label = normalizeBrand(subDef.label);
+
+    indexable = products.some(
+      (p) =>
+        p &&
+        p.deleted !== true &&
+        (LEGACY_CATEGORY_MAP[p.category] || p.category) === category &&
+        normalizeBrand(p.brand) === label
+    );
+  }
 
   return {
-    title: seo.title,
+    title: pageTitle,
 
-    description: seo.description,
+    description: pageDescription,
 
-    keywords: seo.keywords,
+    keywords: pageKeywords,
 
     alternates: {
       canonical: categoryUrl,
@@ -132,16 +197,16 @@ export async function buildCategoryMetadata(rawCategory) {
 
       siteName: SITE_NAME,
 
-      title: seo.title,
+      title: pageTitle,
 
-      description: seo.description,
+      description: pageDescription,
 
       images: [
         {
           url: `${SITE_URL}/og-image.jpg`,
           width: 1200,
           height: 630,
-          alt: seo.title,
+          alt: pageTitle,
         },
       ],
     },
@@ -149,20 +214,20 @@ export async function buildCategoryMetadata(rawCategory) {
     twitter: {
       card: "summary_large_image",
 
-      title: seo.title,
+      title: pageTitle,
 
-      description: seo.description,
+      description: pageDescription,
 
       images: [`${SITE_URL}/og-image.jpg`],
     },
 
     robots: {
-      index: true,
+      index: indexable,
 
       follow: true,
 
       googleBot: {
-        index: true,
+        index: indexable,
         follow: true,
         "max-image-preview": "large",
         "max-snippet": -1,
@@ -208,6 +273,18 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
   const products = await getProducts();
 
+  const subDef = sub
+    ? categories
+        .find((item) => item.id === category)
+        ?.subcategories?.find((x) => x.id === sub)
+    : null;
+
+  const brandName = brandDisplayName(subDef);
+
+  const pageHeading = sub
+    ? `خرید ${seo?.name || category} ${brandName}`
+    : seo?.title || `خرید ${category}`;
+
   const categoryUrl = sub
     ? `${SITE_URL}/shop/${category}/${sub}`
     : `${SITE_URL}/shop/${category}`;
@@ -249,8 +326,22 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
         name: seo?.name || category,
 
-        item: categoryUrl,
+        item: `${SITE_URL}/shop/${category}`,
       },
+
+      ...(sub
+        ? [
+            {
+              "@type": "ListItem",
+
+              position: 4,
+
+              name: brandName,
+
+              item: categoryUrl,
+            },
+          ]
+        : []),
     ],
   };
 
@@ -265,7 +356,7 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
     "@id": `${categoryUrl}#collection`,
 
-    name: seo?.title || `خرید ${category}`,
+    name: pageHeading,
 
     description:
       seo?.description || `مشاهده محصولات ${category} در ${SITE_NAME}.`,
@@ -328,7 +419,7 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
             border: 0,
           }}
         >
-          {seo?.title || `خرید ${category}`}
+          {pageHeading}
         </h1>
 
         <ShopContent
@@ -338,6 +429,11 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
           initialSearch=""
           initialSub={sub}
         />
+
+        {/* لینک داخلی به صفحات طعم و نیکوتین */}
+        {!sub && TAXONOMY_CATEGORIES.includes(category) && (
+          <TaxonomyLinks products={products} category={category} />
+        )}
       </main>
     </>
   );

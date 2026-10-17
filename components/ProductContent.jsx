@@ -29,7 +29,12 @@ import { FlavorCloud } from "./visuals";
 import ProductCard from "./ProductCard";
 import ProductQA from "./ProductQA";
 import { isColorSoldOut, firstAvailableColor } from "@/lib/colorStock";
-import { money, discountedPrice, CATEGORIES } from "@/lib/data";
+import { money, discountedPrice, CATEGORIES, resolveCategoryId } from "@/lib/data";
+import {
+  FLAVORS,
+  NICOTINE_LEVELS,
+  TAXONOMY_CATEGORIES,
+} from "@/lib/taxonomy";
 import { useCart, useUser } from "./Providers";
 
 // حذف تگ‌های HTML برای تخمین طول متن (برای تصمیم «نمایش بیشتر»)
@@ -1025,6 +1030,48 @@ export default function ProductContent({ product, related }) {
                 >
                   <Tag size={11} />
                   {categoryInfo.label}
+                </Link>
+              )}
+
+              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) && product.flavor && FLAVORS[product.flavor] && (
+                <Link
+                  href={`/shop/${resolveCategoryId(product.category)}/flavor/${product.flavor}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    textDecoration: "none",
+                    background: "var(--surface)",
+                    color: "var(--text-hi)",
+                    border: "1px solid var(--surface2)",
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    fontFamily: "var(--font-primary)",
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  طعم {FLAVORS[product.flavor].label}
+                </Link>
+              )}
+
+              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) && product.nicotine && NICOTINE_LEVELS[product.nicotine] && (
+                <Link
+                  href={`/shop/${resolveCategoryId(product.category)}/nicotine/${product.nicotine}`}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    textDecoration: "none",
+                    background: "var(--surface)",
+                    color: "var(--text-hi)",
+                    border: "1px solid var(--surface2)",
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    fontFamily: "var(--font-primary)",
+                    fontSize: 11.5,
+                    fontWeight: 600,
+                  }}
+                >
+                  نیکوتین {NICOTINE_LEVELS[product.nicotine].label}
                 </Link>
               )}
 

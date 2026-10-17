@@ -73,6 +73,8 @@ function buildRow(body) {
     name: body.name?.trim() || "",
     category: body.category?.trim() || "",
     brand: body.brand?.trim() || "",
+    flavor: body.flavor?.trim() || "",
+    nicotine: body.nicotine?.trim() || "",
     price,
     final_price: finalPrice,
     discount: Number(body.discount) || 0,
@@ -101,6 +103,19 @@ function buildRow(body) {
     brand_image: body.brandImage?.trim() || "",
     qa: Array.isArray(body.qa) ? body.qa : [],
   };
+}
+
+// اگه ستون‌های flavor/nicotine هنوز توی Supabase ساخته نشده باشن
+// (فایل supabase-migration-flavor-nicotine.sql اجرا نشده)، ذخیره‌ی
+// محصول نباید خراب بشه؛ بدون این دو فیلد دوباره تلاش می‌کنیم.
+function isMissingTaxonomyColumn(error) {
+  const msg = String(error?.message || "").toLowerCase();
+  return msg.includes("flavor") || msg.includes("nicotine");
+}
+
+function withoutTaxonomy(row) {
+  const { flavor, nicotine, ...rest } = row;
+  return rest;
 }
 
 // ایجاد محصول جدید
@@ -145,11 +160,19 @@ export async function POST(request) {
     // لاگ موقت برای دیباگ - بعد از حل مشکل حذفش کن
     console.log("ROW TO INSERT:", JSON.stringify(row));
 
-    const { data: product, error } = await supabaseAdmin
+    let { data: product, error } = await supabaseAdmin
       .from("products")
       .insert(row)
       .select()
       .single();
+
+    if (error && isMissingTaxonomyColumn(error)) {
+      ({ data: product, error } = await supabaseAdmin
+        .from("products")
+        .insert(withoutTaxonomy(row))
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error("ADMIN PRODUCT CREATE ERROR:", error);
@@ -201,12 +224,21 @@ export async function PATCH(request) {
       row.slug = await generateUniqueSlug(supabaseAdmin, row.name, id);
     }
 
-    const { data: product, error } = await supabaseAdmin
+    let { data: product, error } = await supabaseAdmin
       .from("products")
       .update(row)
       .eq("id", id)
       .select()
       .single();
+
+    if (error && isMissingTaxonomyColumn(error)) {
+      ({ data: product, error } = await supabaseAdmin
+        .from("products")
+        .update(withoutTaxonomy(row))
+        .eq("id", id)
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error("ADMIN PRODUCT UPDATE ERROR:", error);

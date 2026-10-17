@@ -1,6 +1,15 @@
 import { getProducts } from "@/lib/products";
 import { getPosts } from "@/lib/posts";
 import { SITE_URL } from "@/lib/site";
+import { getCategoriesWithOverrides } from "@/lib/categorySettings";
+import { LEGACY_CATEGORY_MAP } from "@/lib/data";
+import {
+  FLAVORS,
+  NICOTINE_LEVELS,
+  TAXONOMY_CATEGORIES,
+  TAXONOMY_TYPES,
+  filterByTaxonomy,
+} from "@/lib/taxonomy";
 
 export const dynamic = "force-dynamic";
 
@@ -165,6 +174,66 @@ export default async function sitemap() {
     }));
 
   // ============================================
+  // صفحات برند و taxonomy (فقط اگه حداقل یک محصول دارن)
+  // ============================================
+
+  const categories = await getCategoriesWithOverrides();
+
+  const normalizeBrand = (v) =>
+    String(v || "")
+      .toLowerCase()
+      .replace(/ي/g, "ی")
+      .replace(/ك/g, "ک")
+      .replace(/\u200c/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const liveProducts = products.filter((p) => p && p.deleted !== true);
+
+  const brandUrls = [];
+
+  for (const cat of categories) {
+    for (const sub of cat.subcategories || []) {
+      const label = normalizeBrand(sub.label);
+
+      const has = liveProducts.some(
+        (p) =>
+          (LEGACY_CATEGORY_MAP[p.category] || p.category) === cat.id &&
+          normalizeBrand(p.brand) === label
+      );
+
+      if (has) {
+        brandUrls.push({
+          url: `${SITE_URL}/shop/${cat.id}/${sub.id}`,
+          lastModified: new Date(),
+          changeFrequency: "weekly",
+          priority: 0.7,
+        });
+      }
+    }
+  }
+
+  const taxonomyUrls = [];
+
+  for (const category of TAXONOMY_CATEGORIES) {
+    for (const [type, items] of [
+      ["flavor", FLAVORS],
+      ["nicotine", NICOTINE_LEVELS],
+    ]) {
+      for (const item of Object.values(items)) {
+        if (filterByTaxonomy(products, category, type, item.id).length > 0) {
+          taxonomyUrls.push({
+            url: `${SITE_URL}/shop/${category}/${TAXONOMY_TYPES[type].segment}/${item.id}`,
+            lastModified: new Date(),
+            changeFrequency: "weekly",
+            priority: 0.7,
+          });
+        }
+      }
+    }
+  }
+
+  // ============================================
   // URL مقالات بلاگ
   // ============================================
 
@@ -220,6 +289,8 @@ export default async function sitemap() {
 
   return [
     ...staticUrls,
+    ...brandUrls,
+    ...taxonomyUrls,
     ...productUrls,
     ...blogUrls,
     ...guideUrls,

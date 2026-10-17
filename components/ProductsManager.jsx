@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage, deleteProductImage } from "@/lib/productImages";
 import { money, CATEGORIES, resolveCategoryId, applySubcategoryOverrides } from "@/lib/data";
 import RichTextEditor from "./RichTextEditor";
+import { FLAVORS, NICOTINE_LEVELS, TAXONOMY_CATEGORIES } from "@/lib/taxonomy";
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو به HTML قابل‌نمایش توی ادیتور تبدیل می‌کند
 function toEditableHtml(text) {
@@ -44,6 +45,8 @@ const EMPTY_FORM = {
   name: "",
   category: "",
   brand: "",
+  flavor: "", // طعم (taxonomy)
+  nicotine: "", // قدرت نیکوتین (taxonomy)
   price: "", // قیمت اصلی (قبل از تخفیف)
   finalPrice: "", // قیمت نهایی (بعد از تخفیف) - فقط برای محاسبه‌ی درصد استفاده می‌شود
   discount: "", // درصد تخفیف، به‌صورت خودکار محاسبه می‌شود
@@ -99,6 +102,8 @@ function mapRowToForm(row) {
     name: row.name || "",
     category: row.category || "",
     brand: row.brand || "",
+    flavor: row.flavor || "",
+    nicotine: row.nicotine || "",
     price: row.price ?? "",
     finalPrice: finalPrice || "",
     discount: row.discount ?? "",
@@ -700,6 +705,38 @@ export default function ProductsManager() {
                   />
                 )}
               </Field>
+              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(form.category)) && (
+                <>
+                  <Field label="طعم (برای صفحه‌ی لندینگ طعم)">
+                    <select
+                      style={inputStyle}
+                      value={form.flavor}
+                      onChange={(e) => update("flavor", e.target.value)}
+                    >
+                      <option value="">— بدون طعم مشخص —</option>
+                      {Object.values(FLAVORS).map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="قدرت نیکوتین (برای صفحه‌ی لندینگ نیکوتین)">
+                    <select
+                      style={inputStyle}
+                      value={form.nicotine}
+                      onChange={(e) => update("nicotine", e.target.value)}
+                    >
+                      <option value="">— انتخاب نشده —</option>
+                      {Object.values(NICOTINE_LEVELS).map((n) => (
+                        <option key={n.id} value={n.id}>
+                          {n.label}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </>
+              )}
               <Field label="برچسب (مثلا: پرفروش)">
                 <input
                   style={inputStyle}

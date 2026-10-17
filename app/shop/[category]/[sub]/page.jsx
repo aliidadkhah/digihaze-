@@ -8,8 +8,8 @@ import {
 // =====================================================
 
 export async function generateMetadata({ params }) {
-  const { category: rawCategory } = await params;
-  return buildCategoryMetadata(rawCategory);
+  const { category: rawCategory, sub } = await params;
+  return buildCategoryMetadata(rawCategory, sub || "");
 }
 
 // =====================================================
