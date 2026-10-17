@@ -15,7 +15,13 @@ import { supabase } from "@/lib/supabaseClient";
 import { uploadProductImage, deleteProductImage } from "@/lib/productImages";
 import { money, CATEGORIES, resolveCategoryId, applySubcategoryOverrides } from "@/lib/data";
 import RichTextEditor from "./RichTextEditor";
-import { FLAVORS, NICOTINE_LEVELS, TAXONOMY_CATEGORIES } from "@/lib/taxonomy";
+import {
+  FLAVORS,
+  NICOTINE_LEVELS,
+  TAXONOMY_CATEGORIES,
+  parseTaxonomyValues,
+  normalizeTaxonomyValues,
+} from "@/lib/taxonomy";
 
 // متن ساده‌ی قدیمی (بدون تگ HTML) رو به HTML قابل‌نمایش توی ادیتور تبدیل می‌کند
 function toEditableHtml(text) {
@@ -721,19 +727,53 @@ export default function ProductsManager() {
                       ))}
                     </select>
                   </Field>
-                  <Field label="قدرت نیکوتین (برای صفحه‌ی لندینگ نیکوتین)">
-                    <select
-                      style={inputStyle}
-                      value={form.nicotine}
-                      onChange={(e) => update("nicotine", e.target.value)}
-                    >
-                      <option value="">— انتخاب نشده —</option>
-                      {Object.values(NICOTINE_LEVELS).map((n) => (
-                        <option key={n.id} value={n.id}>
-                          {n.label}
-                        </option>
-                      ))}
-                    </select>
+                  <Field label="قدرت نیکوتین (می‌تونی چند تا انتخاب کنی)">
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {Object.values(NICOTINE_LEVELS).map((n) => {
+                        const selected = parseTaxonomyValues(
+                          form.nicotine
+                        ).includes(n.id);
+
+                        return (
+                          <label
+                            key={n.id}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+                              cursor: "pointer",
+                              fontFamily: "var(--font-primary)",
+                              fontSize: 13,
+                              color: "var(--text-hi)",
+                              border: `1px solid ${
+                                selected ? "#9B5CFF" : "var(--surface2)"
+                              }`,
+                              borderRadius: 999,
+                              padding: "6px 12px",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={() => {
+                                const current = parseTaxonomyValues(
+                                  form.nicotine
+                                );
+                                const next = selected
+                                  ? current.filter((v) => v !== n.id)
+                                  : [...current, n.id];
+
+                                update(
+                                  "nicotine",
+                                  normalizeTaxonomyValues("nicotine", next)
+                                );
+                              }}
+                            />
+                            {n.label}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </Field>
                 </>
               )}

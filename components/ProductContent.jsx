@@ -34,6 +34,7 @@ import {
   FLAVORS,
   NICOTINE_LEVELS,
   TAXONOMY_CATEGORIES,
+  parseTaxonomyValues,
 } from "@/lib/taxonomy";
 import { useCart, useUser } from "./Providers";
 
@@ -1054,26 +1055,30 @@ export default function ProductContent({ product, related }) {
                 </Link>
               )}
 
-              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) && product.nicotine && NICOTINE_LEVELS[product.nicotine] && (
-                <Link
-                  href={`/shop/${resolveCategoryId(product.category)}/nicotine/${product.nicotine}`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    textDecoration: "none",
-                    background: "var(--surface)",
-                    color: "var(--text-hi)",
-                    border: "1px solid var(--surface2)",
-                    borderRadius: 999,
-                    padding: "5px 12px",
-                    fontFamily: "var(--font-primary)",
-                    fontSize: 11.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  نیکوتین {NICOTINE_LEVELS[product.nicotine].label}
-                </Link>
-              )}
+              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) &&
+                parseTaxonomyValues(product.nicotine)
+                  .filter((v) => NICOTINE_LEVELS[v])
+                  .map((v) => (
+                    <Link
+                      key={v}
+                      href={`/shop/${resolveCategoryId(product.category)}/nicotine/${v}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        textDecoration: "none",
+                        background: "var(--surface)",
+                        color: "var(--text-hi)",
+                        border: "1px solid var(--surface2)",
+                        borderRadius: 999,
+                        padding: "5px 12px",
+                        fontFamily: "var(--font-primary)",
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      نیکوتین {NICOTINE_LEVELS[v].label}
+                    </Link>
+                  ))}
 
               {(product.tags || []).map((tag, i) => (
                 <span

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { generateUniqueSlug } from "@/lib/slugify";
+import { normalizeTaxonomyValues } from "@/lib/taxonomy";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -73,8 +74,9 @@ function buildRow(body) {
     name: body.name?.trim() || "",
     category: body.category?.trim() || "",
     brand: body.brand?.trim() || "",
-    flavor: body.flavor?.trim() || "",
-    nicotine: body.nicotine?.trim() || "",
+    flavor: normalizeTaxonomyValues("flavor", body.flavor).split(",")[0] || "",
+    // نیکوتین می‌تونه چند مقدار داشته باشه (مثلاً "30mg,50mg")
+    nicotine: normalizeTaxonomyValues("nicotine", body.nicotine),
     price,
     final_price: finalPrice,
     discount: Number(body.discount) || 0,
