@@ -12,6 +12,7 @@ import SupportWidget from "@/components/SupportWidget";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import VisitTracker from "@/components/VisitTracker";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
+import { getTaxonomyMenu } from "@/lib/taxonomyMenu";
 
 import {
   SITE_URL,
@@ -194,6 +195,7 @@ export default async function RootLayout({
   children,
 }) {
   const categories = await getCategoriesWithOverrides();
+  const taxonomyMenu = await getTaxonomyMenu();
 
   return (
     <html
@@ -240,7 +242,7 @@ export default async function RootLayout({
 
             <AnnouncementBar />
 
-            <Navbar categories={categories} />
+            <Navbar categories={categories} taxonomyMenu={taxonomyMenu} />
 
             {children}
 

@@ -32,7 +32,7 @@ const LINKS = [
   { href: "/contact", label: "تماس با ما" },
 ];
 
-export default function Navbar({ categories = CATEGORIES }) {
+export default function Navbar({ categories = CATEGORIES, taxonomyMenu = {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [mobileShopOpen, setMobileShopOpen] = useState(false);
@@ -267,7 +267,7 @@ export default function Navbar({ categories = CATEGORIES }) {
       </div>
 
       <Suspense fallback={null}>
-        <CategoryBar categories={categories} />
+        <CategoryBar categories={categories} taxonomyMenu={taxonomyMenu} />
       </Suspense>
 
       <div className="search-mobile-row">
@@ -350,8 +350,11 @@ export default function Navbar({ categories = CATEGORIES }) {
                     </Link>
 
                     {CATEGORIES.map((c) => (
-                      <Link
+                      <div
                         key={c.id}
+                        style={{ display: "flex", flexDirection: "column", gap: 12 }}
+                      >
+                      <Link
                         href={`/shop/${c.id}`}
                         onClick={() =>
                           setMenuOpen(false)
@@ -373,6 +376,22 @@ export default function Navbar({ categories = CATEGORIES }) {
 
                         {c.label}
                       </Link>
+
+                      {(taxonomyMenu[c.id] || []).flatMap((g) => g.links).map((l) => (
+                        <Link
+                          key={l.href}
+                          href={l.href}
+                          onClick={() => setMenuOpen(false)}
+                          style={{
+                            color: "var(--text-mut)",
+                            fontSize: 12.5,
+                            paddingRight: 22,
+                          }}
+                        >
+                          {l.label}
+                        </Link>
+                      ))}
+                      </div>
                     ))}
                   </div>
                 )}

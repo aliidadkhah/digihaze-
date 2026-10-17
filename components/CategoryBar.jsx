@@ -7,7 +7,7 @@ import { CATEGORIES } from "@/lib/data";
 import { ChevronDown } from "lucide-react";
 import SiteImage from "./SiteImage";
 
-export default function CategoryBar({ categories = CATEGORIES }) {
+export default function CategoryBar({ categories = CATEGORIES, taxonomyMenu = {} }) {
   const pathname = usePathname();
 
   const [openId, setOpenId] = useState(null);
@@ -110,6 +110,8 @@ export default function CategoryBar({ categories = CATEGORIES }) {
       id: c.id,
       color: c.color,
       subcategories: c.subcategories || [],
+      // گروه‌های اضافه‌ی منو (قدرت نیکوتین / طعم)
+      extraGroups: taxonomyMenu[c.id] || [],
     })),
   ];
 
@@ -193,7 +195,8 @@ export default function CategoryBar({ categories = CATEGORIES }) {
             activeCategory === it.id;
 
           const hasSubs =
-            it.subcategories?.length > 0;
+            it.subcategories?.length > 0 ||
+            it.extraGroups?.length > 0;
 
           const panelOpen =
             openId === it.id;
@@ -350,6 +353,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                       zIndex: 60,
                     }}
                   >
+                    {it.subcategories?.length > 0 && (
                     <div
                       style={{
                         fontFamily:
@@ -363,6 +367,7 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                     >
                       بر اساس برند {it.label}
                     </div>
+                    )}
 
                     <div
                       style={{
@@ -473,6 +478,69 @@ export default function CategoryBar({ categories = CATEGORIES }) {
                         }
                       )}
                     </div>
+
+                    {(it.extraGroups || []).map((g) => (
+                      <div
+                        key={g.title}
+                        style={{
+                          borderTop:
+                            "1px solid var(--surface2)",
+                          marginTop: 10,
+                          paddingTop: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontFamily:
+                              "var(--font-primary), sans-serif",
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            color: "var(--text-lo)",
+                            marginBottom: 8,
+                          }}
+                        >
+                          {g.title}
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 6,
+                          }}
+                        >
+                          {g.links.map((l) => (
+                            <Link
+                              key={l.href}
+                              href={l.href}
+                              onClick={() => {
+                                setOpenId(null);
+                                setPanelPos(null);
+                              }}
+                              className="category-bar-sub-item"
+                              style={{
+                                fontFamily:
+                                  "var(--font-primary), sans-serif",
+                                fontSize: 12.5,
+                                fontWeight:
+                                  pathname === l.href ? 700 : 500,
+                                color:
+                                  pathname === l.href
+                                    ? "#9B5CFF"
+                                    : "var(--text-hi)",
+                                textDecoration: "none",
+                                border: "1px solid var(--surface2)",
+                                borderRadius: 999,
+                                padding: "5px 12px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {l.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
 
                     <div
                       style={{
