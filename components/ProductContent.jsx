@@ -1034,26 +1034,30 @@ export default function ProductContent({ product, related }) {
                 </Link>
               )}
 
-              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) && product.flavor && FLAVORS[product.flavor] && (
-                <Link
-                  href={`/shop/${resolveCategoryId(product.category)}/flavor/${product.flavor}`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    textDecoration: "none",
-                    background: "var(--surface)",
-                    color: "var(--text-hi)",
-                    border: "1px solid var(--surface2)",
-                    borderRadius: 999,
-                    padding: "5px 12px",
-                    fontFamily: "var(--font-primary)",
-                    fontSize: 11.5,
-                    fontWeight: 600,
-                  }}
-                >
-                  طعم {FLAVORS[product.flavor].label}
-                </Link>
-              )}
+              {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) &&
+                parseTaxonomyValues(product.flavor)
+                  .filter((v) => FLAVORS[v])
+                  .map((v) => (
+                    <Link
+                      key={v}
+                      href={`/shop/${resolveCategoryId(product.category)}/flavor/${v}`}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        textDecoration: "none",
+                        background: "var(--surface)",
+                        color: "var(--text-hi)",
+                        border: "1px solid var(--surface2)",
+                        borderRadius: 999,
+                        padding: "5px 12px",
+                        fontFamily: "var(--font-primary)",
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      طعم {FLAVORS[v].label}
+                    </Link>
+                  ))}
 
               {TAXONOMY_CATEGORIES.includes(resolveCategoryId(product.category)) &&
                 parseTaxonomyValues(product.nicotine)

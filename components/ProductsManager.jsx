@@ -713,19 +713,53 @@ export default function ProductsManager() {
               </Field>
               {TAXONOMY_CATEGORIES.includes(resolveCategoryId(form.category)) && (
                 <>
-                  <Field label="طعم (برای صفحه‌ی لندینگ طعم)">
-                    <select
-                      style={inputStyle}
-                      value={form.flavor}
-                      onChange={(e) => update("flavor", e.target.value)}
-                    >
-                      <option value="">— بدون طعم مشخص —</option>
-                      {Object.values(FLAVORS).map((f) => (
-                        <option key={f.id} value={f.id}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </select>
+                  <Field label="طعم (می‌تونی چند تا انتخاب کنی؛ مثلاً هم میوه‌ای هم خنک)">
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {Object.values(FLAVORS).map((n) => {
+                        const selected = parseTaxonomyValues(
+                          form.flavor
+                        ).includes(n.id);
+
+                        return (
+                          <label
+                            key={n.id}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+                              cursor: "pointer",
+                              fontFamily: "var(--font-primary)",
+                              fontSize: 13,
+                              color: "var(--text-hi)",
+                              border: `1px solid ${
+                                selected ? "#9B5CFF" : "var(--surface2)"
+                              }`,
+                              borderRadius: 999,
+                              padding: "6px 12px",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={() => {
+                                const current = parseTaxonomyValues(
+                                  form.flavor
+                                );
+                                const next = selected
+                                  ? current.filter((v) => v !== n.id)
+                                  : [...current, n.id];
+
+                                update(
+                                  "flavor",
+                                  normalizeTaxonomyValues("flavor", next)
+                                );
+                              }}
+                            />
+                            {n.label}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </Field>
                   <Field label="قدرت نیکوتین (می‌تونی چند تا انتخاب کنی)">
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

@@ -74,7 +74,8 @@ function buildRow(body) {
     name: body.name?.trim() || "",
     category: body.category?.trim() || "",
     brand: body.brand?.trim() || "",
-    flavor: normalizeTaxonomyValues("flavor", body.flavor).split(",")[0] || "",
+    // طعم هم می‌تونه چند مقدار داشته باشه (مثلاً "fruit,cool")
+    flavor: normalizeTaxonomyValues("flavor", body.flavor),
     // نیکوتین می‌تونه چند مقدار داشته باشه (مثلاً "30mg,50mg")
     nicotine: normalizeTaxonomyValues("nicotine", body.nicotine),
     price,
