@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { notifyNewOrder, notifyPaymentVerifyFailed } from "@/lib/telegram";
+import { notifyAdminSms } from "@/lib/sms-notify";
 import { zibalVerify } from "@/lib/zibal";
 import { changeOrderStatus } from "@/lib/stock";
 
@@ -94,6 +95,16 @@ export async function GET(req) {
             "Telegram error:",
             telegramError
           );
+        }
+
+        // پیامک به ادمین (فقط بار اول که وضعیت به paid می‌رسه؛
+        // با رفرش صفحه‌ی بازگشت از درگاه، پیامک تکراری نمی‌ره)
+        if (result.previousStatus !== "paid") {
+          try {
+            await notifyAdminSms("سفارش جدید");
+          } catch (smsError) {
+            console.error("SMS notify error:", smsError);
+          }
         }
       }
 
