@@ -385,7 +385,11 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
 
   const brandName = brandDisplayName(subDef);
 
-  const seoText = getCategorySeoText(category, subDef?.label || "");
+  const seoText = getCategorySeoText(
+    category,
+    subDef?.label || "",
+    subDef?.id || ""
+  );
 
   const pageHeading = sub
     ? `خرید ${seo?.name || category} ${brandName}`
