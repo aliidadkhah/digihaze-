@@ -1,4 +1,6 @@
+import Link from "next/link";
 import ShopContent from "@/components/ShopContent";
+import { getCategorySeoText } from "@/lib/categorySeoText";
 import { LEGACY_CATEGORY_MAP } from "@/lib/data";
 import { getProducts } from "@/lib/products";
 import { getCategoriesWithOverrides } from "@/lib/categorySettings";
@@ -238,6 +240,108 @@ export async function buildCategoryMetadata(rawCategory, sub = "") {
 }
 
 // =====================================================
+// متن سئو زیر محصولات (دسته / برند)
+// =====================================================
+
+function CategorySeoText({ content }) {
+  const pStyle = {
+    color: "var(--text-lo)",
+    fontSize: "14.5px",
+    lineHeight: 2,
+    margin: "0 0 12px",
+  };
+
+  return (
+    <section
+      dir="rtl"
+      aria-label={content.title}
+      style={{
+        maxWidth: "1180px",
+        margin: "48px auto 0",
+        padding: "0 20px 70px",
+      }}
+    >
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border-soft)",
+          borderRadius: "18px",
+          padding: "28px 26px",
+        }}
+      >
+        <h2
+          style={{
+            color: "var(--text-hi)",
+            fontSize: "20px",
+            fontWeight: 800,
+            margin: "0 0 14px",
+          }}
+        >
+          {content.title}
+        </h2>
+
+        {(content.intro || []).map((text, i) => (
+          <p key={`intro-${i}`} style={pStyle}>
+            {text}
+          </p>
+        ))}
+
+        {(content.sections || []).map((section) => (
+          <div key={section.heading} style={{ marginTop: "20px" }}>
+            <h3
+              style={{
+                color: "var(--text-hi)",
+                fontSize: "16px",
+                fontWeight: 700,
+                margin: "0 0 8px",
+              }}
+            >
+              {section.heading}
+            </h3>
+
+            {(section.paragraphs || []).map((text, i) => (
+              <p key={`${section.heading}-${i}`} style={pStyle}>
+                {text}
+              </p>
+            ))}
+          </div>
+        ))}
+
+        {content.links?.length > 0 && (
+          <p style={{ ...pStyle, marginTop: "18px" }}>
+            بیشتر بخوانید:{" "}
+            {content.links.map((link, i) => (
+              <span key={link.href}>
+                {i > 0 && " | "}
+                <Link
+                  href={link.href}
+                  style={{ color: "var(--neon-blue)", fontWeight: 600 }}
+                >
+                  {link.text}
+                </Link>
+              </span>
+            ))}
+          </p>
+        )}
+
+        {content.note && (
+          <p
+            style={{
+              color: "var(--text-mut)",
+              fontSize: "12.5px",
+              lineHeight: 1.9,
+              margin: "16px 0 0",
+            }}
+          >
+            {content.note}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// =====================================================
 // Category Page Body (مشترک بین /shop/[category] و /shop/[category]/[sub])
 // =====================================================
 
@@ -280,6 +384,8 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
     : null;
 
   const brandName = brandDisplayName(subDef);
+
+  const seoText = getCategorySeoText(category, subDef?.label || "");
 
   const pageHeading = sub
     ? `خرید ${seo?.name || category} ${brandName}`
@@ -434,6 +540,9 @@ export async function CategoryPageBody({ rawCategory, sub = "" }) {
         {!sub && TAXONOMY_CATEGORIES.includes(category) && (
           <TaxonomyLinks products={products} category={category} />
         )}
+
+        {/* متن سئو زیر محصولات */}
+        {seoText && <CategorySeoText content={seoText} />}
       </main>
     </>
   );
