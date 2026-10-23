@@ -17,11 +17,77 @@ async function verifyAdmin(request) {
   return data.user;
 }
 
-function dayKey(date) {
-  // کلید روز به وقت تهران (UTC+03:30) تا نمودار با روزهای واقعی کاربر همخوانی داشته باشه
-  const tehran = new Date(date.getTime() + (3 * 60 + 30) * 60 * 1000);
-  return tehran.toISOString().slice(0, 10);
+// ایران ساعت تابستانی نداره؛ اختلاف همیشه ثابت +03:30 هست
+const OFFSET = (3 * 60 + 30) * 60 * 1000;
+const DAY = 24 * 60 * 60 * 1000;
+
+// شروع روز (۰۰:۰۰ به وقت تهران) برای یک لحظه، به‌صورت میلی‌ثانیه‌ی UTC
+function tehranMidnight(ms) {
+  return Math.floor((ms + OFFSET) / DAY) * DAY - OFFSET;
 }
+
+function parseDate(str) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || "");
+  if (!m) return null;
+  return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) - OFFSET;
+}
+
+function resolveRange(searchParams) {
+  const now = Date.now();
+  const todayStart = tehranMidnight(now);
+  const range = searchParams.get("range") || "7d";
+
+  let from;
+  let to;
+  let prevFrom;
+  let prevTo;
+
+  if (range === "today") {
+    from = todayStart;
+    to = now;
+    prevFrom = from - DAY;
+    prevTo = prevFrom + (to - from);
+  } else if (range === "yesterday") {
+    from = todayStart - DAY;
+    to = todayStart;
+    prevFrom = from - DAY;
+    prevTo = from;
+  } else if (range === "custom") {
+    let f = parseDate(searchParams.get("from"));
+    let t = parseDate(searchParams.get("to"));
+    if (f === null || t === null) {
+      f = todayStart - 6 * DAY;
+      t = todayStart;
+    }
+    if (t < f) [f, t] = [t, f];
+    from = f;
+    to = t + DAY;
+    // حداکثر ۳۶۶ روز
+    if (to - from > 366 * DAY) from = to - 366 * DAY;
+    prevFrom = from - (to - from);
+    prevTo = from;
+  } else {
+    const days = range === "90d" ? 90 : range === "30d" ? 30 : 7;
+    from = todayStart - (days - 1) * DAY;
+    to = todayStart + DAY;
+    prevFrom = from - days * DAY;
+    prevTo = from;
+  }
+
+  const gran = to - from <= DAY ? "hour" : "day";
+
+  return {
+    from: new Date(from).toISOString(),
+    to: new Date(to).toISOString(),
+    prevFrom: new Date(prevFrom).toISOString(),
+    prevTo: new Date(prevTo).toISOString(),
+    gran,
+    range,
+  };
+}
+
+const MIGRATION_HINT =
+  "احتمالاً مایگریشن آمار هنوز اجرا نشده. فایل supabase/analytics_migration.sql رو توی Supabase > SQL Editor اجرا کن.";
 
 export async function GET(request) {
   const user = await verifyAdmin(request);
@@ -30,103 +96,34 @@ export async function GET(request) {
     return NextResponse.json({ error: "دسترسی غیرمجاز" }, { status: 401 });
   }
 
-  const now = new Date();
-  const since30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const { searchParams } = new URL(request.url);
 
-  // تعداد کل بازدیدها از اول (فقط شمارش، بدون دانلود ردیف‌ها)
-  const totalCountRes = await supabaseAdmin
-    .from("page_views")
-    .select("id", { count: "exact", head: true });
+  // آمار زنده (کاربران آنلاین)
+  if (searchParams.get("realtime") === "1") {
+    const { data, error } = await supabaseAdmin.rpc("analytics_realtime");
 
-  if (totalCountRes.error) {
-    console.error("ANALYTICS total count error:", totalCountRes.error);
-    return NextResponse.json(
-      {
-        error: totalCountRes.error.message,
-        hint: "احتمالاً جدول page_views هنوز ساخته نشده (فایل supabase/analytics_migration.sql رو اجرا کن).",
-      },
-      { status: 500 }
-    );
+    if (error) {
+      console.error("ANALYTICS realtime error:", error);
+      return NextResponse.json({ error: error.message, hint: MIGRATION_HINT }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
   }
 
-  // داده‌ی ۳۰ روز اخیر برای محاسبه‌ی بقیه‌ی آمارها
-  const { data: rows, error } = await supabaseAdmin
-    .from("page_views")
-    .select("path, visitor_id, created_at")
-    .gte("created_at", since30.toISOString())
-    .limit(30000);
+  const r = resolveRange(searchParams);
+
+  const { data, error } = await supabaseAdmin.rpc("analytics_overview", {
+    p_from: r.from,
+    p_to: r.to,
+    p_prev_from: r.prevFrom,
+    p_prev_to: r.prevTo,
+    p_gran: r.gran,
+  });
 
   if (error) {
-    console.error("ANALYTICS rows error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("ANALYTICS overview error:", error);
+    return NextResponse.json({ error: error.message, hint: MIGRATION_HINT }, { status: 500 });
   }
 
-  const todayKey = dayKey(now);
-  const since7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-  const todayVisitors = new Set();
-  const week7Views = [];
-  const week7Visitors = new Set();
-  const month30Visitors = new Set();
-  const pathCounts7 = {};
-  const perDay = {}; // { "YYYY-MM-DD": { views: n, visitors: Set } }
-
-  for (const row of rows || []) {
-    const created = new Date(row.created_at);
-    const key = dayKey(created);
-
-    month30Visitors.add(row.visitor_id);
-
-    if (!perDay[key]) perDay[key] = { views: 0, visitors: new Set() };
-    perDay[key].views += 1;
-    perDay[key].visitors.add(row.visitor_id);
-
-    if (key === todayKey) {
-      todayVisitors.add(row.visitor_id);
-    }
-
-    if (created >= since7) {
-      week7Views.push(row);
-      week7Visitors.add(row.visitor_id);
-      pathCounts7[row.path] = (pathCounts7[row.path] || 0) + 1;
-    }
-  }
-
-  const todayViewsCount = (rows || []).filter((r) => dayKey(new Date(r.created_at)) === todayKey).length;
-
-  const topPages = Object.entries(pathCounts7)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([path, views]) => ({ path, views }));
-
-  // سری روزانه برای نمودار (۱۴ روز اخیر)
-  const daily = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const key = dayKey(d);
-    const entry = perDay[key];
-    daily.push({
-      date: key,
-      views: entry?.views || 0,
-      visitors: entry ? entry.visitors.size : 0,
-    });
-  }
-
-  return NextResponse.json({
-    totalAllTime: totalCountRes.count || 0,
-    today: {
-      views: todayViewsCount,
-      visitors: todayVisitors.size,
-    },
-    last7Days: {
-      views: week7Views.length,
-      visitors: week7Visitors.size,
-    },
-    last30Days: {
-      views: (rows || []).length,
-      visitors: month30Visitors.size,
-    },
-    topPages,
-    daily,
-  });
+  return NextResponse.json({ ...data, meta: r });
 }
