@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { withInvalidate } from "@/lib/serverCache";
 
 export const dynamic = "force-dynamic";
 
@@ -161,7 +162,7 @@ export async function GET(request) {
 // body: { type: "question" | "review" | "comment", id, answer }
 // (اگه type ارسال نشه، مثل قبل پاسخ به «سوال» حساب می‌شه)
 // =====================================================
-export async function PATCH(request) {
+async function PATCH_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -223,7 +224,7 @@ export async function PATCH(request) {
 // حذف نظر یا سوال
 // /api/admin/feedback?type=comment|review|question&id=...
 // =====================================================
-export async function DELETE(request) {
+async function DELETE_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -260,3 +261,7 @@ export async function DELETE(request) {
     );
   }
 }
+
+// بعد از هر تغییر، کش سمت سرور پاک می‌شه تا سایت بلافاصله داده‌ی تازه رو نشون بده
+export const PATCH = withInvalidate(PATCH_handler, ["products:", "taxonomy:", "posts:"]);
+export const DELETE = withInvalidate(DELETE_handler, ["products:", "taxonomy:", "posts:"]);

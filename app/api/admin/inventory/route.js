@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { withInvalidate } from "@/lib/serverCache";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -90,7 +91,7 @@ export async function GET(request) {
 //   action: "adjust"    → productId, color, delta (مثبت = ورود کالا، منفی = فروش/خروج)
 //   action: "set"       → productId, color, value (عدد دقیق، یا null یعنی نامحدود)
 //   action: "available" → productId, available (فقط برای محصولاتی که رنگ/مدل ندارن)
-export async function POST(request) {
+async function POST_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -236,3 +237,6 @@ export async function POST(request) {
     );
   }
 }
+
+// بعد از هر تغییر، کش سمت سرور پاک می‌شه تا سایت بلافاصله داده‌ی تازه رو نشون بده
+export const POST = withInvalidate(POST_handler, ["products:", "taxonomy:"]);

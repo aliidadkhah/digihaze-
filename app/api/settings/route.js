@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { withInvalidate } from "@/lib/serverCache";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -71,7 +72,7 @@ export async function GET() {
 // =====================================================
 // ویرایش تنظیمات سایت (فقط ادمین)
 // =====================================================
-export async function PATCH(request) {
+async function PATCH_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -172,3 +173,6 @@ export async function PATCH(request) {
     );
   }
 }
+
+// بعد از هر تغییر، کش سمت سرور پاک می‌شه تا سایت بلافاصله داده‌ی تازه رو نشون بده
+export const PATCH = withInvalidate(PATCH_handler, ["categories:"]);

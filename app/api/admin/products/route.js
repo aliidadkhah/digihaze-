@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { generateUniqueSlug } from "@/lib/slugify";
 import { normalizeTaxonomyValues } from "@/lib/taxonomy";
+import { withInvalidate } from "@/lib/serverCache";
 
 // بررسی توکن ادمین (Bearer token که از Supabase Auth میاد)
 async function verifyAdmin(request) {
@@ -122,7 +123,7 @@ function withoutTaxonomy(row) {
 }
 
 // ایجاد محصول جدید
-export async function POST(request) {
+async function POST_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -193,7 +194,7 @@ export async function POST(request) {
 }
 
 // ویرایش محصول
-export async function PATCH(request) {
+async function PATCH_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -259,7 +260,7 @@ export async function PATCH(request) {
 }
 
 // حذف محصول
-export async function DELETE(request) {
+async function DELETE_handler(request) {
   const user = await verifyAdmin(request);
 
   if (!user) {
@@ -296,3 +297,8 @@ export async function DELETE(request) {
     );
   }
 }
+
+// بعد از هر تغییر، کش سمت سرور پاک می‌شه تا سایت بلافاصله داده‌ی تازه رو نشون بده
+export const POST = withInvalidate(POST_handler, ["products:", "taxonomy:"]);
+export const PATCH = withInvalidate(PATCH_handler, ["products:", "taxonomy:"]);
+export const DELETE = withInvalidate(DELETE_handler, ["products:", "taxonomy:"]);
