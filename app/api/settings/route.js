@@ -62,8 +62,21 @@ export async function GET() {
 
   if (error) {
     console.error("SETTINGS FETCH ERROR:", error);
-    // اگر جدول تنظیمات هنوز ساخته نشده، بجای خطا مقادیر پیش‌فرض برگردون
-    return NextResponse.json(withDefaults(null));
+
+    // فقط وقتی جدول واقعاً وجود نداره مقادیر پیش‌فرض برمی‌گردونیم.
+    // اگه Supabase در دسترس نبود (تایم‌اوت/قطعی)، خطا برمی‌گردونیم تا پنل ادمین
+    // مقادیر پیش‌فرض رو به‌جای تنظیمات واقعی نشون نده و بعداً روی اون‌ها ذخیره نکنه.
+    const tableMissing =
+      error.code === "42P01" || error.code === "PGRST205";
+
+    if (tableMissing) {
+      return NextResponse.json(withDefaults(null));
+    }
+
+    return NextResponse.json(
+      { error: "Settings temporarily unavailable" },
+      { status: 503 }
+    );
   }
 
   return NextResponse.json(withDefaults(data));
@@ -85,13 +98,27 @@ async function PATCH_handler(request) {
     // اول وضعیت فعلی رو می‌خونیم تا فیلدهایی که توی این درخواست
     // نیومدن (مثلا وقتی از تب دیگه‌ای ذخیره می‌کنیم) با مقدار
     // خالی/پیش‌فرض بازنویسی نشن
-    const { data: current } = await supabaseAdmin
+    const { data: current, error: currentError } = await supabaseAdmin
       .from("settings")
       .select(
         "announcement_text, announcement_color, announcement_active, shipping_methods_enabled, payment_methods_enabled, categories_subcategories"
       )
       .eq("id", 1)
       .maybeSingle();
+
+    // اگه خوندن تنظیمات فعلی شکست خورد (قطعی دیتاسنتر/تایم‌اوت)، ذخیره نمی‌کنیم؛
+    // وگرنه تنظیمات واقعی (مثل زیردسته‌ها) با مقادیر پیش‌فرض بازنویسی می‌شدن.
+    if (
+      currentError &&
+      currentError.code !== "42P01" &&
+      currentError.code !== "PGRST205"
+    ) {
+      console.error("SETTINGS READ BEFORE WRITE ERROR:", currentError);
+      return NextResponse.json(
+        { error: "ارتباط با دیتابیس برقرار نیست؛ چیزی ذخیره نشد. کمی بعد دوباره امتحان کن." },
+        { status: 503 }
+      );
+    }
 
     const row = {
       id: 1,
