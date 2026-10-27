@@ -8,19 +8,6 @@ import {
   useCallback,
 } from "react";
 
-import { createClient } from "@supabase/supabase-js";
-
-
-// =====================================================
-// Supabase Client
-// =====================================================
-
-function getSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-}
 
 
 // =====================================================
@@ -232,56 +219,22 @@ export default function ProductsProvider({
       setError(null);
 
       // -----------------------------------------------
-      // بررسی Environment Variables
+      // دریافت محصولات از «سرور خود سایت»
+      //
+      // قبلاً مرورگر هر بازدیدکننده مستقیم به Supabase وصل می‌شد؛ با اینترنت
+      // بین‌المللی ناپایدار ایران این باعث می‌شد محصولات لود نشن. حالا مرورگر
+      // فقط با سرور خود سایت حرف می‌زنه و سرور (با کش) از دیتابیس می‌خونه.
       // -----------------------------------------------
 
-      const url =
-        process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const res = await fetch("/api/products-raw", {
+        cache: "no-store",
+      });
 
-      const key =
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-      if (!url || !key) {
-        throw new Error(
-          "Supabase environment variables are missing."
-        );
+      if (!res.ok) {
+        throw new Error("خطا در دریافت محصولات");
       }
 
-      // -----------------------------------------------
-      // ساخت Client
-      // -----------------------------------------------
-
-      const supabase =
-        getSupabaseClient();
-
-      // -----------------------------------------------
-      // دریافت محصولات
-      // -----------------------------------------------
-
-      const {
-        data,
-        error: supabaseError,
-      } = await supabase
-        .from("products")
-        .select("*")
-        // ناموجودها آخر لیست بیان (available=false بعد از available=true)
-        .order("available", {
-          ascending: false,
-        })
-        // بین محصولات هم‌وضعیت، جدیدترین‌ها اول (بر اساس تاریخ ثبت)
-        .order("created_at", {
-          ascending: false,
-        })
-        // در آخر، اگه created_at برابر بود، ترتیب دستی ادمین
-        .order("sort_order", {
-          ascending: true,
-        });
-
-      if (supabaseError) {
-        throw new Error(
-          supabaseError.message
-        );
-      }
+      const data = await res.json();
 
       // -----------------------------------------------
       // تبدیل داده‌ها
