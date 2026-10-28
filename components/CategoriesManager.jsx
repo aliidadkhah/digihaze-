@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ListTree, Loader2, Check, Plus, X, UploadCloud } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { fileStorage, absoluteUrl } from "@/lib/fileStorage";
 import { IMAGES_BUCKET } from "@/lib/images";
 import { CATEGORIES, applySubcategoryOverrides } from "@/lib/data";
 import SiteImage from "./SiteImage";
@@ -64,7 +65,7 @@ export default function CategoriesManager() {
     setError("");
 
     const filename = `brand-logos/${catId}-${subId}`;
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await fileStorage
       .from(IMAGES_BUCKET)
       .upload(filename, file, {
         upsert: true,
@@ -79,12 +80,12 @@ export default function CategoriesManager() {
       return;
     }
 
-    const { data } = supabase.storage
+    const { data } = fileStorage
       .from(IMAGES_BUCKET)
       .getPublicUrl(filename);
 
     // برای اینکه کش مرورگر عکس قدیمی رو نشون نده
-    const logoUrl = `${data.publicUrl}?v=${Date.now()}`;
+    const logoUrl = `${absoluteUrl(data.publicUrl)}?v=${Date.now()}`;
 
     setCategories((prev) =>
       prev.map((c) =>

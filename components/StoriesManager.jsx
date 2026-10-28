@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { fileStorage, absoluteUrl } from "@/lib/fileStorage";
 import {
   PRODUCT_IMAGES_BUCKET,
   uploadProductImage,
@@ -77,7 +78,7 @@ async function uploadVideo(file) {
   const ext = (file.name.split(".").pop() || "mp4").toLowerCase();
   const filename = `stories/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-  const { error } = await supabase.storage
+  const { error } = await fileStorage
     .from(PRODUCT_IMAGES_BUCKET)
     .upload(filename, file, {
       cacheControl: "31536000",
@@ -86,8 +87,8 @@ async function uploadVideo(file) {
 
   if (error) throw error;
 
-  const { data } = supabase.storage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(filename);
-  return data?.publicUrl || null;
+  const { data } = fileStorage.from(PRODUCT_IMAGES_BUCKET).getPublicUrl(filename);
+  return data?.publicUrl ? absoluteUrl(data.publicUrl) : null;
 }
 
 export default function StoriesManager() {

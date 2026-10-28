@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { UploadCloud, Check, Loader2, RotateCcw } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { fileStorage } from "@/lib/fileStorage";
 import { IMAGES_BUCKET, filenameFromPath } from "@/lib/images";
 import { IMAGE_SLOTS } from "@/lib/imageSlots";
 import SiteImage from "./SiteImage";
@@ -20,7 +20,7 @@ export default function ImagesManager() {
     setErrorKey(null);
     setDoneKey(null);
 
-    const { error } = await supabase.storage
+    const { error } = await fileStorage
       .from(IMAGES_BUCKET)
       .upload(filename, file, {
         upsert: true,
@@ -48,7 +48,7 @@ export default function ImagesManager() {
     setErrorKey(null);
     setDoneKey(null);
 
-    const { error } = await supabase.storage
+    const { error } = await fileStorage
       .from(IMAGES_BUCKET)
       .remove([filename]);
 
